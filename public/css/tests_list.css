@@ -1,0 +1,27 @@
+.test-list a:link, .test-list a:visited {
+    display: block;
+    color: #000000;
+    text-decoration: none;
+}
+
+.test-list a:hover {
+    display: block;
+    color: #05585b;
+    text-decoration: none;
+}
+
+
+.none-tests {
+    color:#0aa89e;
+}
+
+.test-list:hover{
+    box-shadow: 0 0 10px rgba(0,0,0,0.5);
+}
+
+.dropdown-content{
+    position:relative;
+    left: 500px;
+}
+
+

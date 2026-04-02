@@ -1,0 +1,24 @@
+{
+  "total_targets": 101,
+  "guest_failed": [],
+  "auth_failed": [
+    {
+      "uri": "messages",
+      "status": 403,
+      "final_url": "http://localhost:8080/messages",
+      "failed": true
+    },
+    {
+      "uri": "messages/create",
+      "status": 403,
+      "final_url": "http://localhost:8080/messages/create",
+      "failed": true
+    },
+    {
+      "uri": "steward/attendance",
+      "status": 403,
+      "final_url": "http://localhost:8080/steward/attendance",
+      "failed": true
+    }
+  ]
+}

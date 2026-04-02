@@ -1,0 +1,3776 @@
+[
+    {
+        "methods": [
+            "GET"
+        ],
+        "uri": "api\/user",
+        "name": null,
+        "action": "Closure",
+        "middleware": [
+            "api",
+            "auth:api"
+        ]
+    },
+    {
+        "methods": [
+            "GET"
+        ],
+        "uri": "\/",
+        "name": null,
+        "action": "Closure",
+        "middleware": [
+            "web"
+        ]
+    },
+    {
+        "methods": [
+            "GET"
+        ],
+        "uri": "public",
+        "name": null,
+        "action": "Closure",
+        "middleware": [
+            "web"
+        ]
+    },
+    {
+        "methods": [
+            "GET"
+        ],
+        "uri": "home",
+        "name": "home",
+        "action": "App\\Http\\Controllers\\HomeController@get_home",
+        "middleware": [
+            "web",
+            "auth"
+        ]
+    },
+    {
+        "methods": [
+            "GET"
+        ],
+        "uri": "in-process",
+        "name": "in_process",
+        "action": "Closure",
+        "middleware": [
+            "web"
+        ]
+    },
+    {
+        "methods": [
+            "GET"
+        ],
+        "uri": "no-access",
+        "name": "no_access",
+        "action": "Closure",
+        "middleware": [
+            "web"
+        ]
+    },
+    {
+        "methods": [
+            "GET"
+        ],
+        "uri": "tests\/single-test\/{active_test_id}\/{active_is_adaptive}\/{desired_test_id}\/{desired_is_adaptive}",
+        "name": "single_test",
+        "action": "Closure",
+        "middleware": [
+            "web"
+        ]
+    },
+    {
+        "methods": [
+            "GET"
+        ],
+        "uri": "tests\/drop-opened-test\/{id_test_new}",
+        "name": "drop_opened_test",
+        "action": "Closure",
+        "middleware": [
+            "web"
+        ]
+    },
+    {
+        "methods": [
+            "GET"
+        ],
+        "uri": "tests\/no-attempts\/{max_test_points}\/{total}",
+        "name": "no_attempts",
+        "action": "Closure",
+        "middleware": [
+            "web"
+        ]
+    },
+    {
+        "methods": [
+            "POST"
+        ],
+        "uri": "auth\/login",
+        "name": "login",
+        "action": "App\\Http\\Controllers\\Auth\\LoginController@login",
+        "middleware": [
+            "web",
+            "guest"
+        ]
+    },
+    {
+        "methods": [
+            "GET"
+        ],
+        "uri": "auth\/logout",
+        "name": "logout",
+        "action": "App\\Http\\Controllers\\Auth\\LoginController@logout",
+        "middleware": [
+            "web"
+        ]
+    },
+    {
+        "methods": [
+            "GET"
+        ],
+        "uri": "auth\/login",
+        "name": "login",
+        "action": "App\\Http\\Controllers\\HomeController@get_home",
+        "middleware": [
+            "web",
+            "auth"
+        ]
+    },
+    {
+        "methods": [
+            "POST"
+        ],
+        "uri": "auth\/register",
+        "name": "register",
+        "action": "App\\Http\\Controllers\\Auth\\RegisterController@register",
+        "middleware": [
+            "web",
+            "guest"
+        ]
+    },
+    {
+        "methods": [
+            "GET"
+        ],
+        "uri": "password\/email",
+        "name": "password.email",
+        "action": "App\\Http\\Controllers\\Auth\\ForgotPasswordController@showLinkRequestForm",
+        "middleware": [
+            "web",
+            "guest"
+        ]
+    },
+    {
+        "methods": [
+            "POST"
+        ],
+        "uri": "password\/email",
+        "name": "passEmailPost",
+        "action": "App\\Http\\Controllers\\Auth\\ForgotPasswordController@sendResetLinkEmail",
+        "middleware": [
+            "web",
+            "guest"
+        ]
+    },
+    {
+        "methods": [
+            "GET"
+        ],
+        "uri": "password\/reset\/{token}",
+        "name": "password.reset",
+        "action": "App\\Http\\Controllers\\Auth\\ResetPasswordController@showResetForm",
+        "middleware": [
+            "web",
+            "guest"
+        ]
+    },
+    {
+        "methods": [
+            "POST"
+        ],
+        "uri": "password\/reset",
+        "name": "password.request",
+        "action": "App\\Http\\Controllers\\Auth\\ResetPasswordController@reset",
+        "middleware": [
+            "web",
+            "guest"
+        ]
+    },
+    {
+        "methods": [
+            "GET"
+        ],
+        "uri": "tests\/train",
+        "name": "train_tests",
+        "action": "App\\Http\\Controllers\\TestController@trainTests",
+        "middleware": [
+            "web",
+            "general_auth"
+        ]
+    },
+    {
+        "methods": [
+            "GET"
+        ],
+        "uri": "tests\/adaptive",
+        "name": "adaptive_tests",
+        "action": "App\\Http\\Controllers\\AdaptiveTestController@adaptiveTests",
+        "middleware": [
+            "web",
+            "general_auth",
+            "student"
+        ]
+    },
+    {
+        "methods": [
+            "GET"
+        ],
+        "uri": "tests\/control",
+        "name": "control_tests",
+        "action": "App\\Http\\Controllers\\TestController@controlTests",
+        "middleware": [
+            "web",
+            "general_auth",
+            "student"
+        ]
+    },
+    {
+        "methods": [
+            "GET"
+        ],
+        "uri": "questions\/show-test\/{id_test}",
+        "name": "question_showtest",
+        "action": "App\\Http\\Controllers\\TestController@showViews",
+        "middleware": [
+            "web",
+            "general_auth",
+            "single_test",
+            "have_attempts",
+            "test_is_available"
+        ]
+    },
+    {
+        "methods": [
+            "GET"
+        ],
+        "uri": "questions\/show-adaptive-test\/{id_test}",
+        "name": "show_adaptive_test",
+        "action": "App\\Http\\Controllers\\TestController@showAdaptiveTest",
+        "middleware": [
+            "web",
+            "general_auth",
+            "single_test",
+            "have_attempts",
+            "test_is_available"
+        ]
+    },
+    {
+        "methods": [
+            "PATCH"
+        ],
+        "uri": "questions\/check-test",
+        "name": "question_checktest",
+        "action": "App\\Http\\Controllers\\TestController@checkTest",
+        "middleware": [
+            "web"
+        ]
+    },
+    {
+        "methods": [
+            "GET"
+        ],
+        "uri": "questions\/virtual-student\/{id_test}",
+        "name": "traditional_test_virtual_student",
+        "action": "App\\Http\\Controllers\\TestController@virtualStudent",
+        "middleware": [
+            "web",
+            "general_auth",
+            "student"
+        ]
+    },
+    {
+        "methods": [
+            "POST"
+        ],
+        "uri": "tests\/drop",
+        "name": "drop_test",
+        "action": "App\\Http\\Controllers\\TestController@dropTest",
+        "middleware": [
+            "web",
+            "general_auth"
+        ]
+    },
+    {
+        "methods": [
+            "POST"
+        ],
+        "uri": "tests\/get-protocol",
+        "name": "get_protocol",
+        "action": "App\\Http\\Controllers\\TestController@getProtocol",
+        "middleware": [
+            "web",
+            "general_auth"
+        ]
+    },
+    {
+        "methods": [
+            "GET"
+        ],
+        "uri": "adaptive-tests\/prepare\/{test_id}",
+        "name": "prepare_adaptive_test",
+        "action": "App\\Http\\Controllers\\AdaptiveTestController@prepare",
+        "middleware": [
+            "web",
+            "general_auth",
+            "single_test",
+            "have_attempts",
+            "test_is_available"
+        ]
+    },
+    {
+        "methods": [
+            "POST"
+        ],
+        "uri": "adaptive-tests\/init\/{test_id}",
+        "name": "init_adaptive_test",
+        "action": "App\\Http\\Controllers\\AdaptiveTestController@init",
+        "middleware": [
+            "web",
+            "general_auth",
+            "student"
+        ]
+    },
+    {
+        "methods": [
+            "GET"
+        ],
+        "uri": "adaptive-tests\/virtual-student\/{test_id}",
+        "name": "adaptive_test_virtual_student",
+        "action": "App\\Http\\Controllers\\AdaptiveTestController@virtualStudent",
+        "middleware": [
+            "web",
+            "general_auth",
+            "student"
+        ]
+    },
+    {
+        "methods": [
+            "GET"
+        ],
+        "uri": "adaptive-tests\/show\/{question_id}",
+        "name": "show_adaptive_test",
+        "action": "App\\Http\\Controllers\\AdaptiveTestController@showQuestion",
+        "middleware": [
+            "web",
+            "general_auth",
+            "student"
+        ]
+    },
+    {
+        "methods": [
+            "GET"
+        ],
+        "uri": "adaptive-tests\/show",
+        "name": "show_adaptive_test_immediate",
+        "action": "App\\Http\\Controllers\\AdaptiveTestController@showQuestionImmediate",
+        "middleware": [
+            "web",
+            "general_auth",
+            "student"
+        ]
+    },
+    {
+        "methods": [
+            "PATCH"
+        ],
+        "uri": "adaptive-tests\/check",
+        "name": "check_adaptive_test",
+        "action": "App\\Http\\Controllers\\AdaptiveTestController@checkQuestion",
+        "middleware": [
+            "web",
+            "general_auth",
+            "student"
+        ]
+    },
+    {
+        "methods": [
+            "GET"
+        ],
+        "uri": "adaptive-tests\/results",
+        "name": "result_adaptive_test",
+        "action": "App\\Http\\Controllers\\AdaptiveTestController@showResults",
+        "middleware": [
+            "web",
+            "general_auth",
+            "student"
+        ]
+    },
+    {
+        "methods": [
+            "POST"
+        ],
+        "uri": "adaptive-tests\/drop",
+        "name": "drop_adaptive_test",
+        "action": "App\\Http\\Controllers\\AdaptiveTestController@dropTest",
+        "middleware": [
+            "web",
+            "general_auth",
+            "student"
+        ]
+    },
+    {
+        "methods": [
+            "GET"
+        ],
+        "uri": "questions",
+        "name": "question_index",
+        "action": "App\\Http\\Controllers\\QuestionController@index",
+        "middleware": [
+            "web",
+            "general_auth",
+            "admin"
+        ]
+    },
+    {
+        "methods": [
+            "GET"
+        ],
+        "uri": "questions\/create",
+        "name": "question_create",
+        "action": "App\\Http\\Controllers\\QuestionController@create",
+        "middleware": [
+            "web",
+            "general_auth",
+            "admin"
+        ]
+    },
+    {
+        "methods": [
+            "GET"
+        ],
+        "uri": "questions\/edit",
+        "name": "questions_list",
+        "action": "App\\Http\\Controllers\\QuestionController@editList",
+        "middleware": [
+            "web",
+            "general_auth",
+            "admin"
+        ]
+    },
+    {
+        "methods": [
+            "GET"
+        ],
+        "uri": "questions\/edit\/search",
+        "name": "questions_find",
+        "action": "App\\Http\\Controllers\\QuestionController@find",
+        "middleware": [
+            "web",
+            "general_auth",
+            "admin"
+        ]
+    },
+    {
+        "methods": [
+            "POST"
+        ],
+        "uri": "questions\/edit\/search",
+        "name": "questions_find",
+        "action": "App\\Http\\Controllers\\QuestionController@find",
+        "middleware": [
+            "web",
+            "general_auth",
+            "admin"
+        ]
+    },
+    {
+        "methods": [
+            "GET"
+        ],
+        "uri": "questions\/profile\/{id_question}",
+        "name": "question_profile",
+        "action": "App\\Http\\Controllers\\QuestionController@profile",
+        "middleware": [
+            "web",
+            "general_auth",
+            "admin"
+        ]
+    },
+    {
+        "methods": [
+            "GET"
+        ],
+        "uri": "questions\/edit\/{id_question}",
+        "name": "question_edit",
+        "action": "App\\Http\\Controllers\\QuestionController@edit",
+        "middleware": [
+            "web",
+            "general_auth",
+            "admin"
+        ]
+    },
+    {
+        "methods": [
+            "POST"
+        ],
+        "uri": "questions\/edit",
+        "name": "question_update",
+        "action": "App\\Http\\Controllers\\QuestionController@update",
+        "middleware": [
+            "web",
+            "general_auth",
+            "admin"
+        ]
+    },
+    {
+        "methods": [
+            "POST"
+        ],
+        "uri": "questions\/delete",
+        "name": "question_delete",
+        "action": "App\\Http\\Controllers\\QuestionController@delete",
+        "middleware": [
+            "web",
+            "general_auth",
+            "admin"
+        ]
+    },
+    {
+        "methods": [
+            "POST"
+        ],
+        "uri": "get-theme",
+        "name": "get_theme",
+        "action": "App\\Http\\Controllers\\QuestionController@getTheme",
+        "middleware": [
+            "web"
+        ]
+    },
+    {
+        "methods": [
+            "POST"
+        ],
+        "uri": "get-type",
+        "name": "get_type",
+        "action": "App\\Http\\Controllers\\QuestionController@getType",
+        "middleware": [
+            "web"
+        ]
+    },
+    {
+        "methods": [
+            "POST"
+        ],
+        "uri": "questions\/create",
+        "name": "question_add",
+        "action": "App\\Http\\Controllers\\QuestionController@add",
+        "middleware": [
+            "web"
+        ]
+    },
+    {
+        "methods": [
+            "GET"
+        ],
+        "uri": "tests\/create\/step1",
+        "name": "test_create",
+        "action": "App\\Http\\Controllers\\TestController@create",
+        "middleware": [
+            "web",
+            "general_auth",
+            "admin"
+        ]
+    },
+    {
+        "methods": [
+            "POST"
+        ],
+        "uri": "tests\/create\/step1",
+        "name": "test_finish_first_creation_step",
+        "action": "App\\Http\\Controllers\\TestController@finishFstCreationStep",
+        "middleware": [
+            "web"
+        ]
+    },
+    {
+        "methods": [
+            "GET"
+        ],
+        "uri": "tests\/create\/step2",
+        "name": "test_create_step2",
+        "action": "App\\Http\\Controllers\\TestController@createSndStep",
+        "middleware": [
+            "web",
+            "general_auth",
+            "admin"
+        ]
+    },
+    {
+        "methods": [
+            "POST"
+        ],
+        "uri": "tests\/create\/step2",
+        "name": "test_add",
+        "action": "App\\Http\\Controllers\\TestController@add",
+        "middleware": [
+            "web"
+        ]
+    },
+    {
+        "methods": [
+            "POST"
+        ],
+        "uri": "tests\/validate-test-structure",
+        "name": "validate_test_structure",
+        "action": "App\\Http\\Controllers\\TestController@validateTestStructure",
+        "middleware": [
+            "web"
+        ]
+    },
+    {
+        "methods": [
+            "POST"
+        ],
+        "uri": "get-theme-for-test",
+        "name": "get_theme_for_test",
+        "action": "App\\Http\\Controllers\\TestController@getTheme",
+        "middleware": [
+            "web"
+        ]
+    },
+    {
+        "methods": [
+            "POST"
+        ],
+        "uri": "get-amount",
+        "name": "get_amount",
+        "action": "App\\Http\\Controllers\\TestController@getAmount",
+        "middleware": [
+            "web"
+        ]
+    },
+    {
+        "methods": [
+            "GET"
+        ],
+        "uri": "retest",
+        "name": "retest_index",
+        "action": "App\\Http\\Controllers\\TeacherRetestController@index",
+        "middleware": [
+            "web"
+        ]
+    },
+    {
+        "methods": [
+            "POST"
+        ],
+        "uri": "retest",
+        "name": "retest_change",
+        "action": "App\\Http\\Controllers\\TeacherRetestController@change",
+        "middleware": [
+            "web"
+        ]
+    },
+    {
+        "methods": [
+            "GET"
+        ],
+        "uri": "tests\/test-list",
+        "name": "tests_list",
+        "action": "App\\Http\\Controllers\\TestController@editList",
+        "middleware": [
+            "web"
+        ]
+    },
+    {
+        "methods": [
+            "GET"
+        ],
+        "uri": "tests\/profile\/{id_question}",
+        "name": "test_profile",
+        "action": "App\\Http\\Controllers\\TestController@profile",
+        "middleware": [
+            "web",
+            "general_auth",
+            "admin"
+        ]
+    },
+    {
+        "methods": [
+            "POST"
+        ],
+        "uri": "tests\/update-general-settings",
+        "name": "update_general_settings",
+        "action": "App\\Http\\Controllers\\TestController@updateSettings",
+        "middleware": [
+            "web"
+        ]
+    },
+    {
+        "methods": [
+            "POST"
+        ],
+        "uri": "tests\/edit",
+        "name": "test_update",
+        "action": "App\\Http\\Controllers\\TestController@update",
+        "middleware": [
+            "web"
+        ]
+    },
+    {
+        "methods": [
+            "POST"
+        ],
+        "uri": "tests\/clone",
+        "name": "tests_clone",
+        "action": "App\\Http\\Controllers\\TestController@cloneTest",
+        "middleware": [
+            "web"
+        ]
+    },
+    {
+        "methods": [
+            "POST"
+        ],
+        "uri": "tests\/make-all-control-tests-unavailable",
+        "name": "make_all_control_tests_unavailable",
+        "action": "App\\Http\\Controllers\\TestController@makeAllControlTestsUnavailable",
+        "middleware": [
+            "web"
+        ]
+    },
+    {
+        "methods": [
+            "POST"
+        ],
+        "uri": "tests\/make-all-train-tests-unavailable",
+        "name": "make_all_train_tests_unavailable",
+        "action": "App\\Http\\Controllers\\TestController@makeAllTrainTestsUnavailable",
+        "middleware": [
+            "web"
+        ]
+    },
+    {
+        "methods": [
+            "GET"
+        ],
+        "uri": "tests\/remove\/{id_test}",
+        "name": "test_remove",
+        "action": "App\\Http\\Controllers\\TestController@remove",
+        "middleware": [
+            "web",
+            "general_auth",
+            "admin"
+        ]
+    },
+    {
+        "methods": [
+            "GET"
+        ],
+        "uri": "tests\/edit\/{id_test}",
+        "name": "test_edit",
+        "action": "App\\Http\\Controllers\\TestController@edit",
+        "middleware": [
+            "web",
+            "general_auth",
+            "admin"
+        ]
+    },
+    {
+        "methods": [
+            "GET"
+        ],
+        "uri": "tests\/finish\/{id_test}",
+        "name": "finish_test",
+        "action": "App\\Http\\Controllers\\TestController@finishTest",
+        "middleware": [
+            "web"
+        ]
+    },
+    {
+        "methods": [
+            "GET"
+        ],
+        "uri": "tests\/finish-for-group\/{id_test}\/{id_group}",
+        "name": "finish_test_for_group",
+        "action": "App\\Http\\Controllers\\TestController@finishTestForGroup",
+        "middleware": [
+            "web"
+        ]
+    },
+    {
+        "methods": [
+            "GET"
+        ],
+        "uri": "tests\/groups-for-tests",
+        "name": "choose_group",
+        "action": "App\\Http\\Controllers\\TestController@chooseGroup",
+        "middleware": [
+            "web"
+        ]
+    },
+    {
+        "methods": [
+            "GET"
+        ],
+        "uri": "tests\/monitor",
+        "name": "test_monitor",
+        "action": "App\\Http\\Controllers\\TestController@monitor",
+        "middleware": [
+            "web",
+            "general_auth",
+            "admin"
+        ]
+    },
+    {
+        "methods": [
+            "GET"
+        ],
+        "uri": "tests\/edit-structure\/{id_test}",
+        "name": "test_edit_structure",
+        "action": "App\\Http\\Controllers\\TestController@editStructure",
+        "middleware": [
+            "web",
+            "general_auth",
+            "admin"
+        ]
+    },
+    {
+        "methods": [
+            "POST"
+        ],
+        "uri": "tests\/edit-structure",
+        "name": "test_change_structure",
+        "action": "App\\Http\\Controllers\\TestController@changeStructure",
+        "middleware": [
+            "web",
+            "general_auth",
+            "admin"
+        ]
+    },
+    {
+        "methods": [
+            "GET"
+        ],
+        "uri": "library",
+        "name": "library_index",
+        "action": "App\\Http\\Controllers\\LibraryController@index",
+        "middleware": [
+            "web",
+            "general_auth",
+            "access_for_library"
+        ]
+    },
+    {
+        "methods": [
+            "GET"
+        ],
+        "uri": "library\/lecture\/create",
+        "name": "lecture_create",
+        "action": "App\\Http\\Controllers\\LibraryController@addNewLecture",
+        "middleware": [
+            "web",
+            "general_auth",
+            "access_for_library",
+            "admin"
+        ]
+    },
+    {
+        "methods": [
+            "POST"
+        ],
+        "uri": "library\/lecture\/store",
+        "name": "lecture_store",
+        "action": "App\\Http\\Controllers\\LibraryController@storeLecture",
+        "middleware": [
+            "web"
+        ]
+    },
+    {
+        "methods": [
+            "PATCH"
+        ],
+        "uri": "library\/lecture\/{id}",
+        "name": "lecture_update",
+        "action": "App\\Http\\Controllers\\LibraryController@updateLecture",
+        "middleware": [
+            "web"
+        ]
+    },
+    {
+        "methods": [
+            "GET"
+        ],
+        "uri": "library\/lecture\/{id}\/edit",
+        "name": "lecture_edit",
+        "action": "App\\Http\\Controllers\\LibraryController@editLecture",
+        "middleware": [
+            "web",
+            "general_auth",
+            "admin"
+        ]
+    },
+    {
+        "methods": [
+            "DELETE"
+        ],
+        "uri": "library\/lecture\/{id}\/delete",
+        "name": "lecture_delete",
+        "action": "App\\Http\\Controllers\\LibraryController@deleteLecture",
+        "middleware": [
+            "web",
+            "general_auth",
+            "admin"
+        ]
+    },
+    {
+        "methods": [
+            "GET"
+        ],
+        "uri": "library\/lecture\/{index?}{anchor?}",
+        "name": "lecture",
+        "action": "App\\Http\\Controllers\\LibraryController@lecture",
+        "middleware": [
+            "web",
+            "general_auth",
+            "access_for_library"
+        ]
+    },
+    {
+        "methods": [
+            "GET"
+        ],
+        "uri": "library\/definitions",
+        "name": "library_definitions",
+        "action": "App\\Http\\Controllers\\LibraryController@definitions",
+        "middleware": [
+            "web",
+            "general_auth",
+            "access_for_library"
+        ]
+    },
+    {
+        "methods": [
+            "GET"
+        ],
+        "uri": "library\/definitions\/create",
+        "name": "definition_create",
+        "action": "App\\Http\\Controllers\\LibraryController@addNewDefinition",
+        "middleware": [
+            "web",
+            "general_auth",
+            "access_for_library",
+            "admin"
+        ]
+    },
+    {
+        "methods": [
+            "POST"
+        ],
+        "uri": "library\/definitions\/store",
+        "name": "definition_store",
+        "action": "App\\Http\\Controllers\\LibraryController@storeDefinition",
+        "middleware": [
+            "web"
+        ]
+    },
+    {
+        "methods": [
+            "PATCH"
+        ],
+        "uri": "library\/definitions\/{id}",
+        "name": "definition_update",
+        "action": "App\\Http\\Controllers\\LibraryController@updateDefinition",
+        "middleware": [
+            "web"
+        ]
+    },
+    {
+        "methods": [
+            "GET"
+        ],
+        "uri": "library\/definitions\/{id}\/edit",
+        "name": "definition_edit",
+        "action": "App\\Http\\Controllers\\LibraryController@editDefinition",
+        "middleware": [
+            "web",
+            "general_auth",
+            "admin"
+        ]
+    },
+    {
+        "methods": [
+            "DELETE"
+        ],
+        "uri": "library\/definitions\/{id}\/delete",
+        "name": "definition_delete",
+        "action": "App\\Http\\Controllers\\LibraryController@deleteDefinition",
+        "middleware": [
+            "web",
+            "general_auth",
+            "admin"
+        ]
+    },
+    {
+        "methods": [
+            "GET"
+        ],
+        "uri": "library\/theorems",
+        "name": "library_theorems",
+        "action": "App\\Http\\Controllers\\LibraryController@theorems",
+        "middleware": [
+            "web",
+            "general_auth",
+            "access_for_library"
+        ]
+    },
+    {
+        "methods": [
+            "GET"
+        ],
+        "uri": "library\/theorems\/create",
+        "name": "theorem_create",
+        "action": "App\\Http\\Controllers\\LibraryController@addNewTheorem",
+        "middleware": [
+            "web",
+            "general_auth",
+            "access_for_library",
+            "admin"
+        ]
+    },
+    {
+        "methods": [
+            "POST"
+        ],
+        "uri": "library\/theorems\/store",
+        "name": "theorem_store",
+        "action": "App\\Http\\Controllers\\LibraryController@storeTheorem",
+        "middleware": [
+            "web"
+        ]
+    },
+    {
+        "methods": [
+            "DELETE"
+        ],
+        "uri": "library\/theorems\/{id}\/delete",
+        "name": "theorem_delete",
+        "action": "App\\Http\\Controllers\\LibraryController@deleteTheorem",
+        "middleware": [
+            "web",
+            "general_auth",
+            "admin"
+        ]
+    },
+    {
+        "methods": [
+            "PATCH"
+        ],
+        "uri": "library\/theorems\/{id}",
+        "name": "theorem_update",
+        "action": "App\\Http\\Controllers\\LibraryController@updateTheorem",
+        "middleware": [
+            "web"
+        ]
+    },
+    {
+        "methods": [
+            "GET"
+        ],
+        "uri": "library\/theorems\/{id}\/edit",
+        "name": "theorem_edit",
+        "action": "App\\Http\\Controllers\\LibraryController@editTheorem",
+        "middleware": [
+            "web",
+            "general_auth",
+            "admin"
+        ]
+    },
+    {
+        "methods": [
+            "GET"
+        ],
+        "uri": "library\/persons",
+        "name": "library_persons",
+        "action": "App\\Http\\Controllers\\LibraryController@persons",
+        "middleware": [
+            "web",
+            "general_auth",
+            "access_for_library"
+        ]
+    },
+    {
+        "methods": [
+            "GET"
+        ],
+        "uri": "library\/persons\/create",
+        "name": "person_create",
+        "action": "App\\Http\\Controllers\\LibraryController@addNewPerson",
+        "middleware": [
+            "web",
+            "general_auth",
+            "admin"
+        ]
+    },
+    {
+        "methods": [
+            "GET"
+        ],
+        "uri": "library\/persons\/{id}",
+        "name": "person",
+        "action": "App\\Http\\Controllers\\LibraryController@person",
+        "middleware": [
+            "web",
+            "general_auth",
+            "access_for_library"
+        ]
+    },
+    {
+        "methods": [
+            "POST"
+        ],
+        "uri": "library\/persons",
+        "name": "person_store",
+        "action": "App\\Http\\Controllers\\LibraryController@storePerson",
+        "middleware": [
+            "web"
+        ]
+    },
+    {
+        "methods": [
+            "PATCH"
+        ],
+        "uri": "library\/persons\/{id}",
+        "name": "person_update",
+        "action": "App\\Http\\Controllers\\LibraryController@updatePerson",
+        "middleware": [
+            "web"
+        ]
+    },
+    {
+        "methods": [
+            "GET"
+        ],
+        "uri": "library\/persons\/{id}\/edit",
+        "name": "person_edit",
+        "action": "App\\Http\\Controllers\\LibraryController@editPerson",
+        "middleware": [
+            "web",
+            "general_auth",
+            "admin"
+        ]
+    },
+    {
+        "methods": [
+            "DELETE"
+        ],
+        "uri": "library\/persons\/{id}\/delete",
+        "name": "person_delete",
+        "action": "App\\Http\\Controllers\\LibraryController@deletePerson",
+        "middleware": [
+            "web",
+            "general_auth",
+            "admin"
+        ]
+    },
+    {
+        "methods": [
+            "GET"
+        ],
+        "uri": "library\/persons\/{id}\/downloadDoc",
+        "name": "doc_download",
+        "action": "App\\Http\\Controllers\\LibraryController@docDownload",
+        "middleware": [
+            "web",
+            "general_auth"
+        ]
+    },
+    {
+        "methods": [
+            "GET"
+        ],
+        "uri": "library\/persons\/{id}\/downloadPpt",
+        "name": "ppt_download",
+        "action": "App\\Http\\Controllers\\LibraryController@pptDownload",
+        "middleware": [
+            "web"
+        ]
+    },
+    {
+        "methods": [
+            "GET"
+        ],
+        "uri": "library\/extras",
+        "name": "library_extras",
+        "action": "App\\Http\\Controllers\\LibraryController@extras",
+        "middleware": [
+            "web",
+            "general_auth",
+            "access_for_library"
+        ]
+    },
+    {
+        "methods": [
+            "POST"
+        ],
+        "uri": "library\/extra\/store",
+        "name": "library_extra_store",
+        "action": "App\\Http\\Controllers\\LibraryController@extraStore",
+        "middleware": [
+            "web",
+            "general_auth",
+            "admin"
+        ]
+    },
+    {
+        "methods": [
+            "GET"
+        ],
+        "uri": "library\/extra\/edit\/{id}",
+        "name": "library_extra_edit",
+        "action": "App\\Http\\Controllers\\LibraryController@extraEdit",
+        "middleware": [
+            "web",
+            "general_auth",
+            "admin"
+        ]
+    },
+    {
+        "methods": [
+            "PATCH"
+        ],
+        "uri": "library\/extra\/update\/{id}",
+        "name": "library_extra_update",
+        "action": "App\\Http\\Controllers\\LibraryController@extraUpdate",
+        "middleware": [
+            "web",
+            "general_auth",
+            "admin"
+        ]
+    },
+    {
+        "methods": [
+            "DELETE"
+        ],
+        "uri": "library\/extra\/delete\/{id}",
+        "name": "library_extra_delete",
+        "action": "App\\Http\\Controllers\\LibraryController@extraDelete",
+        "middleware": [
+            "web",
+            "general_auth",
+            "admin"
+        ]
+    },
+    {
+        "methods": [
+            "GET"
+        ],
+        "uri": "library\/educationalMaterials",
+        "name": "educational_materials",
+        "action": "App\\Http\\Controllers\\LibraryController@educationalMaterials",
+        "middleware": [
+            "web",
+            "general_auth"
+        ]
+    },
+    {
+        "methods": [
+            "GET"
+        ],
+        "uri": "library\/educationalMaterials\/create",
+        "name": "educational_materials_create",
+        "action": "App\\Http\\Controllers\\LibraryController@addEducationalMaterial",
+        "middleware": [
+            "web",
+            "general_auth",
+            "admin"
+        ]
+    },
+    {
+        "methods": [
+            "POST"
+        ],
+        "uri": "library\/educationalMaterials\/store",
+        "name": "educational_materials_store",
+        "action": "App\\Http\\Controllers\\LibraryController@storeEducationalMaterial",
+        "middleware": [
+            "web"
+        ]
+    },
+    {
+        "methods": [
+            "PATCH"
+        ],
+        "uri": "library\/educationalMaterials\/{id}",
+        "name": "educationalMaterial_update",
+        "action": "App\\Http\\Controllers\\LibraryController@updateEducationalMaterial",
+        "middleware": [
+            "web"
+        ]
+    },
+    {
+        "methods": [
+            "GET"
+        ],
+        "uri": "library\/educationalMaterials\/{id}\/edit",
+        "name": "educationalMaterial_edit",
+        "action": "App\\Http\\Controllers\\LibraryController@editEducationalMaterial",
+        "middleware": [
+            "web",
+            "general_auth",
+            "admin"
+        ]
+    },
+    {
+        "methods": [
+            "DELETE"
+        ],
+        "uri": "library\/educationalMaterials\/{id}\/delete",
+        "name": "educationalMaterial_delete",
+        "action": "App\\Http\\Controllers\\LibraryController@deleteEducationalMaterial",
+        "middleware": [
+            "web",
+            "general_auth",
+            "admin"
+        ]
+    },
+    {
+        "methods": [
+            "GET"
+        ],
+        "uri": "library\/educationalMaterials\/{id}\/download",
+        "name": "educationalMaterials_download",
+        "action": "App\\Http\\Controllers\\LibraryController@educationalMaterialsDownload",
+        "middleware": [
+            "web",
+            "general_auth"
+        ]
+    },
+    {
+        "methods": [
+            "GET"
+        ],
+        "uri": "library\/ebooks",
+        "name": "ebooks",
+        "action": "App\\Http\\Controllers\\LibraryController@ebooks",
+        "middleware": [
+            "web"
+        ]
+    },
+    {
+        "methods": [
+            "POST"
+        ],
+        "uri": "library\/ebooks\/search",
+        "name": "search_ebooks",
+        "action": "App\\Http\\Controllers\\LibraryController@searchEbooks",
+        "middleware": [
+            "web"
+        ]
+    },
+    {
+        "methods": [
+            "GET"
+        ],
+        "uri": "library\/ebooks\/ebook\/add",
+        "name": "add_ebook",
+        "action": "App\\Http\\Controllers\\LibraryController@addEbook",
+        "middleware": [
+            "web",
+            "general_auth",
+            "admin"
+        ]
+    },
+    {
+        "methods": [
+            "POST"
+        ],
+        "uri": "library\/ebooks\/ebook\/store",
+        "name": "store_ebook",
+        "action": "App\\Http\\Controllers\\LibraryController@storeEbook",
+        "middleware": [
+            "web",
+            "general_auth",
+            "admin"
+        ]
+    },
+    {
+        "methods": [
+            "GET"
+        ],
+        "uri": "library\/ebooks\/ebook\/get\/{id_ebook}",
+        "name": "get_ebook",
+        "action": "App\\Http\\Controllers\\LibraryController@getEbook",
+        "middleware": [
+            "web"
+        ]
+    },
+    {
+        "methods": [
+            "GET"
+        ],
+        "uri": "library\/ebooks\/ebook\/edit\/{id_ebook}",
+        "name": "edit_ebook",
+        "action": "App\\Http\\Controllers\\LibraryController@editEbook",
+        "middleware": [
+            "web",
+            "general_auth",
+            "admin"
+        ]
+    },
+    {
+        "methods": [
+            "PATCH"
+        ],
+        "uri": "library\/ebooks\/ebook\/update\/{id_ebook}",
+        "name": "update_ebook",
+        "action": "App\\Http\\Controllers\\LibraryController@updateEbook",
+        "middleware": [
+            "web",
+            "general_auth",
+            "admin"
+        ]
+    },
+    {
+        "methods": [
+            "DELETE"
+        ],
+        "uri": "libraryebooks\/ebook\/delete\/{id_ebook}",
+        "name": "delete_ebook",
+        "action": "App\\Http\\Controllers\\LibraryController@deleteEbook",
+        "middleware": [
+            "web",
+            "general_auth",
+            "admin"
+        ]
+    },
+    {
+        "methods": [
+            "GET"
+        ],
+        "uri": "library\/books",
+        "name": "books",
+        "action": "App\\Http\\Controllers\\BooksController@index",
+        "middleware": [
+            "web"
+        ]
+    },
+    {
+        "methods": [
+            "POST"
+        ],
+        "uri": "library\/books\/search",
+        "name": "library_search",
+        "action": "App\\Http\\Controllers\\BooksController@search",
+        "middleware": [
+            "web"
+        ]
+    },
+    {
+        "methods": [
+            "GET"
+        ],
+        "uri": "library\/books\/create",
+        "name": "books_create",
+        "action": "App\\Http\\Controllers\\BooksController@add_new_book",
+        "middleware": [
+            "web",
+            "general_auth",
+            "admin"
+        ]
+    },
+    {
+        "methods": [
+            "POST"
+        ],
+        "uri": "library\/books",
+        "name": "book_store",
+        "action": "App\\Http\\Controllers\\BooksController@store_book",
+        "middleware": [
+            "web"
+        ]
+    },
+    {
+        "methods": [
+            "GET"
+        ],
+        "uri": "library\/book\/{id}",
+        "name": "book",
+        "action": "App\\Http\\Controllers\\BooksController@getBook",
+        "middleware": [
+            "web"
+        ]
+    },
+    {
+        "methods": [
+            "PATCH"
+        ],
+        "uri": "library\/book\/{id}",
+        "name": "book_update",
+        "action": "App\\Http\\Controllers\\BooksController@update_book",
+        "middleware": [
+            "web"
+        ]
+    },
+    {
+        "methods": [
+            "GET"
+        ],
+        "uri": "library\/book\/{id}\/edit",
+        "name": "book_edit",
+        "action": "App\\Http\\Controllers\\BooksController@editBook",
+        "middleware": [
+            "web",
+            "general_auth",
+            "admin"
+        ]
+    },
+    {
+        "methods": [
+            "DELETE"
+        ],
+        "uri": "library\/book\/{id}\/delete",
+        "name": "book_delete",
+        "action": "App\\Http\\Controllers\\BooksController@deleteBook",
+        "middleware": [
+            "web",
+            "general_auth",
+            "admin"
+        ]
+    },
+    {
+        "methods": [
+            "GET"
+        ],
+        "uri": "library\/books\/teacherCabinet",
+        "name": "teacher_сabinet",
+        "action": "App\\Http\\Controllers\\BooksController@teacherCabinet",
+        "middleware": [
+            "web",
+            "general_auth",
+            "admin"
+        ]
+    },
+    {
+        "methods": [
+            "POST"
+        ],
+        "uri": "library\/books\/teacherCabinet",
+        "name": "setDateCalendar",
+        "action": "App\\Http\\Controllers\\BooksController@setDateCalendar",
+        "middleware": [
+            "web",
+            "general_auth",
+            "admin"
+        ]
+    },
+    {
+        "methods": [
+            "GET"
+        ],
+        "uri": "library\/book\/{id}\/order",
+        "name": "book_order",
+        "action": "App\\Http\\Controllers\\BooksController@book_order",
+        "middleware": [
+            "web",
+            "general_auth",
+            "OrderBookLibrary"
+        ]
+    },
+    {
+        "methods": [
+            "POST"
+        ],
+        "uri": "library\/book\/{id}\/order",
+        "name": "book_send_order",
+        "action": "App\\Http\\Controllers\\BooksController@book_send_order",
+        "middleware": [
+            "web",
+            "general_auth"
+        ]
+    },
+    {
+        "methods": [
+            "GET"
+        ],
+        "uri": "library\/books\/studentCabinet",
+        "name": "student_сabinet",
+        "action": "App\\Http\\Controllers\\BooksController@studentCabinet",
+        "middleware": [
+            "web",
+            "general_auth",
+            "studentLibrary"
+        ]
+    },
+    {
+        "methods": [
+            "DELETE"
+        ],
+        "uri": "library\/books\/studentCabinet\/{id}\/delete",
+        "name": "student_order_delete",
+        "action": "App\\Http\\Controllers\\BooksController@studentOrderDelete",
+        "middleware": [
+            "web",
+            "general_auth"
+        ]
+    },
+    {
+        "methods": [
+            "DELETE"
+        ],
+        "uri": "library\/books\/studentCabinet\/{id}\/delete_message",
+        "name": "student_message_delete",
+        "action": "App\\Http\\Controllers\\BooksController@studentMessageDelete",
+        "middleware": [
+            "web",
+            "general_auth"
+        ]
+    },
+    {
+        "methods": [
+            "GET"
+        ],
+        "uri": "library\/books\/studentCabinet\/settingCalendar",
+        "name": "student_setting_calendar",
+        "action": "App\\Http\\Controllers\\BooksController@studentSettingCalendar",
+        "middleware": [
+            "web"
+        ]
+    },
+    {
+        "methods": [
+            "POST"
+        ],
+        "uri": "library\/books\/studentCabinet\/{id}\/extendDate",
+        "name": "student_extend_date",
+        "action": "App\\Http\\Controllers\\BooksController@studentExtendDate",
+        "middleware": [
+            "web"
+        ]
+    },
+    {
+        "methods": [
+            "POST"
+        ],
+        "uri": "library\/books\/teacherCabinet\/{id}\/issureBook",
+        "name": "teacher_issure_book",
+        "action": "App\\Http\\Controllers\\BooksController@teacherIssureBook",
+        "middleware": [
+            "web",
+            "general_auth",
+            "admin"
+        ]
+    },
+    {
+        "methods": [
+            "DELETE"
+        ],
+        "uri": "library\/books\/teacherCabinet\/{id}\/delete",
+        "name": "teacher_order_delete",
+        "action": "App\\Http\\Controllers\\BooksController@teacherOrderDelete",
+        "middleware": [
+            "web",
+            "general_auth",
+            "admin"
+        ]
+    },
+    {
+        "methods": [
+            "POST"
+        ],
+        "uri": "library\/books\/teacherCabinet\/{id}\/extendDate",
+        "name": "teacher_extend_date",
+        "action": "App\\Http\\Controllers\\BooksController@teacherExtendDate",
+        "middleware": [
+            "web",
+            "general_auth",
+            "admin"
+        ]
+    },
+    {
+        "methods": [
+            "DELETE"
+        ],
+        "uri": "library\/books\/teacherCabinet\/{id}\/returnBook",
+        "name": "teacher_return_book",
+        "action": "App\\Http\\Controllers\\BooksController@teacherReturnBook",
+        "middleware": [
+            "web",
+            "general_auth",
+            "admin"
+        ]
+    },
+    {
+        "methods": [
+            "POST"
+        ],
+        "uri": "library\/books\/teacherCabinet\/{id}\/sendMessage",
+        "name": "teacher_send_message",
+        "action": "App\\Http\\Controllers\\BooksController@teacherSendMessage",
+        "middleware": [
+            "web",
+            "general_auth",
+            "admin"
+        ]
+    },
+    {
+        "methods": [
+            "GET"
+        ],
+        "uri": "library\/books\/manageNewsLibrary",
+        "name": "manage_news_library",
+        "action": "App\\Http\\Controllers\\BooksController@manageNewsLibrary",
+        "middleware": [
+            "web",
+            "general_auth"
+        ]
+    },
+    {
+        "methods": [
+            "POST"
+        ],
+        "uri": "library\/books\/manageNewsLibrary\/add_news",
+        "name": "add_library_news",
+        "action": "App\\Http\\Controllers\\BooksController@addLibraryNews",
+        "middleware": [
+            "web",
+            "general_auth",
+            "admin"
+        ]
+    },
+    {
+        "methods": [
+            "DELETE"
+        ],
+        "uri": "library\/books\/manageNewsLibrary\/{id}\/delete",
+        "name": "delete_library_news",
+        "action": "App\\Http\\Controllers\\BooksController@libraryNewsDelete",
+        "middleware": [
+            "web",
+            "general_auth",
+            "admin"
+        ]
+    },
+    {
+        "methods": [
+            "GET"
+        ],
+        "uri": "library\/manageNewsLibrary\/{id}\/edit",
+        "name": "library_news_edit",
+        "action": "App\\Http\\Controllers\\BooksController@editNewsLibrary",
+        "middleware": [
+            "web",
+            "general_auth",
+            "admin"
+        ]
+    },
+    {
+        "methods": [
+            "PATCH"
+        ],
+        "uri": "library\/manageNewsLibrary\/{id}",
+        "name": "library_news_update",
+        "action": "App\\Http\\Controllers\\BooksController@updateLibraryNews",
+        "middleware": [
+            "web",
+            "general_auth",
+            "admin"
+        ]
+    },
+    {
+        "methods": [
+            "GET"
+        ],
+        "uri": "library\/lection\/{id}",
+        "name": "lection",
+        "action": "App\\Http\\Controllers\\BooksController@lection",
+        "middleware": [
+            "web",
+            "general_auth",
+            "admin",
+            "access_for_library"
+        ]
+    },
+    {
+        "methods": [
+            "GET"
+        ],
+        "uri": "teacher_account\/library_calendar",
+        "name": "library_calendar",
+        "action": "App\\Http\\Controllers\\BooksController@library_calendar",
+        "middleware": [
+            "web"
+        ]
+    },
+    {
+        "methods": [
+            "POST"
+        ],
+        "uri": "teacher_account\/date_create",
+        "name": "library_date_create",
+        "action": "App\\Http\\Controllers\\BooksController@create_date",
+        "middleware": [
+            "web"
+        ]
+    },
+    {
+        "methods": [
+            "GET"
+        ],
+        "uri": "teacher_account\/library_order_list",
+        "name": "library_order_list",
+        "action": "App\\Http\\Controllers\\BooksController@library_order_list",
+        "middleware": [
+            "web"
+        ]
+    },
+    {
+        "methods": [
+            "POST"
+        ],
+        "uri": "teacher_account\/library_order_list_elem_delete",
+        "name": "order_list_delete",
+        "action": "App\\Http\\Controllers\\BooksController@order_list_delete",
+        "middleware": [
+            "web"
+        ]
+    },
+    {
+        "methods": [
+            "GET"
+        ],
+        "uri": "student_lib_account",
+        "name": "student_lib_account",
+        "action": "App\\Http\\Controllers\\BooksController@student_lib_account",
+        "middleware": [
+            "web"
+        ]
+    },
+    {
+        "methods": [
+            "POST"
+        ],
+        "uri": "student_lib_account\/student_order_delete",
+        "name": "student_order_delete",
+        "action": "App\\Http\\Controllers\\BooksController@student_order_delete",
+        "middleware": [
+            "web"
+        ]
+    },
+    {
+        "methods": [
+            "GET"
+        ],
+        "uri": "student_lib_account2",
+        "name": "student_lib_account2",
+        "action": "App\\Http\\Controllers\\BooksController@student_lib_account2",
+        "middleware": [
+            "web"
+        ]
+    },
+    {
+        "methods": [
+            "GET"
+        ],
+        "uri": "teacher_account\/library_order_list\/{order_id}\/edit_order_status0",
+        "name": "edit_order_status0",
+        "action": "App\\Http\\Controllers\\BooksController@edit_order_status0",
+        "middleware": [
+            "web"
+        ]
+    },
+    {
+        "methods": [
+            "GET"
+        ],
+        "uri": "teacher_account\/library_order_list\/{order_id}\/edit_order_status1",
+        "name": "edit_order_status1",
+        "action": "App\\Http\\Controllers\\BooksController@edit_order_status1",
+        "middleware": [
+            "web"
+        ]
+    },
+    {
+        "methods": [
+            "POST"
+        ],
+        "uri": "get_MT_protocol",
+        "name": "get_MT_protocol",
+        "action": "App\\Http\\Controllers\\Emulators\\EmulatorController@get_MT_protocol",
+        "middleware": [
+            "web"
+        ]
+    },
+    {
+        "methods": [
+            "POST"
+        ],
+        "uri": "get_HAM_protocol",
+        "name": "get_HAM_protocol",
+        "action": "App\\Http\\Controllers\\Emulators\\EmulatorController@get_HAM_protocol",
+        "middleware": [
+            "web"
+        ]
+    },
+    {
+        "methods": [
+            "POST"
+        ],
+        "uri": "get-MT-kontr",
+        "name": "get_MT",
+        "action": "App\\Http\\Controllers\\Emulators\\EmulatorController@kontr_MTPOST",
+        "middleware": [
+            "web"
+        ]
+    },
+    {
+        "methods": [
+            "POST"
+        ],
+        "uri": "get-HAM-kontr",
+        "name": "get_HAM_kontr",
+        "action": "App\\Http\\Controllers\\Emulators\\EmulatorController@kontr_HAMPOST",
+        "middleware": [
+            "web"
+        ]
+    },
+    {
+        "methods": [
+            "GET"
+        ],
+        "uri": "generator",
+        "name": "generator_index",
+        "action": "App\\Http\\Controllers\\GeneratorController@index",
+        "middleware": [
+            "web",
+            "general_auth",
+            "admin"
+        ]
+    },
+    {
+        "methods": [
+            "POST"
+        ],
+        "uri": "generator\/pdf",
+        "name": "generator_pdf",
+        "action": "App\\Http\\Controllers\\GeneratorController@pdfTest",
+        "middleware": [
+            "web",
+            "general_auth",
+            "admin"
+        ]
+    },
+    {
+        "methods": [
+            "GET"
+        ],
+        "uri": "generator\/pdf",
+        "name": "generator_ex",
+        "action": "App\\Http\\Controllers\\GeneratorController@pdf",
+        "middleware": [
+            "web",
+            "general_auth",
+            "admin"
+        ]
+    },
+    {
+        "methods": [
+            "GET"
+        ],
+        "uri": "personal_account",
+        "name": "personal_account",
+        "action": "App\\Http\\Controllers\\StatementsController@showPersonalAccount",
+        "middleware": [
+            "web",
+            "general_auth"
+        ]
+    },
+    {
+        "methods": [
+            "GET"
+        ],
+        "uri": "personal_account\/student_info",
+        "name": "student_info",
+        "action": "App\\Http\\Controllers\\StatementsController@showStudentInfo",
+        "middleware": [
+            "web",
+            "general_auth"
+        ]
+    },
+    {
+        "methods": [
+            "GET"
+        ],
+        "uri": "personal_account\/all_test_results",
+        "name": "all_test_results",
+        "action": "App\\Http\\Controllers\\PersonalAccount@showAllTests",
+        "middleware": [
+            "web",
+            "general_auth",
+            "admin"
+        ]
+    },
+    {
+        "methods": [
+            "GET"
+        ],
+        "uri": "personal_account\/tests_results",
+        "name": "test_results",
+        "action": "App\\Http\\Controllers\\PersonalAccount@showTestResults",
+        "middleware": [
+            "web",
+            "general_auth"
+        ]
+    },
+    {
+        "methods": [
+            "GET"
+        ],
+        "uri": "personal_account\/student\/{id}",
+        "name": "specific_student_account",
+        "action": "App\\Http\\Controllers\\StatementsController@showSpecificStudentAccount",
+        "middleware": [
+            "web",
+            "general_auth"
+        ]
+    },
+    {
+        "methods": [
+            "POST"
+        ],
+        "uri": "personal_account\/get_students_by_group",
+        "name": "students_get",
+        "action": "App\\Http\\Controllers\\StatementsController@getStudentsByGroup",
+        "middleware": [
+            "web",
+            "general_auth"
+        ]
+    },
+    {
+        "methods": [
+            "GET"
+        ],
+        "uri": "course_plans",
+        "name": "course_plans",
+        "action": "App\\Http\\Controllers\\StatementsController@showCoursePlans",
+        "middleware": [
+            "web",
+            "general_auth",
+            "admin"
+        ]
+    },
+    {
+        "methods": [
+            "GET"
+        ],
+        "uri": "course_plans\/create",
+        "name": "course_plans_create",
+        "action": "App\\Http\\Controllers\\StatementsController@createCoursePlans",
+        "middleware": [
+            "web",
+            "general_auth",
+            "admin"
+        ]
+    },
+    {
+        "methods": [
+            "POST"
+        ],
+        "uri": "course_plans",
+        "name": "course_plan_store",
+        "action": "App\\Http\\Controllers\\StatementsController@storeCoursePlan",
+        "middleware": [
+            "web"
+        ]
+    },
+    {
+        "methods": [
+            "PATCH"
+        ],
+        "uri": "course_plan\/update",
+        "name": "ourse_plan_update",
+        "action": "App\\Http\\Controllers\\StatementsController@updateCoursePlan",
+        "middleware": [
+            "web",
+            "general_auth",
+            "admin"
+        ]
+    },
+    {
+        "methods": [
+            "DELETE"
+        ],
+        "uri": "course_plan\/delete",
+        "name": "course_plan_delete",
+        "action": "App\\Http\\Controllers\\StatementsController@deleteCoursePlan",
+        "middleware": [
+            "web",
+            "general_auth",
+            "admin"
+        ]
+    },
+    {
+        "methods": [
+            "POST"
+        ],
+        "uri": "course_plan\/check_points",
+        "name": "course_plan_check_points",
+        "action": "App\\Http\\Controllers\\StatementsController@checkPointsCoursePlan",
+        "middleware": [
+            "web",
+            "general_auth",
+            "admin"
+        ]
+    },
+    {
+        "methods": [
+            "GET"
+        ],
+        "uri": "course_plan\/get_add_section",
+        "name": "get_add_section",
+        "action": "App\\Http\\Controllers\\StatementsController@getAddSection",
+        "middleware": [
+            "web",
+            "general_auth",
+            "admin"
+        ]
+    },
+    {
+        "methods": [
+            "POST"
+        ],
+        "uri": "course_plan\/{id}\/section",
+        "name": "section_store",
+        "action": "App\\Http\\Controllers\\StatementsController@storeSection",
+        "middleware": [
+            "web",
+            "general_auth",
+            "admin"
+        ]
+    },
+    {
+        "methods": [
+            "PATCH"
+        ],
+        "uri": "course_plan\/section\/update",
+        "name": "section_update",
+        "action": "App\\Http\\Controllers\\StatementsController@updateSection",
+        "middleware": [
+            "web",
+            "general_auth",
+            "admin"
+        ]
+    },
+    {
+        "methods": [
+            "DELETE"
+        ],
+        "uri": "course_plan\/section\/delete",
+        "name": "section_delete",
+        "action": "App\\Http\\Controllers\\StatementsController@deleteSection",
+        "middleware": [
+            "web",
+            "general_auth",
+            "admin"
+        ]
+    },
+    {
+        "methods": [
+            "GET"
+        ],
+        "uri": "course_plan\/section\/get_add_lec_sem_cw",
+        "name": "get_add_lec_sem_cw",
+        "action": "App\\Http\\Controllers\\StatementsController@getAddLecOrSemOrCW",
+        "middleware": [
+            "web",
+            "general_auth",
+            "admin"
+        ]
+    },
+    {
+        "methods": [
+            "POST"
+        ],
+        "uri": "course_plan\/section\/lec_sem_cw\/store",
+        "name": "lec_sem_cw_store",
+        "action": "App\\Http\\Controllers\\StatementsController@storeLecOrSemOrCW",
+        "middleware": [
+            "web",
+            "general_auth",
+            "admin"
+        ]
+    },
+    {
+        "methods": [
+            "PATCH"
+        ],
+        "uri": "course_plan\/section\/lec_sem_cw\/update",
+        "name": "lec_sem_cw_update",
+        "action": "App\\Http\\Controllers\\StatementsController@updateLecOrSemOrCW",
+        "middleware": [
+            "web",
+            "general_auth",
+            "admin"
+        ]
+    },
+    {
+        "methods": [
+            "DELETE"
+        ],
+        "uri": "course_plan\/section\/lec_sem_cw\/delete",
+        "name": "lec_sem_cw__delete",
+        "action": "App\\Http\\Controllers\\StatementsController@deleteLecOrSemOrCW",
+        "middleware": [
+            "web",
+            "general_auth",
+            "admin"
+        ]
+    },
+    {
+        "methods": [
+            "GET"
+        ],
+        "uri": "course_plan\/{id}",
+        "name": "course_plan",
+        "action": "App\\Http\\Controllers\\StatementsController@getCoursePlan",
+        "middleware": [
+            "web"
+        ]
+    },
+    {
+        "methods": [
+            "POST"
+        ],
+        "uri": "course_plan\/copy",
+        "name": "course_plan_copy",
+        "action": "App\\Http\\Controllers\\StatementsController@copyCoursePlan",
+        "middleware": [
+            "web"
+        ]
+    },
+    {
+        "methods": [
+            "GET"
+        ],
+        "uri": "statements",
+        "name": "statements",
+        "action": "App\\Http\\Controllers\\StatementsController@statements",
+        "middleware": [
+            "web",
+            "general_auth",
+            "admin"
+        ]
+    },
+    {
+        "methods": [
+            "POST"
+        ],
+        "uri": "statements\/get-lectures",
+        "name": "get_lectures",
+        "action": "App\\Http\\Controllers\\StatementsController@get_lectures",
+        "middleware": [
+            "web",
+            "general_auth",
+            "admin"
+        ]
+    },
+    {
+        "methods": [
+            "POST"
+        ],
+        "uri": "statements\/get-seminars",
+        "name": "get_seminars",
+        "action": "App\\Http\\Controllers\\StatementsController@get_seminars",
+        "middleware": [
+            "web",
+            "general_auth",
+            "admin"
+        ]
+    },
+    {
+        "methods": [
+            "POST"
+        ],
+        "uri": "statements\/get-resulting",
+        "name": "get_resulting",
+        "action": "App\\Http\\Controllers\\StatementsController@get_resulting",
+        "middleware": [
+            "web",
+            "general_auth",
+            "admin"
+        ]
+    },
+    {
+        "methods": [
+            "POST"
+        ],
+        "uri": "statements\/gen-statement",
+        "name": "gen_statement",
+        "action": "App\\Http\\Controllers\\StatementsController@gen_statement",
+        "middleware": [
+            "web",
+            "general_auth",
+            "admin"
+        ]
+    },
+    {
+        "methods": [
+            "POST"
+        ],
+        "uri": "statements\/lecture\/mark_present",
+        "name": "lecture_mark_present",
+        "action": "App\\Http\\Controllers\\StatementsController@lecture_mark_present",
+        "middleware": [
+            "web",
+            "general_auth",
+            "admin"
+        ]
+    },
+    {
+        "methods": [
+            "POST"
+        ],
+        "uri": "statements\/seminar\/mark_present",
+        "name": "seminar_mark_present",
+        "action": "App\\Http\\Controllers\\StatementsController@seminar_mark_present",
+        "middleware": [
+            "web",
+            "general_auth",
+            "admin"
+        ]
+    },
+    {
+        "methods": [
+            "POST"
+        ],
+        "uri": "statements\/seminar\/classwork\/change",
+        "name": "classwork_change",
+        "action": "App\\Http\\Controllers\\StatementsController@classwork_change",
+        "middleware": [
+            "web",
+            "general_auth",
+            "admin"
+        ]
+    },
+    {
+        "methods": [
+            "POST"
+        ],
+        "uri": "statements\/result\/mark_present",
+        "name": "result_mark_present",
+        "action": "App\\Http\\Controllers\\StatementsController@result_mark_present",
+        "middleware": [
+            "web",
+            "general_auth",
+            "admin"
+        ]
+    },
+    {
+        "methods": [
+            "POST"
+        ],
+        "uri": "statements\/result\/control_work\/change",
+        "name": "result_change",
+        "action": "App\\Http\\Controllers\\StatementsController@result_change",
+        "middleware": [
+            "web",
+            "general_auth",
+            "admin"
+        ]
+    },
+    {
+        "methods": [
+            "POST"
+        ],
+        "uri": "statements\/result\/mark_present_all",
+        "name": "result_mark_present_all",
+        "action": "App\\Http\\Controllers\\StatementsController@result_mark_present_all",
+        "middleware": [
+            "web",
+            "general_auth",
+            "admin"
+        ]
+    },
+    {
+        "methods": [
+            "POST"
+        ],
+        "uri": "statements\/lecture\/mark_present_all",
+        "name": "lecture_mark_present_all",
+        "action": "App\\Http\\Controllers\\StatementsController@lecture_mark_present_all",
+        "middleware": [
+            "web",
+            "general_auth",
+            "admin"
+        ]
+    },
+    {
+        "methods": [
+            "POST"
+        ],
+        "uri": "statements\/seminar\/mark_present_all",
+        "name": "seminar_mark_present_all",
+        "action": "App\\Http\\Controllers\\StatementsController@seminar_mark_present_all",
+        "middleware": [
+            "web",
+            "general_auth",
+            "admin"
+        ]
+    },
+    {
+        "methods": [
+            "POST"
+        ],
+        "uri": "verify_students\/change_user_l_name",
+        "name": "change_l_name",
+        "action": "App\\Http\\Controllers\\AdministrationController@change_l_name",
+        "middleware": [
+            "web",
+            "general_auth",
+            "admin"
+        ]
+    },
+    {
+        "methods": [
+            "POST"
+        ],
+        "uri": "verify_students\/change_user_f_name",
+        "name": "change_f_name",
+        "action": "App\\Http\\Controllers\\AdministrationController@change_f_name",
+        "middleware": [
+            "web",
+            "general_auth",
+            "admin"
+        ]
+    },
+    {
+        "methods": [
+            "GET"
+        ],
+        "uri": "verify_students",
+        "name": "verify_students",
+        "action": "App\\Http\\Controllers\\AdministrationController@verify",
+        "middleware": [
+            "web",
+            "general_auth",
+            "admin"
+        ]
+    },
+    {
+        "methods": [
+            "POST"
+        ],
+        "uri": "verify_students\/student",
+        "name": "add_student",
+        "action": "App\\Http\\Controllers\\AdministrationController@add_student",
+        "middleware": [
+            "web",
+            "general_auth",
+            "admin"
+        ]
+    },
+    {
+        "methods": [
+            "POST"
+        ],
+        "uri": "verify_students\/admin",
+        "name": "add_student",
+        "action": "App\\Http\\Controllers\\AdministrationController@add_admin",
+        "middleware": [
+            "web",
+            "general_auth",
+            "admin"
+        ]
+    },
+    {
+        "methods": [
+            "POST"
+        ],
+        "uri": "verify_students\/average",
+        "name": "add_student",
+        "action": "App\\Http\\Controllers\\AdministrationController@add_average",
+        "middleware": [
+            "web",
+            "general_auth",
+            "admin"
+        ]
+    },
+    {
+        "methods": [
+            "POST"
+        ],
+        "uri": "verify_students\/tutor",
+        "name": "add_tutor",
+        "action": "App\\Http\\Controllers\\AdministrationController@add_tutor",
+        "middleware": [
+            "web",
+            "general_auth",
+            "admin"
+        ]
+    },
+    {
+        "methods": [
+            "POST"
+        ],
+        "uri": "verify_students\/change_group",
+        "name": "change_group",
+        "action": "App\\Http\\Controllers\\AdministrationController@change_group",
+        "middleware": [
+            "web",
+            "general_auth",
+            "admin"
+        ]
+    },
+    {
+        "methods": [
+            "POST"
+        ],
+        "uri": "verify_students\/remove_user",
+        "name": "remove_user",
+        "action": "App\\Http\\Controllers\\AdministrationController@remove_user",
+        "middleware": [
+            "web",
+            "general_auth",
+            "admin"
+        ]
+    },
+    {
+        "methods": [
+            "GET"
+        ],
+        "uri": "change_role",
+        "name": "change_role",
+        "action": "App\\Http\\Controllers\\AdministrationController@change_role",
+        "middleware": [
+            "web",
+            "general_auth",
+            "admin"
+        ]
+    },
+    {
+        "methods": [
+            "POST"
+        ],
+        "uri": "manage_groups\/add_group",
+        "name": "add_group",
+        "action": "App\\Http\\Controllers\\AdministrationController@add_group",
+        "middleware": [
+            "web",
+            "general_auth",
+            "admin"
+        ]
+    },
+    {
+        "methods": [
+            "POST"
+        ],
+        "uri": "manage_groups\/delete_group",
+        "name": "delete_group",
+        "action": "App\\Http\\Controllers\\AdministrationController@delete_group",
+        "middleware": [
+            "web",
+            "general_auth",
+            "admin"
+        ]
+    },
+    {
+        "methods": [
+            "GET"
+        ],
+        "uri": "manage_groups",
+        "name": "manage_groups",
+        "action": "App\\Http\\Controllers\\GroupsController@manageGroups",
+        "middleware": [
+            "web",
+            "general_auth",
+            "admin"
+        ]
+    },
+    {
+        "methods": [
+            "POST"
+        ],
+        "uri": "manage_groups_other_teachers",
+        "name": "manage_groups_other_teachers",
+        "action": "App\\Http\\Controllers\\GroupsController@otherTeachers",
+        "middleware": [
+            "web",
+            "general_auth",
+            "admin"
+        ]
+    },
+    {
+        "methods": [
+            "POST"
+        ],
+        "uri": "manage_groups_add_teachers_to_group",
+        "name": "manage_groups_add_teachers_to_group",
+        "action": "App\\Http\\Controllers\\GroupsController@addTeachersToGroup",
+        "middleware": [
+            "web",
+            "general_auth",
+            "admin"
+        ]
+    },
+    {
+        "methods": [
+            "POST"
+        ],
+        "uri": "manage_groups_remove_teacher_from_group",
+        "name": "manage_groups_remove_teacher_from_group",
+        "action": "App\\Http\\Controllers\\GroupsController@removeTeacherFromGroup",
+        "middleware": [
+            "web",
+            "general_auth",
+            "admin"
+        ]
+    },
+    {
+        "methods": [
+            "GET"
+        ],
+        "uri": "manage_groups_by_teachers",
+        "name": "manage_groups_by_teachers",
+        "action": "App\\Http\\Controllers\\GroupsController@manageGroupsByTeachers",
+        "middleware": [
+            "web",
+            "general_auth",
+            "admin"
+        ]
+    },
+    {
+        "methods": [
+            "POST"
+        ],
+        "uri": "manage_groups_other_groups",
+        "name": "manage_groups_other_groups",
+        "action": "App\\Http\\Controllers\\GroupsController@otherGroups",
+        "middleware": [
+            "web",
+            "general_auth",
+            "admin"
+        ]
+    },
+    {
+        "methods": [
+            "POST"
+        ],
+        "uri": "manage_groups_add_groups_to_teacher",
+        "name": "manage_groups_add_groups_to_teacher",
+        "action": "App\\Http\\Controllers\\GroupsController@addGroupsToTeacher",
+        "middleware": [
+            "web",
+            "general_auth",
+            "admin"
+        ]
+    },
+    {
+        "methods": [
+            "POST"
+        ],
+        "uri": "manage_groups_remove_group_from_teacher",
+        "name": "manage_groups_remove_group_from_teacher",
+        "action": "App\\Http\\Controllers\\GroupsController@removeGroupFromTeacher",
+        "middleware": [
+            "web",
+            "general_auth",
+            "admin"
+        ]
+    },
+    {
+        "methods": [
+            "GET"
+        ],
+        "uri": "manage_news",
+        "name": "manage_news",
+        "action": "App\\Http\\Controllers\\AdministrationController@manage_news",
+        "middleware": [
+            "web",
+            "general_auth",
+            "admin"
+        ]
+    },
+    {
+        "methods": [
+            "POST"
+        ],
+        "uri": "manage_news\/add_news",
+        "name": "add_news",
+        "action": "App\\Http\\Controllers\\AdministrationController@add_news",
+        "middleware": [
+            "web",
+            "general_auth",
+            "admin"
+        ]
+    },
+    {
+        "methods": [
+            "POST"
+        ],
+        "uri": "manage_news\/delete",
+        "name": "delete_news",
+        "action": "App\\Http\\Controllers\\AdministrationController@delete_news",
+        "middleware": [
+            "web",
+            "general_auth",
+            "admin"
+        ]
+    },
+    {
+        "methods": [
+            "POST"
+        ],
+        "uri": "manage_news\/hide",
+        "name": "hide_news",
+        "action": "App\\Http\\Controllers\\AdministrationController@hide_news",
+        "middleware": [
+            "web",
+            "general_auth",
+            "admin"
+        ]
+    },
+    {
+        "methods": [
+            "GET"
+        ],
+        "uri": "pashalka",
+        "name": "pashalka",
+        "action": "App\\Http\\Controllers\\AdministrationController@pashalka",
+        "middleware": [
+            "web"
+        ]
+    },
+    {
+        "methods": [
+            "GET"
+        ],
+        "uri": "manage_groups\/group_set",
+        "name": "group_set",
+        "action": "App\\Http\\Controllers\\AdministrationController@add_groups",
+        "middleware": [
+            "web",
+            "general_auth",
+            "admin"
+        ]
+    },
+    {
+        "methods": [
+            "POST"
+        ],
+        "uri": "manage_groups\/group_set\/add",
+        "name": "add_group_to_set",
+        "action": "App\\Http\\Controllers\\AdministrationController@add_group_to_set",
+        "middleware": [
+            "web",
+            "general_auth",
+            "admin"
+        ]
+    },
+    {
+        "methods": [
+            "POST"
+        ],
+        "uri": "manage_groups\/group_set\/delete",
+        "name": "delete_group_from_set",
+        "action": "App\\Http\\Controllers\\AdministrationController@delete_group_from_set",
+        "middleware": [
+            "web",
+            "general_auth",
+            "admin"
+        ]
+    },
+    {
+        "methods": [
+            "POST"
+        ],
+        "uri": "manage_groups\/group_set\/restore",
+        "name": "archived_group_restore",
+        "action": "App\\Http\\Controllers\\AdministrationController@archived_group_restore",
+        "middleware": [
+            "web",
+            "general_auth",
+            "admin"
+        ]
+    },
+    {
+        "methods": [
+            "GET"
+        ],
+        "uri": "storage",
+        "name": "archive_index",
+        "action": "App\\Http\\Controllers\\ArchiveController@index",
+        "middleware": [
+            "web",
+            "general_auth",
+            "admin"
+        ]
+    },
+    {
+        "methods": [
+            "POST"
+        ],
+        "uri": "storage\/{folder}",
+        "name": "archive_folder",
+        "action": "App\\Http\\Controllers\\ArchiveController@folder",
+        "middleware": [
+            "web",
+            "general_auth",
+            "admin"
+        ]
+    },
+    {
+        "methods": [
+            "POST"
+        ],
+        "uri": "storage",
+        "name": "archive_download",
+        "action": "App\\Http\\Controllers\\ArchiveController@download",
+        "middleware": [
+            "web",
+            "general_auth",
+            "admin"
+        ]
+    },
+    {
+        "methods": [
+            "POST"
+        ],
+        "uri": "storage\/download-folder\/folder",
+        "name": "archive_download_folder",
+        "action": "App\\Http\\Controllers\\ArchiveController@downloadFolder",
+        "middleware": [
+            "web",
+            "general_auth",
+            "admin"
+        ]
+    },
+    {
+        "methods": [
+            "POST"
+        ],
+        "uri": "storage\/delete\/file",
+        "name": "archive_delete",
+        "action": "App\\Http\\Controllers\\ArchiveController@delete",
+        "middleware": [
+            "web",
+            "general_auth",
+            "admin"
+        ]
+    },
+    {
+        "methods": [
+            "GET"
+        ],
+        "uri": "recursion_index",
+        "name": "recursion_index",
+        "action": "App\\Http\\Controllers\\RecursionController@get_recursion",
+        "middleware": [
+            "web"
+        ]
+    },
+    {
+        "methods": [
+            "GET"
+        ],
+        "uri": "recursion_one",
+        "name": "recursion_one",
+        "action": "App\\Http\\Controllers\\RecursionController@get_recursion_one",
+        "middleware": [
+            "web"
+        ]
+    },
+    {
+        "methods": [
+            "GET"
+        ],
+        "uri": "recursion_two",
+        "name": "recursion_two",
+        "action": "App\\Http\\Controllers\\RecursionController@get_recursion_two",
+        "middleware": [
+            "web"
+        ]
+    },
+    {
+        "methods": [
+            "GET"
+        ],
+        "uri": "recursion_three",
+        "name": "recursion_three",
+        "action": "App\\Http\\Controllers\\RecursionController@get_recursion_three",
+        "middleware": [
+            "web"
+        ]
+    },
+    {
+        "methods": [
+            "POST"
+        ],
+        "uri": "recursion\/calculate_one",
+        "name": "calculate_one",
+        "action": "App\\Http\\Controllers\\RecursionController@calculate_one",
+        "middleware": [
+            "web"
+        ]
+    },
+    {
+        "methods": [
+            "POST"
+        ],
+        "uri": "recursion\/calculate_two",
+        "name": "calculate_two",
+        "action": "App\\Http\\Controllers\\RecursionController@calculate_two",
+        "middleware": [
+            "web"
+        ]
+    },
+    {
+        "methods": [
+            "POST"
+        ],
+        "uri": "recursion\/calculate_three",
+        "name": "calculate_three",
+        "action": "App\\Http\\Controllers\\RecursionController@calculate_three",
+        "middleware": [
+            "web"
+        ]
+    },
+    {
+        "methods": [
+            "GET"
+        ],
+        "uri": "api\/get\/groups",
+        "name": null,
+        "action": "App\\Http\\Controllers\\APIController@getGroupList",
+        "middleware": [
+            "web"
+        ]
+    },
+    {
+        "methods": [
+            "GET"
+        ],
+        "uri": "api\/get\/students\/{group_id}",
+        "name": null,
+        "action": "App\\Http\\Controllers\\APIController@getStudentsFromGroup",
+        "middleware": [
+            "web"
+        ]
+    },
+    {
+        "methods": [
+            "POST"
+        ],
+        "uri": "api\/check",
+        "name": null,
+        "action": "App\\Http\\Controllers\\APIController@checkStudentsAtSeminar",
+        "middleware": [
+            "web"
+        ]
+    },
+    {
+        "methods": [
+            "POST"
+        ],
+        "uri": "check\/ifExists",
+        "name": null,
+        "action": "App\\Http\\Controllers\\AdministrationController@checkEmailIfExists",
+        "middleware": [
+            "web"
+        ]
+    },
+    {
+        "methods": [
+            "GET"
+        ],
+        "uri": "algorithm\/mt2",
+        "name": "mt2",
+        "action": "App\\Http\\Controllers\\Emulators\\MTController@openMT",
+        "middleware": [
+            "web"
+        ]
+    },
+    {
+        "methods": [
+            "GET"
+        ],
+        "uri": "algorithm\/ham2",
+        "name": "ham2",
+        "action": "App\\Http\\Controllers\\Emulators\\HAMController@openHAM",
+        "middleware": [
+            "web"
+        ]
+    },
+    {
+        "methods": [
+            "GET"
+        ],
+        "uri": "algorithm\/mt2help",
+        "name": "mt2help",
+        "action": "App\\Http\\Controllers\\Emulators\\MTController@openMT2Help",
+        "middleware": [
+            "web"
+        ]
+    },
+    {
+        "methods": [
+            "GET"
+        ],
+        "uri": "algorithm\/mt2help_alternative",
+        "name": "mt2help_alternative",
+        "action": "App\\Http\\Controllers\\Emulators\\MTController@openMT2HelpAlternative",
+        "middleware": [
+            "web"
+        ]
+    },
+    {
+        "methods": [
+            "GET"
+        ],
+        "uri": "algorithm\/mt2_HELP",
+        "name": "mt2help",
+        "action": "App\\Http\\Controllers\\Emulators\\MTController@openMT2_HELP",
+        "middleware": [
+            "web"
+        ]
+    },
+    {
+        "methods": [
+            "GET"
+        ],
+        "uri": "algorithm\/mt2_SCORES",
+        "name": "mt2help",
+        "action": "App\\Http\\Controllers\\Emulators\\MTController@openMT2_SCORES",
+        "middleware": [
+            "web"
+        ]
+    },
+    {
+        "methods": [
+            "GET"
+        ],
+        "uri": "algorithm\/ham2_HELP",
+        "name": "ham2help",
+        "action": "App\\Http\\Controllers\\Emulators\\HAMController@openHAM2_HELP",
+        "middleware": [
+            "web"
+        ]
+    },
+    {
+        "methods": [
+            "GET"
+        ],
+        "uri": "algorithm\/ham2_SCORES",
+        "name": "ham2help",
+        "action": "App\\Http\\Controllers\\Emulators\\HAMController@openHAM2_SCORES",
+        "middleware": [
+            "web"
+        ]
+    },
+    {
+        "methods": [
+            "GET"
+        ],
+        "uri": "algorithm\/HAMHelp",
+        "name": "HAMHelp",
+        "action": "App\\Http\\Controllers\\Emulators\\HAMController@openHAMHelp",
+        "middleware": [
+            "web"
+        ]
+    },
+    {
+        "methods": [
+            "GET"
+        ],
+        "uri": "algorithm\/MT",
+        "name": "MT",
+        "action": "App\\Http\\Controllers\\Emulators\\EmulatorController@openMT",
+        "middleware": [
+            "web",
+            "general_auth"
+        ]
+    },
+    {
+        "methods": [
+            "POST"
+        ],
+        "uri": "algorithm\/MT",
+        "name": "MTRun",
+        "action": "App\\Http\\Controllers\\Emulators\\EmulatorController@MTPOST",
+        "middleware": [
+            "web",
+            "general_auth"
+        ]
+    },
+    {
+        "methods": [
+            "POST"
+        ],
+        "uri": "algorithm\/MTCheck",
+        "name": "MTCheck",
+        "action": "App\\Http\\Controllers\\Emulators\\EmulatorController@MTCheck",
+        "middleware": [
+            "web",
+            "general_auth"
+        ]
+    },
+    {
+        "methods": [
+            "POST"
+        ],
+        "uri": "algorithm\/HAM2Check",
+        "name": "HAM2Check",
+        "action": "App\\Http\\Controllers\\Emulators\\EmulatorController@HAM2Check",
+        "middleware": [
+            "web",
+            "general_auth"
+        ]
+    },
+    {
+        "methods": [
+            "GET"
+        ],
+        "uri": "algorithm\/MTHelp",
+        "name": "MTHelp",
+        "action": "Closure",
+        "middleware": [
+            "web",
+            "general_auth"
+        ]
+    },
+    {
+        "methods": [
+            "GET"
+        ],
+        "uri": "algorithm\/HAM",
+        "name": "HAM",
+        "action": "App\\Http\\Controllers\\Emulators\\EmulatorController@openHAM",
+        "middleware": [
+            "web",
+            "general_auth"
+        ]
+    },
+    {
+        "methods": [
+            "POST"
+        ],
+        "uri": "algorithm\/HAM",
+        "name": "HAMRun",
+        "action": "App\\Http\\Controllers\\Emulators\\EmulatorController@HAMPOST",
+        "middleware": [
+            "web",
+            "general_auth"
+        ]
+    },
+    {
+        "methods": [
+            "POST"
+        ],
+        "uri": "algorithm\/HAMCheck",
+        "name": "HAMCheck",
+        "action": "App\\Http\\Controllers\\Emulators\\EmulatorController@HAMCheck",
+        "middleware": [
+            "web",
+            "general_auth"
+        ]
+    },
+    {
+        "methods": [
+            "GET"
+        ],
+        "uri": "algorithm\/MMT",
+        "name": "MMT",
+        "action": "App\\Http\\Controllers\\Emulators\\EmulatorController@openMMT",
+        "middleware": [
+            "web",
+            "general_auth"
+        ]
+    },
+    {
+        "methods": [
+            "GET"
+        ],
+        "uri": "algorithm\/RAM",
+        "name": "RAM",
+        "action": "App\\Http\\Controllers\\Emulators\\RamEmulatorController@openRAM",
+        "middleware": [
+            "web",
+            "general_auth"
+        ]
+    },
+    {
+        "methods": [
+            "POST"
+        ],
+        "uri": "algorithm\/RAMCheck",
+        "name": "RAMCheck",
+        "action": "App\\Http\\Controllers\\Emulators\\RamEmulatorController@RAMCheck",
+        "middleware": [
+            "web",
+            "general_auth"
+        ]
+    },
+    {
+        "methods": [
+            "GET"
+        ],
+        "uri": "algorithm\/RAMHelp",
+        "name": "RAMHelp",
+        "action": "Closure",
+        "middleware": [
+            "web",
+            "general_auth"
+        ]
+    },
+    {
+        "methods": [
+            "GET"
+        ],
+        "uri": "algorithm\/Post",
+        "name": "Post",
+        "action": "App\\Http\\Controllers\\Emulators\\PostEmulatorController@openPost",
+        "middleware": [
+            "web",
+            "general_auth"
+        ]
+    },
+    {
+        "methods": [
+            "POST"
+        ],
+        "uri": "algorithm\/PostCheck",
+        "name": "PostCheck",
+        "action": "App\\Http\\Controllers\\Emulators\\PostEmulatorController@PostCheck",
+        "middleware": [
+            "web",
+            "general_auth"
+        ]
+    },
+    {
+        "methods": [
+            "GET"
+        ],
+        "uri": "algorithm\/PostHelp",
+        "name": "PostHelp",
+        "action": "Closure",
+        "middleware": [
+            "web",
+            "general_auth"
+        ]
+    },
+    {
+        "methods": [
+            "GET"
+        ],
+        "uri": "students-knowledge-level",
+        "name": "students_level",
+        "action": "App\\Http\\Controllers\\StudentKnowledgeLevelController@index",
+        "middleware": [
+            "web",
+            "general_auth",
+            "admin"
+        ]
+    },
+    {
+        "methods": [
+            "GET"
+        ],
+        "uri": "students-knowledge-level\/{error}",
+        "name": "students_level_with_errors",
+        "action": "App\\Http\\Controllers\\StudentKnowledgeLevelController@indexWithErrors",
+        "middleware": [
+            "web",
+            "general_auth",
+            "admin"
+        ]
+    },
+    {
+        "methods": [
+            "POST"
+        ],
+        "uri": "students-knowledge-level",
+        "name": "set_students_level",
+        "action": "App\\Http\\Controllers\\StudentKnowledgeLevelController@setLevel",
+        "middleware": [
+            "web",
+            "general_auth",
+            "admin"
+        ]
+    },
+    {
+        "methods": [
+            "POST"
+        ],
+        "uri": "students-knowledge-level-by-test-results",
+        "name": "set_students_level_by_test_results",
+        "action": "App\\Http\\Controllers\\StudentKnowledgeLevelController@calculateOptimizedKnowledgeLevelsExactly",
+        "middleware": [
+            "web",
+            "general_auth",
+            "admin"
+        ]
+    },
+    {
+        "methods": [
+            "GET"
+        ],
+        "uri": "adaptive-tests\/params",
+        "name": "adaptive_test_params",
+        "action": "App\\Http\\Controllers\\AdaptiveTestController@params",
+        "middleware": [
+            "web",
+            "general_auth",
+            "admin"
+        ]
+    },
+    {
+        "methods": [
+            "POST"
+        ],
+        "uri": "adaptive-tests\/params",
+        "name": "eval_params",
+        "action": "App\\Http\\Controllers\\AdaptiveTestController@evalParams",
+        "middleware": [
+            "web",
+            "general_auth",
+            "admin"
+        ]
+    },
+    {
+        "methods": [
+            "POST"
+        ],
+        "uri": "adaptive-tests\/reevaluate-difficulty",
+        "name": "reeval_difficulty",
+        "action": "App\\Http\\Controllers\\AdaptiveTestController@reEvalDifficulty",
+        "middleware": [
+            "web",
+            "general_auth",
+            "admin"
+        ]
+    },
+    {
+        "methods": [
+            "POST"
+        ],
+        "uri": "adaptive-tests\/reevaluate-discriminant",
+        "name": "reeval_difficulty",
+        "action": "App\\Http\\Controllers\\AdaptiveTestController@reEvalDiscriminant",
+        "middleware": [
+            "web",
+            "general_auth",
+            "admin"
+        ]
+    },
+    {
+        "methods": [
+            "GET"
+        ],
+        "uri": "stat\/get-question-success\/{id_question}",
+        "name": "question_success_stat",
+        "action": "App\\Http\\Controllers\\StatisticController@getSuccess",
+        "middleware": [
+            "web",
+            "general_auth",
+            "admin"
+        ]
+    },
+    {
+        "methods": [
+            "GET"
+        ],
+        "uri": "stat\/get-questions-diff-and-det\/{id_question}",
+        "name": "question_diff_and_det",
+        "action": "App\\Http\\Controllers\\StatisticController@getDifficultyAndDiscriminant",
+        "middleware": [
+            "web",
+            "general_auth",
+            "admin"
+        ]
+    },
+    {
+        "methods": [
+            "GET"
+        ],
+        "uri": "stat\/get-question-frequency-by-month\/{id_question}",
+        "name": "question_freq_by_month",
+        "action": "App\\Http\\Controllers\\StatisticController@getFrequencyByMonth",
+        "middleware": [
+            "web",
+            "general_auth",
+            "admin"
+        ]
+    },
+    {
+        "methods": [
+            "GET"
+        ],
+        "uri": "stat\/get-question-group-success\/{id_question}",
+        "name": "question_group_success_stat",
+        "action": "App\\Http\\Controllers\\StatisticController@getGroupSuccess",
+        "middleware": [
+            "web",
+            "general_auth",
+            "admin"
+        ]
+    },
+    {
+        "methods": [
+            "GET"
+        ],
+        "uri": "stat\/get-test-results\/{id_test}",
+        "name": "test_results_stat",
+        "action": "App\\Http\\Controllers\\StatisticController@getResults",
+        "middleware": [
+            "web",
+            "general_auth",
+            "admin"
+        ]
+    },
+    {
+        "methods": [
+            "GET"
+        ],
+        "uri": "stat\/get-test-results\/{id_test}\/{id_group}",
+        "name": "test_results_stat_for_group",
+        "action": "App\\Http\\Controllers\\StatisticController@getResultsForGroup",
+        "middleware": [
+            "web",
+            "general_auth",
+            "admin"
+        ]
+    },
+    {
+        "methods": [
+            "GET"
+        ],
+        "uri": "stat\/get-question-type-frequency-in-test\/{id_test}",
+        "name": "question_type_freq_in_test",
+        "action": "App\\Http\\Controllers\\StatisticController@getQuestionTypeFrequencyInTest",
+        "middleware": [
+            "web",
+            "general_auth",
+            "admin"
+        ]
+    },
+    {
+        "methods": [
+            "GET"
+        ],
+        "uri": "edit_mt_params",
+        "name": "edit_mt_params",
+        "action": "App\\Http\\Controllers\\Emulators\\MTController@show_edit_params_mt2",
+        "middleware": [
+            "web",
+            "general_auth",
+            "admin"
+        ]
+    },
+    {
+        "methods": [
+            "POST"
+        ],
+        "uri": "edit_mt_params_apply",
+        "name": "edit_mt_params_apply",
+        "action": "App\\Http\\Controllers\\Emulators\\MTController@edit_params_mt2",
+        "middleware": [
+            "web",
+            "general_auth",
+            "admin"
+        ]
+    },
+    {
+        "methods": [
+            "GET"
+        ],
+        "uri": "edit_ham_params",
+        "name": "edit_ham_params",
+        "action": "App\\Http\\Controllers\\Emulators\\HAMController@show_edit_params_ham",
+        "middleware": [
+            "web",
+            "general_auth",
+            "admin"
+        ]
+    },
+    {
+        "methods": [
+            "POST"
+        ],
+        "uri": "edit_ham_params_apply",
+        "name": "edit_ham_params_apply",
+        "action": "App\\Http\\Controllers\\Emulators\\HAMController@edit_params_ham",
+        "middleware": [
+            "web",
+            "general_auth",
+            "admin"
+        ]
+    },
+    {
+        "methods": [
+            "GET"
+        ],
+        "uri": "manage_users",
+        "name": "manage_users",
+        "action": "App\\Http\\Controllers\\AdministrationController@manageUsers",
+        "middleware": [
+            "web",
+            "general_auth",
+            "admin"
+        ]
+    },
+    {
+        "methods": [
+            "POST"
+        ],
+        "uri": "users\/bulk_action",
+        "name": "users.bulk_action",
+        "action": "App\\Http\\Controllers\\AdministrationController@bulkAction",
+        "middleware": [
+            "web"
+        ]
+    },
+    {
+        "methods": [
+            "POST"
+        ],
+        "uri": "tests\/{id}\/archive",
+        "name": "tests.archive",
+        "action": "App\\Http\\Controllers\\TestController@archive",
+        "middleware": [
+            "web"
+        ]
+    },
+    {
+        "methods": [
+            "GET"
+        ],
+        "uri": "testing\/reports",
+        "name": "testing.reports",
+        "action": "App\\Http\\Controllers\\TestingController@reports",
+        "middleware": [
+            "web"
+        ]
+    },
+    {
+        "methods": [
+            "GET"
+        ],
+        "uri": "reports\/{id}\/download",
+        "name": "reports.download",
+        "action": "Closure",
+        "middleware": [
+            "web"
+        ]
+    },
+    {
+        "methods": [
+            "GET"
+        ],
+        "uri": "statistics",
+        "name": "group_statistics.index",
+        "action": "App\\Http\\Controllers\\GroupStatisticsController@index",
+        "middleware": [
+            "web"
+        ]
+    },
+    {
+        "methods": [
+            "POST"
+        ],
+        "uri": "statistics\/generate",
+        "name": "group_statistics.generate",
+        "action": "App\\Http\\Controllers\\GroupStatisticsController@generate",
+        "middleware": [
+            "web"
+        ]
+    },
+    {
+        "methods": [
+            "GET"
+        ],
+        "uri": "statistics\/download\/{id}",
+        "name": "group_statistics.download",
+        "action": "App\\Http\\Controllers\\GroupStatisticsController@download",
+        "middleware": [
+            "web"
+        ]
+    },
+    {
+        "methods": [
+            "GET"
+        ],
+        "uri": "messages",
+        "name": "messages.index",
+        "action": "App\\Http\\Controllers\\MessagesController@index",
+        "middleware": {
+            "0": "web",
+            "1": "auth",
+            "3": {}
+        }
+    },
+    {
+        "methods": [
+            "GET"
+        ],
+        "uri": "messages\/create",
+        "name": "messages.create",
+        "action": "App\\Http\\Controllers\\MessagesController@create",
+        "middleware": {
+            "0": "web",
+            "1": "auth",
+            "3": {}
+        }
+    },
+    {
+        "methods": [
+            "POST"
+        ],
+        "uri": "messages",
+        "name": "messages.store",
+        "action": "App\\Http\\Controllers\\MessagesController@store",
+        "middleware": {
+            "0": "web",
+            "1": "auth",
+            "3": {}
+        }
+    },
+    {
+        "methods": [
+            "POST"
+        ],
+        "uri": "messages\/{id}\/read",
+        "name": "messages.read",
+        "action": "App\\Http\\Controllers\\MessagesController@markAsRead",
+        "middleware": {
+            "0": "web",
+            "1": "auth",
+            "3": {}
+        }
+    },
+    {
+        "methods": [
+            "DELETE"
+        ],
+        "uri": "messages\/{id}",
+        "name": "messages.destroy",
+        "action": "App\\Http\\Controllers\\MessagesController@destroy",
+        "middleware": {
+            "0": "web",
+            "1": "auth",
+            "3": {}
+        }
+    },
+    {
+        "methods": [
+            "GET"
+        ],
+        "uri": "messages\/{id}",
+        "name": "messages.show",
+        "action": "App\\Http\\Controllers\\MessagesController@show",
+        "middleware": {
+            "0": "web",
+            "1": "auth",
+            "3": {}
+        }
+    },
+    {
+        "methods": [
+            "GET"
+        ],
+        "uri": "lectures\/limit",
+        "name": "lectures.limitForm",
+        "action": "App\\Http\\Controllers\\LectureController@showLimitsMatrix",
+        "middleware": [
+            "web",
+            "general_auth",
+            "admin"
+        ]
+    },
+    {
+        "methods": [
+            "POST"
+        ],
+        "uri": "lectures\/limit\/save",
+        "name": "lectures.saveLimitsMatrix",
+        "action": "App\\Http\\Controllers\\LectureController@saveLimitsMatrix",
+        "middleware": [
+            "web",
+            "general_auth",
+            "admin"
+        ]
+    },
+    {
+        "methods": [
+            "GET"
+        ],
+        "uri": "lectures\/limit\/matrix",
+        "name": "lectures.showLimitsMatrix",
+        "action": "App\\Http\\Controllers\\LectureController@showLimitsMatrix",
+        "middleware": [
+            "web",
+            "general_auth",
+            "admin"
+        ]
+    },
+    {
+        "methods": [
+            "GET"
+        ],
+        "uri": "steward\/attendance",
+        "name": "steward.attendance",
+        "action": "App\\Http\\Controllers\\PersonalAccount@showAttendanceForm",
+        "middleware": [
+            "web",
+            "general_auth"
+        ]
+    },
+    {
+        "methods": [
+            "POST"
+        ],
+        "uri": "steward\/attendance\/save",
+        "name": "steward.attendance.submit",
+        "action": "App\\Http\\Controllers\\PersonalAccount@submitAttendance",
+        "middleware": [
+            "web",
+            "general_auth"
+        ]
+    },
+    {
+        "methods": [
+            "GET"
+        ],
+        "uri": "steward\/statements",
+        "name": "view.steward.attendance",
+        "action": "App\\Http\\Controllers\\StatementsController@viewStewardAttendance",
+        "middleware": [
+            "web",
+            "general_auth",
+            "admin"
+        ]
+    },
+    {
+        "methods": [
+            "GET"
+        ],
+        "uri": "steward\/statements\/view",
+        "name": "steward.statements.view",
+        "action": "App\\Http\\Controllers\\StatementsController@viewStewardAttendance",
+        "middleware": [
+            "web",
+            "general_auth",
+            "admin"
+        ]
+    },
+    {
+        "methods": [
+            "POST"
+        ],
+        "uri": "steward\/attendance\/toggle",
+        "name": "steward.attendance.toggle",
+        "action": "App\\Http\\Controllers\\StatementsController@toggleAttendance",
+        "middleware": [
+            "web",
+            "general_auth",
+            "admin"
+        ]
+    }
+]

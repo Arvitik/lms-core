@@ -1,0 +1,154 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "Z:\\lms-core-master\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|Z:\\lms-core-master\\routes\\web.php||{3B902123-F8A7-4915-9F01-361F908088D0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:routes\\web.php||{3B902123-F8A7-4915-9F01-361F908088D0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|Z:\\lms-core-master\\app\\Http\\Controllers\\StatementsController.php||{3B902123-F8A7-4915-9F01-361F908088D0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:app\\Http\\Controllers\\StatementsController.php||{3B902123-F8A7-4915-9F01-361F908088D0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|Z:\\lms-core-master\\resources\\views\\personal_account\\steward_attendance.blade.php||{3B902123-F8A7-4915-9F01-361F908088D0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:resources\\views\\personal_account\\steward_attendance.blade.php||{3B902123-F8A7-4915-9F01-361F908088D0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|Z:\\lms-core-master\\resources\\views\\lectures\\limit_form.blade.php||{3B902123-F8A7-4915-9F01-361F908088D0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:resources\\views\\lectures\\limit_form.blade.php||{3B902123-F8A7-4915-9F01-361F908088D0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|Z:\\lms-core-master\\app\\Http\\Controllers\\LectureController.php||{3B902123-F8A7-4915-9F01-361F908088D0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:app\\Http\\Controllers\\LectureController.php||{3B902123-F8A7-4915-9F01-361F908088D0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|Z:\\lms-core-master\\app\\Http\\Controllers\\AdministrationController.php||{3B902123-F8A7-4915-9F01-361F908088D0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:app\\Http\\Controllers\\AdministrationController.php||{3B902123-F8A7-4915-9F01-361F908088D0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|Z:\\lms-core-master\\app\\Http\\Controllers\\PersonalAccount.php||{3B902123-F8A7-4915-9F01-361F908088D0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:app\\Http\\Controllers\\PersonalAccount.php||{3B902123-F8A7-4915-9F01-361F908088D0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|Z:\\lms-core-master\\resources\\views\\personal_account\\adminPanel.blade.php||{3B902123-F8A7-4915-9F01-361F908088D0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:resources\\views\\personal_account\\adminPanel.blade.php||{3B902123-F8A7-4915-9F01-361F908088D0}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 5,
+          "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{3ae79031-e1bc-11d0-8f78-00a0c9110057}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "steward_attendance.blade.php",
+              "DocumentMoniker": "Z:\\lms-core-master\\resources\\views\\personal_account\\steward_attendance.blade.php",
+              "RelativeDocumentMoniker": "resources\\views\\personal_account\\steward_attendance.blade.php",
+              "ToolTip": "Z:\\lms-core-master\\resources\\views\\personal_account\\steward_attendance.blade.php",
+              "RelativeToolTip": "resources\\views\\personal_account\\steward_attendance.blade.php",
+              "ViewState": "AgIAABAAAAAAAAAAAAAYwCgAAABlAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
+              "WhenOpened": "2025-11-24T15:31:46.919Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "PersonalAccount.php",
+              "DocumentMoniker": "Z:\\lms-core-master\\app\\Http\\Controllers\\PersonalAccount.php",
+              "RelativeDocumentMoniker": "app\\Http\\Controllers\\PersonalAccount.php",
+              "ToolTip": "Z:\\lms-core-master\\app\\Http\\Controllers\\PersonalAccount.php",
+              "RelativeToolTip": "app\\Http\\Controllers\\PersonalAccount.php",
+              "ViewState": "AgIAAJsAAAAAAAAAAAAIwNcAAAApAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
+              "WhenOpened": "2025-10-05T18:32:43.719Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "limit_form.blade.php",
+              "DocumentMoniker": "Z:\\lms-core-master\\resources\\views\\lectures\\limit_form.blade.php",
+              "RelativeDocumentMoniker": "resources\\views\\lectures\\limit_form.blade.php",
+              "ToolTip": "Z:\\lms-core-master\\resources\\views\\lectures\\limit_form.blade.php",
+              "RelativeToolTip": "resources\\views\\lectures\\limit_form.blade.php",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAQAAAAIAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
+              "WhenOpened": "2025-10-05T19:20:52.785Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "StatementsController.php",
+              "DocumentMoniker": "Z:\\lms-core-master\\app\\Http\\Controllers\\StatementsController.php",
+              "RelativeDocumentMoniker": "app\\Http\\Controllers\\StatementsController.php",
+              "ToolTip": "Z:\\lms-core-master\\app\\Http\\Controllers\\StatementsController.php",
+              "RelativeToolTip": "app\\Http\\Controllers\\StatementsController.php",
+              "ViewState": "AgIAAGcCAAAAAAAAAAD4v4MCAABAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
+              "WhenOpened": "2025-10-05T21:46:36.316Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "web.php",
+              "DocumentMoniker": "Z:\\lms-core-master\\routes\\web.php",
+              "RelativeDocumentMoniker": "routes\\web.php",
+              "ToolTip": "Z:\\lms-core-master\\routes\\web.php",
+              "RelativeToolTip": "routes\\web.php",
+              "ViewState": "AgIAAMIBAAAAAAAAAAD4v84BAAADAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
+              "WhenOpened": "2025-11-17T18:33:35.888Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "AdministrationController.php",
+              "DocumentMoniker": "Z:\\lms-core-master\\app\\Http\\Controllers\\AdministrationController.php",
+              "RelativeDocumentMoniker": "app\\Http\\Controllers\\AdministrationController.php",
+              "ToolTip": "Z:\\lms-core-master\\app\\Http\\Controllers\\AdministrationController.php",
+              "RelativeToolTip": "app\\Http\\Controllers\\AdministrationController.php",
+              "ViewState": "AgIAABkBAAAAAAAAAAAAAP0AAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
+              "WhenOpened": "2025-10-05T21:13:24.235Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "adminPanel.blade.php",
+              "DocumentMoniker": "Z:\\lms-core-master\\resources\\views\\personal_account\\adminPanel.blade.php",
+              "RelativeDocumentMoniker": "resources\\views\\personal_account\\adminPanel.blade.php",
+              "ToolTip": "Z:\\lms-core-master\\resources\\views\\personal_account\\adminPanel.blade.php",
+              "RelativeToolTip": "resources\\views\\personal_account\\adminPanel.blade.php",
+              "ViewState": "AgIAAFQAAAAAAAAAAAAwwGEAAAApAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
+              "WhenOpened": "2025-11-08T14:41:32.371Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "LectureController.php",
+              "DocumentMoniker": "Z:\\lms-core-master\\app\\Http\\Controllers\\LectureController.php",
+              "RelativeDocumentMoniker": "app\\Http\\Controllers\\LectureController.php",
+              "ToolTip": "Z:\\lms-core-master\\app\\Http\\Controllers\\LectureController.php",
+              "RelativeToolTip": "app\\Http\\Controllers\\LectureController.php",
+              "ViewState": "AgIAAFcAAAAAAAAAAAAtwHIAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
+              "WhenOpened": "2025-10-05T18:35:52.541Z"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
