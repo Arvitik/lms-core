@@ -125,6 +125,11 @@
                                 <div class="tile-text">Уведомления и контрольные работы</div>
                             </a>
                         </li>
+                        <li class="tile">
+                            <a href="{{ route('schedule_board.index') }}" class="tile-content ink-reaction">
+                                <div class="tile-text">Информационное табло</div>
+                            </a>
+                        </li>
                         @endif
                     </ul>
                 </div><!--end .card-body -->

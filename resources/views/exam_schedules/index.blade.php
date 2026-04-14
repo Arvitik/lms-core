@@ -26,11 +26,12 @@
             <table class="table table-hover table-bordered">
                 <thead class="info">
                     <tr>
-                        <th>Дата</th>
+                        <th>Дата / Время</th>
                         <th>Название</th>
-                        <th>Группа</th>
+                        <th>Группы</th>
+                        <th>Аудитория</th>
                         <th>Описание</th>
-                        <th>Назначил</th>
+                        <th>Преподаватель</th>
                         <th>Действия</th>
                     </tr>
                 </thead>
@@ -39,19 +40,24 @@
                     @php $past = $s->scheduled_date->isPast(); @endphp
                     <tr @if($past) style="opacity:.6;" @endif>
                         <td>
-                            <strong @if(!$past) style="color:#1976D2;" @endif>
+                            <strong @if(!$past) style="color:#C62828;" @endif>
                                 {{ $s->scheduled_date->format('d.m.Y') }}
                             </strong>
-                            @if(!$past)
-                                <br><small class="text-muted">{{ $s->scheduled_date->diffForHumans() }}</small>
-                            @else
-                                <br><small class="text-muted">Прошла</small>
+                            @if($s->time_start)
+                            <br><small style="color:#555;">
+                                {{ \Carbon\Carbon::parse($s->time_start)->format('H:i') }}
+                                @if($s->time_end)— {{ \Carbon\Carbon::parse($s->time_end)->format('H:i') }}@endif
+                            </small>
                             @endif
+                            <br><small class="text-muted">{{ $past ? 'Прошла' : $s->scheduled_date->diffForHumans() }}</small>
                         </td>
                         <td><strong>{{ $s->title }}</strong></td>
-                        <td>{{ $s->group ? $s->group->group_name : '—' }}</td>
-                        <td style="max-width:220px;font-size:13px;">{{ $s->description ?: '—' }}</td>
-                        <td>{{ $s->teacher ? $s->teacher->last_name . ' ' . $s->teacher->first_name : '—' }}</td>
+                        <td style="font-size:13px;">
+                            {{ $s->groups->isNotEmpty() ? $s->groups->pluck('group_name')->implode(', ') : '—' }}
+                        </td>
+                        <td style="font-size:13px;">{{ $s->room ?: '—' }}</td>
+                        <td style="max-width:180px;font-size:13px;">{{ $s->description ?: '—' }}</td>
+                        <td>{{ $s->teacher ? $s->teacher->last_name . ' ' . mb_substr($s->teacher->first_name,0,1) . '.' : '—' }}</td>
                         <td>
                             <form action="{{ route('exam_schedules.destroy', $s->id) }}" method="POST">
                                 {{ csrf_field() }}

@@ -194,15 +194,6 @@
 						</li>
                     </ul>
                     <ul class="nav navbar-nav navbar-right">
-                        {{-- ===== КОНТРОЛЬНЫЕ (студент) ===== --}}
-                        @if(Auth::check() && in_array(Auth::user()->role, ['Студент', 'Студент-заочник', 'Староста']))
-                        <li style="position: relative;">
-                            <a href="{{ route('exam_schedules.student') }}" class="btn" title="Мои контрольные" style="position: relative; padding: 10px 14px;">
-                                <span class="glyphicon glyphicon-calendar"></span>
-                                <span id="exam-badge" style="position:absolute;top:4px;right:4px;background:#f44336;color:#fff;border-radius:50%;font-size:10px;font-weight:700;min-width:17px;height:17px;line-height:17px;text-align:center;padding:0 3px;display:none;"></span>
-                            </a>
-                        </li>
-                        @endif
                         {{-- ===== ДИПЛОМ: Сообщения/чат — раскомментировать при разработке диплома ===== --}}
                         {{-- @auth
                         <li>
@@ -264,12 +255,12 @@
 
     // Иконки по типу уведомления
     var icons = {
-        'attendance'    : '✅',
-        'new_test'      : '📝',
-        'new_message'   : '✉️',
-        'test_result'   : '🎯',
-        'exam_scheduled': '📅',
-        'announcement'  : '📢'
+        'attendance'    : '',
+        'new_test'      : '',
+        'new_message'   : '',
+        'test_result'   : '',
+        'exam_scheduled': '',
+        'announcement'  : ''
     };
 
     function timeAgo(dateStr) {
@@ -387,26 +378,6 @@
     setInterval(fetchNotifications, 30000);
 })();
 
-@if(in_array(Auth::user()->role, ['Студент', 'Студент-заочник', 'Староста']))
-(function () {
-    function fetchExamCount() {
-        $.ajax({
-            url: '{{ route("exam_schedules.count") }}',
-            method: 'GET',
-            success: function(data) {
-                var $badge = $('#exam-badge');
-                if (data.count > 0) {
-                    $badge.text(data.count > 99 ? '99+' : data.count).show();
-                } else {
-                    $badge.hide();
-                }
-            }
-        });
-    }
-    fetchExamCount();
-    setInterval(fetchExamCount, 60000);
-})();
-@endif
 </script>
 @endauth
 

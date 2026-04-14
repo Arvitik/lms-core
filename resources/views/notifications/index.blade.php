@@ -114,12 +114,12 @@
             @foreach($notifications as $n)
                 @php
                     $icons = [
-                        'attendance'    => ['icon' => '✅', 'label' => 'Посещаемость'],
-                        'new_test'      => ['icon' => '📝', 'label' => 'Новый тест'],
-                        'new_message'   => ['icon' => '✉️', 'label' => 'Сообщение'],
-                        'test_result'   => ['icon' => '🎯', 'label' => 'Результат теста'],
-                        'exam_scheduled'=> ['icon' => '📅', 'label' => 'Контрольная'],
-                        'announcement'  => ['icon' => '📢', 'label' => 'Объявление'],
+                        'attendance'    => ['icon' => '', 'label' => 'Посещаемость'],
+                        'new_test'      => ['icon' => '', 'label' => 'Новый тест'],
+                        'new_message'   => ['icon' => '', 'label' => 'Сообщение'],
+                        'test_result'   => ['icon' => '', 'label' => 'Результат теста'],
+                        'exam_scheduled'=> ['icon' => '', 'label' => 'Контрольная'],
+                        'announcement'  => ['icon' => '', 'label' => 'Объявление'],
                     ];
                     $info = $icons[$n->type] ?? ['icon' => '🔔', 'label' => 'Уведомление'];
                     $data = is_string($n->data) ? json_decode($n->data, true) : ($n->data ?? []);
@@ -148,9 +148,6 @@
                                     data-date="{{ $n->created_at->format('d.m.Y H:i') }}">
                                     <span class="glyphicon glyphicon-fullscreen"></span> Развернуть
                                 </button>
-                                @if($url)
-                                    <a href="{{ $url }}" class="btn btn-xs btn-primary">Перейти</a>
-                                @endif
                                 @if(!$n->is_read)
                                     <form action="{{ route('notifications.read', $n->id) }}" method="POST" style="display:inline;">
                                         {{ csrf_field() }}

@@ -54,13 +54,17 @@
             </div>
 
             <div class="form-group" id="group-picker" style="display:none;">
-                <label>Группа</label>
-                <select name="group_id" class="form-control">
-                    <option value="">— выберите группу —</option>
+                <label>Группы <span class="text-danger">*</span> <small class="text-muted">(можно отметить несколько)</small></label>
+                <div style="border:1px solid #ccc;border-radius:4px;padding:8px 12px;max-height:160px;overflow-y:auto;background:#fff;">
                     @foreach($groups as $g)
-                        <option value="{{ $g->group_id }}">{{ $g->group_name }}</option>
+                    <div>
+                        <label style="font-weight:normal;cursor:pointer;margin:2px 0;">
+                            <input type="checkbox" name="group_ids[]" value="{{ $g->group_id }}"
+                                style="margin-right:6px;">{{ $g->group_name }}
+                        </label>
+                    </div>
                     @endforeach
-                </select>
+                </div>
             </div>
 
             <div id="student-section" style="display:none;">
@@ -128,15 +132,30 @@
             {{ csrf_field() }}
 
             <div class="form-group">
-                <label>Группа <span class="text-danger">*</span></label>
-                <select name="group_id" class="form-control" required>
-                    <option value="">— выберите группу —</option>
-                    @foreach($groups as $g)
-                        <option value="{{ $g->group_id }}" {{ old('group_id') == $g->group_id ? 'selected' : '' }}>
-                            {{ $g->group_name }}
+                <label>Преподаватель <span class="text-danger">*</span></label>
+                <select name="teacher_id" class="form-control" required>
+                    <option value="">— выберите преподавателя —</option>
+                    @foreach($teachers as $t)
+                        <option value="{{ $t->id }}" {{ old('teacher_id') == $t->id ? 'selected' : '' }}>
+                            {{ $t->last_name }} {{ $t->first_name }}
                         </option>
                     @endforeach
                 </select>
+            </div>
+
+            <div class="form-group">
+                <label>Группы <span class="text-danger">*</span> <small class="text-muted">(можно отметить несколько)</small></label>
+                <div style="border:1px solid #ccc;border-radius:4px;padding:8px 12px;max-height:160px;overflow-y:auto;background:#fff;">
+                    @foreach($groups as $g)
+                    <div>
+                        <label style="font-weight:normal;cursor:pointer;margin:2px 0;">
+                            <input type="checkbox" name="group_ids[]" value="{{ $g->group_id }}"
+                                {{ in_array($g->group_id, (array) old('group_ids', [])) ? 'checked' : '' }}
+                                style="margin-right:6px;">{{ $g->group_name }}
+                        </label>
+                    </div>
+                    @endforeach
+                </div>
             </div>
 
             <div class="form-group">
@@ -144,6 +163,19 @@
                 <input type="date" name="scheduled_date" class="form-control"
                        value="{{ old('scheduled_date', date('Y-m-d')) }}"
                        min="{{ date('Y-m-d') }}" required>
+            </div>
+
+            <div style="display:flex;gap:16px;">
+                <div class="form-group" style="flex:1;">
+                    <label>Начало <span class="text-danger">*</span></label>
+                    <input type="time" name="time_start" class="form-control"
+                           value="{{ old('time_start') }}" required>
+                </div>
+                <div class="form-group" style="flex:1;">
+                    <label>Конец <small class="text-muted">(необязательно)</small></label>
+                    <input type="time" name="time_end" class="form-control"
+                           value="{{ old('time_end') }}">
+                </div>
             </div>
 
             <div class="form-group">
@@ -155,22 +187,10 @@
             </div>
 
             <div class="form-group">
-                <label>Описание / что повторить <small class="text-muted">(необязательно)</small></label>
-                <textarea name="description" rows="3" class="form-control"
-                          placeholder="Темы, разделы, рекомендации для подготовки...">{{ old('description') }}</textarea>
-            </div>
-
-            <div class="form-group">
-                <label>Связанный тест <small class="text-muted">(необязательно)</small></label>
-                <select name="test_id" class="form-control">
-                    <option value="">— не выбран —</option>
-                    @foreach($tests as $t)
-                        <option value="{{ $t->id_test }}" {{ old('test_id') == $t->id_test ? 'selected' : '' }}>
-                            {{ $t->test_name }}
-                        </option>
-                    @endforeach
-                </select>
-                <small class="text-muted">Если контрольная будет проходить в системе, можно привязать тест</small>
+                <label>Аудитория <span class="text-danger">*</span></label>
+                <input type="text" name="room" class="form-control"
+                       value="{{ old('room') }}"
+                       placeholder="Например: А101" required>
             </div>
 
             <div style="margin-top:20px;">
@@ -195,11 +215,11 @@
             <table class="table table-hover table-bordered" style="margin-top:12px;">
                 <thead class="info">
                     <tr>
-                        <th>Дата</th>
+                        <th>Дата / Время</th>
                         <th>Название</th>
-                        <th>Группа</th>
-                        <th>Описание</th>
-                        <th>Назначил</th>
+                        <th>Группы</th>
+                        <th>Преподаватель</th>
+                        <th>Аудитория</th>
                         <th></th>
                     </tr>
                 </thead>
@@ -212,13 +232,19 @@
                                 {{ $s->scheduled_date->format('d.m.Y') }}
                             </strong>
                             <br><small class="text-muted">
+                                {{ $s->time_start ? \Carbon\Carbon::parse($s->time_start)->format('H:i') : '' }}
+                                @if($s->time_end)&ndash;{{ \Carbon\Carbon::parse($s->time_end)->format('H:i') }}@endif
+                            </small>
+                            <br><small class="text-muted">
                                 {{ $isPast ? 'Прошла' : $s->scheduled_date->diffForHumans() }}
                             </small>
                         </td>
                         <td><strong>{{ $s->title }}</strong></td>
-                        <td>{{ $s->group ? $s->group->group_name : '—' }}</td>
-                        <td style="max-width:200px;font-size:13px;">{{ $s->description ?: '—' }}</td>
+                        <td style="font-size:13px;">
+                            {{ $s->groups->isNotEmpty() ? $s->groups->pluck('group_name')->implode(', ') : '—' }}
+                        </td>
                         <td>{{ $s->teacher ? $s->teacher->last_name . ' ' . $s->teacher->first_name : '—' }}</td>
+                        <td>{{ $s->room ?? '—' }}</td>
                         <td>
                             <form action="{{ route('broadcast.exam.destroy', $s->id) }}" method="POST">
                                 {{ csrf_field() }}

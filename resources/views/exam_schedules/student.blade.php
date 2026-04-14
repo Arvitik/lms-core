@@ -29,8 +29,18 @@
                         @if($s->description)
                         <div style="font-size:13px;color:#555;margin-top:4px;">{{ $s->description }}</div>
                         @endif
-                        <div style="font-size:12px;color:#888;margin-top:6px;">
-                            Назначил: {{ $s->teacher ? $s->teacher->last_name . ' ' . $s->teacher->first_name : '—' }}
+                        <div style="font-size:12px;color:#555;margin-top:5px;">
+                            @if($s->room)
+                            <span class="glyphicon glyphicon-map-marker"></span> {{ $s->room }}
+                            @endif
+                            @if($s->time_start)
+                            &nbsp;<span class="glyphicon glyphicon-time"></span>
+                            {{ \Carbon\Carbon::parse($s->time_start)->format('H:i') }}
+                            @if($s->time_end)— {{ \Carbon\Carbon::parse($s->time_end)->format('H:i') }}@endif
+                            @endif
+                        </div>
+                        <div style="font-size:12px;color:#888;margin-top:4px;">
+                            Преподаватель: {{ $s->teacher ? $s->teacher->last_name . ' ' . $s->teacher->first_name : '—' }}
                         </div>
                     </div>
                     <div style="text-align:right;min-width:110px;">

@@ -8,7 +8,10 @@ class ExamSchedule extends Model
 {
     protected $table = 'exam_schedules';
 
-    protected $fillable = ['teacher_id', 'group_id', 'test_id', 'title', 'description', 'scheduled_date'];
+    protected $fillable = [
+        'teacher_id', 'group_id', 'title', 'description',
+        'scheduled_date', 'time_start', 'time_end', 'room',
+    ];
 
     protected $dates = ['scheduled_date'];
 
@@ -17,13 +20,13 @@ class ExamSchedule extends Model
         return $this->belongsTo(User::class, 'teacher_id');
     }
 
-    public function group()
+    public function groups()
     {
-        return $this->belongsTo(Group::class, 'group_id', 'group_id');
-    }
-
-    public function test()
-    {
-        return $this->belongsTo(\App\Testing\Test::class, 'test_id', 'id_test');
+        return $this->belongsToMany(
+            Group::class,
+            'exam_schedule_groups',
+            'exam_schedule_id',
+            'group_id'
+        );
     }
 }

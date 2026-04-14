@@ -5,9 +5,10 @@ namespace App\Http\Controllers;
 use App\Group;
 use App\User;
 use App\ExamSchedule;
+use App\ScheduleBoardEntry;
 use App\Services\NotificationService;
 use App\TeacherHasGroup;
-use App\Testing\Test;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -40,15 +41,23 @@ class BroadcastNotificationController extends Controller
                 ->orderBy('last_name')->get(['id', 'first_name', 'last_name', 'group']);
         }
 
-        $tests = Test::where('test_type', 'Контрольный')->orderBy('test_name')->get(['id_test', 'test_name']);
-
+        // Преподаватели с табло для формы КР
         if ($user->role === 'Админ') {
-            $schedules = ExamSchedule::with(['teacher', 'group'])->orderBy('scheduled_date', 'desc')->get();
+            $boardIds = DB::table('schedule_board_teachers')->pluck('teacher_id');
+            $teachers = $boardIds->isEmpty()
+                ? User::whereIn('role', ['Преподаватель', 'Админ'])->orderBy('last_name')->get()
+                : User::whereIn('id', $boardIds)->orderBy('last_name')->get();
         } else {
-            $schedules = ExamSchedule::with(['teacher', 'group'])->where('teacher_id', $user->id)->orderBy('scheduled_date', 'desc')->get();
+            $teachers = collect([$user]);
         }
 
-        return view('broadcast_notifications.create', compact('groups', 'students', 'tests', 'schedules'));
+        $query = ExamSchedule::with(['teacher', 'groups'])->orderBy('scheduled_date', 'desc');
+        if ($user->role !== 'Админ') {
+            $query->where('teacher_id', $user->id);
+        }
+        $schedules = $query->get();
+
+        return view('broadcast_notifications.create', compact('groups', 'students', 'teachers', 'schedules'));
     }
 
     /**
@@ -57,11 +66,12 @@ class BroadcastNotificationController extends Controller
     public function send(Request $request)
     {
         $this->validate($request, [
-            'audience'  => 'required|in:all,group,student',
-            'title'     => 'required|string|max:255',
-            'body'      => 'required|string',
-            'group_id'  => 'required_if:audience,group|integer|min:1',
-            'student_id'=> 'required_if:audience,student|integer|min:1',
+            'audience'    => 'required|in:all,group,student',
+            'title'       => 'required|string|max:255',
+            'body'        => 'required|string',
+            'group_ids'   => 'required_if:audience,group|array|min:1',
+            'group_ids.*' => 'integer|min:1',
+            'student_id'  => 'required_if:audience,student|integer|min:1',
         ]);
 
         $user = Auth::user();
@@ -77,16 +87,18 @@ class BroadcastNotificationController extends Controller
                 ->pluck('id')->toArray();
 
         } elseif ($audience === 'group') {
-            $groupId = $request->group_id;
+            $groupIds = array_filter(array_map('intval', (array) $request->group_ids));
 
             // Проверка доступа для преподавателя
             if ($user->role !== 'Админ') {
-                $allowed = DB::table('teacher_has_group')
-                    ->where('user_id', $user->id)->where('group', $groupId)->exists();
-                if (!$allowed) abort(403);
+                foreach ($groupIds as $gid) {
+                    $allowed = DB::table('teacher_has_group')
+                        ->where('user_id', $user->id)->where('group', $gid)->exists();
+                    if (!$allowed) abort(403);
+                }
             }
 
-            $userIds = User::where('group', $groupId)
+            $userIds = User::whereIn('group', $groupIds)
                 ->whereIn('role', ['Студент', 'Староста'])
                 ->pluck('id')->toArray();
 
@@ -107,7 +119,7 @@ class BroadcastNotificationController extends Controller
         if (empty($userIds)) {
             return redirect()->route('broadcast.create')
                 ->withInput()
-                ->withErrors(['audience' => 'Не найдено ни одного получателя. Убедитесь, что в группе есть студенты.']);
+                ->withErrors(['audience' => 'Не найдено ни одного получателя. Убедитесь, что в выбранных группах есть студенты.']);
         }
 
         NotificationService::sendMany(
@@ -129,49 +141,76 @@ class BroadcastNotificationController extends Controller
     public function storeExam(Request $request)
     {
         $this->validate($request, [
-            'group_id'       => 'required|integer',
+            'teacher_id'     => 'required|integer',
             'title'          => 'required|string|max:255',
             'description'    => 'nullable|string',
             'scheduled_date' => 'required|date|after_or_equal:today',
-            'test_id'        => 'nullable|integer',
+            'time_start'     => 'required',
+            'time_end'       => 'nullable',
+            'room'           => 'required|string|max:100',
+            'group_ids'      => 'required|array|min:1',
         ]);
 
-        $user = Auth::user();
-
-        if ($user->role !== 'Админ') {
-            $allowed = DB::table('teacher_has_group')
-                ->where('user_id', $user->id)
-                ->where('group', $request->group_id)
-                ->exists();
-            if (!$allowed) abort(403, 'Нет доступа к этой группе.');
-        }
+        $user      = Auth::user();
+        $teacherId = ($user->role === 'Админ') ? (int) $request->teacher_id : $user->id;
+        $groupIds  = array_filter(array_map('intval', (array) $request->input('group_ids', [])));
+        $timeEnd   = $request->time_end ?: null;
 
         $schedule = ExamSchedule::create([
-            'teacher_id'     => $user->id,
-            'group_id'       => $request->group_id,
-            'test_id'        => $request->test_id ?: null,
+            'teacher_id'     => $teacherId,
+            'group_id'       => null,
             'title'          => $request->title,
             'description'    => $request->description,
             'scheduled_date' => $request->scheduled_date,
+            'time_start'     => $request->time_start,
+            'time_end'       => $timeEnd,
+            'room'           => $request->room,
         ]);
 
-        $studentIds = User::where('group', $request->group_id)
-            ->whereIn('role', ['Студент', 'Студент-заочник', 'Староста'])
-            ->pluck('id')->toArray();
+        if ($groupIds) {
+            $schedule->groups()->sync($groupIds);
+        }
 
-        if (!empty($studentIds)) {
-            $group = Group::whereGroup_id($request->group_id)->first();
-            $groupName = $group ? $group->group_name : 'вашей группе';
-            $date = \Carbon\Carbon::parse($request->scheduled_date)->format('d.m.Y');
-            $teacherName = $user->last_name . ' ' . $user->first_name;
+        // Запись на доске расписания
+        $boardEntry = ScheduleBoardEntry::create([
+            'teacher_id'       => $teacherId,
+            'group_id'         => null,
+            'entry_date'       => $request->scheduled_date,
+            'time_start'       => $request->time_start,
+            'time_end'         => $timeEnd,
+            'entry_type'       => 'КР',
+            'room'             => $request->room,
+            'title'            => $request->title,
+            'description'      => null,
+            'series_id'        => null,
+            'all_groups'       => 0,
+            'exam_schedule_id' => $schedule->id,
+        ]);
+        if ($groupIds) {
+            $boardEntry->groups()->sync($groupIds);
+        }
 
-            NotificationService::sendMany(
-                $studentIds,
-                'exam_scheduled',
-                'Назначена контрольная работа',
-                'В ' . $groupName . ' назначена контрольная «' . $request->title . '» на ' . $date . ' (' . $teacherName . ').',
-                ['exam_schedule_id' => $schedule->id, 'url' => route('exam_schedules.student')]
-            );
+        // Уведомить студентов
+        if (!empty($groupIds)) {
+            $studentIds = User::whereIn('group', $groupIds)
+                ->whereIn('role', ['Студент', 'Студент-заочник', 'Староста'])
+                ->pluck('id')->toArray();
+
+            if (!empty($studentIds)) {
+                $groupNames  = Group::whereIn('group_id', $groupIds)->pluck('group_name')->implode(', ');
+                $date        = Carbon::parse($request->scheduled_date)->format('d.m.Y');
+                $teacher     = User::find($teacherId);
+                $teacherName = $teacher ? $teacher->last_name . ' ' . $teacher->first_name : '';
+
+                NotificationService::sendMany(
+                    $studentIds,
+                    'exam_scheduled',
+                    'Назначена контрольная работа',
+                    'Назначена контрольная «' . $request->title . '» на ' . $date .
+                        ' (' . $teacherName . ', ' . $groupNames . ').',
+                    ['exam_schedule_id' => $schedule->id, 'url' => route('exam_schedules.student')]
+                );
+            }
         }
 
         return redirect()->route('broadcast.create', ['tab' => 'exam'])
@@ -189,6 +228,8 @@ class BroadcastNotificationController extends Controller
         if ($user->role !== 'Админ' && $schedule->teacher_id !== $user->id) {
             abort(403);
         }
+
+        ScheduleBoardEntry::where('exam_schedule_id', $schedule->id)->delete();
 
         $schedule->delete();
 

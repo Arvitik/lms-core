@@ -642,4 +642,22 @@ Route::group(['middleware' => ['auth']], function () {
     Route::delete('/broadcast/exam/{id}', ['as' => 'broadcast.exam.destroy', 'uses' => 'BroadcastNotificationController@destroyExam']);
 });
 
+// ==============================
+// Информационное табло
+// ==============================
+Route::group(['middleware' => ['auth']], function () {
+    Route::get('/schedule-board',                          ['as' => 'schedule_board.index',          'uses' => 'ScheduleBoardController@index']);
+    Route::get('/schedule-board/create',                   ['as' => 'schedule_board.create',         'uses' => 'ScheduleBoardController@create']);
+    Route::post('/schedule-board',                         ['as' => 'schedule_board.store',          'uses' => 'ScheduleBoardController@store']);
+    Route::get('/schedule-board/cell',                     ['as' => 'schedule_board.cell',           'uses' => 'ScheduleBoardController@cellDetail']);
+    Route::get('/schedule-board/manage',                   ['as' => 'schedule_board.manage',         'uses' => 'ScheduleBoardController@manageTeachers']);
+    Route::post('/schedule-board/manage/teachers',         ['as' => 'schedule_board.teachers.add',   'uses' => 'ScheduleBoardController@addTeachers']);
+    Route::delete('/schedule-board/manage/teachers/{id}',  ['as' => 'schedule_board.teachers.remove','uses' => 'ScheduleBoardController@removeTeacher']);
+
+    Route::get('/schedule-board/{id}/edit',                ['as' => 'schedule_board.edit',           'uses' => 'ScheduleBoardController@edit']);
+    Route::put('/schedule-board/{id}',                     ['as' => 'schedule_board.update',         'uses' => 'ScheduleBoardController@update']);
+    Route::delete('/schedule-board/{id}',                  ['as' => 'schedule_board.destroy',        'uses' => 'ScheduleBoardController@destroy']);
+    Route::delete('/schedule-board/{id}/series',           ['as' => 'schedule_board.destroy_series', 'uses' => 'ScheduleBoardController@destroySeries']);
+});
+
 
