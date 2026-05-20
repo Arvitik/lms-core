@@ -25,17 +25,37 @@
 
     <style>
     /* ===== Колокольчик уведомлений ===== */
+    .navbar-right.navbar-icons {
+        display: flex;
+        align-items: stretch;
+    }
+    .navbar-right.navbar-icons > li {
+        display: flex;
+        align-items: center;
+    }
+    .navbar-right.navbar-icons > li > a.btn,
+    #notif-bell-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 50px;
+        min-width: 46px;
+        padding: 0 14px;
+        line-height: 1;
+    }
+    .navbar-right.navbar-icons .glyphicon {
+        top: 0;
+    }
     #notif-bell-btn {
         position: relative;
-        padding: 10px 14px;
         cursor: pointer;
         background: none;
         border: none;
         color: inherit;
-        line-height: 1;
     }
+    .navbar-board-link .glyphicon-calendar,
     #notif-bell-btn .glyphicon-bell {
-        font-size: 18px;
+        font-size: 15px;
     }
     #notif-badge {
         position: absolute;
@@ -193,7 +213,7 @@
 							</ul>
 						</li>
                     </ul>
-                    <ul class="nav navbar-nav navbar-right">
+                    <ul class="nav navbar-nav navbar-right navbar-icons">
                         {{-- ===== ДИПЛОМ: Сообщения/чат — раскомментировать при разработке диплома ===== --}}
                         {{-- @auth
                         <li>
@@ -204,6 +224,13 @@
                         @endauth --}}
                         {{-- ===== КОЛОКОЛЬЧИК УВЕДОМЛЕНИЙ ===== --}}
                         @auth
+                        @if(in_array(Auth::user()->role, ['Студент', 'Студент-заочник', 'Староста']))
+                        <li>
+                            <a href="{{ route('schedule_board.index') }}" class="btn navbar-board-link" title="Информационное табло">
+                                <span class="glyphicon glyphicon-calendar"></span>
+                            </a>
+                        </li>
+                        @endif
                         <li style="position: relative;">
                             <button id="notif-bell-btn" title="Уведомления">
                                 <span class="glyphicon glyphicon-bell"></span>

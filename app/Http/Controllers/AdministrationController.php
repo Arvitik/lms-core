@@ -50,8 +50,31 @@ class AdministrationController extends Controller{
     }
 
     public function change_role(){
-        $groups = Group::where('archived', 0)->get();
-        $query = User::join('groups', 'groups.group_id', '=', 'users.group', 'left outer')->where('groups.archived', 0)->orderBy('id', 'desc')->get();
+        $groups = Group::where('archived', 0)->orderBy('group_name')->get();
+        $query = User::leftJoin('groups', 'groups.group_id', '=', 'users.group')
+            ->select('users.*', 'groups.group_name');
+
+        if (request('group') !== null && request('group') !== '') {
+            $query->where('users.group', request('group'));
+        } else {
+            $query->where('users.role', '');
+        }
+
+        if (request('email') !== null && request('email') !== '') {
+            $query->where('users.email', 'like', '%' . request('email') . '%');
+        }
+
+        if (request('last_name') !== null && request('last_name') !== '') {
+            $query->where('users.last_name', 'like', '%' . request('last_name') . '%');
+        }
+
+        $query = $query->where(function ($q) {
+                $q->whereNull('groups.archived')
+                    ->orWhere('groups.archived', 0);
+            })
+            ->orderBy('users.id', 'desc')
+            ->get();
+
         return view('personal_account/change_role', compact('query', 'groups'));
     }
 
@@ -278,7 +301,7 @@ class AdministrationController extends Controller{
             }
         }
 
-        return redirect()->route('manage_users');
+        return redirect()->back();
     }
 
 

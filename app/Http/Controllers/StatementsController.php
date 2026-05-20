@@ -388,11 +388,8 @@ class StatementsController extends Controller{
     //Возвращают представление соответствующей ведомости
     public function get_lectures(Request $request){
         $id_group = $request->input('group');
-        $statement_lecture = $this->lecture_statement->getStatementByGroup($id_group);
-        $id_course_plan = Group::where('group_id', $id_group)->select('id_course_plan')
-            ->first()->id_course_plan;
-        $course_plan = $this->course_plan_DAO->getCoursePlan( $id_course_plan);
-        return view('personal_account/statements/lectures', compact('course_plan','id_group', 'statement_lecture'));
+        $data = $this->getStewardAttendanceData($id_group);
+        return view('personal_account/statements/steward_lectures', $data);
     }
 
     public function get_seminars(Request $request){
@@ -688,12 +685,16 @@ class StatementsController extends Controller{
 
     public function viewStewardAttendance(Request $request)
     {
+        $selectedGroupId = $request->input('group');
+        return view('view_steward_attendance', $this->getStewardAttendanceData($selectedGroupId));
+    }
+
+    private function getStewardAttendanceData($selectedGroupId)
+    {
         $groups = DB::table('groups')
             ->where('archived', 0)
             #->where('group_name', 'LIKE', '%Б22-524%')
             ->get();
-
-        $selectedGroupId = $request->input('group');
 
         $students = $selectedGroupId
                 ? DB::table('users')
@@ -704,14 +705,12 @@ class StatementsController extends Controller{
                     ->get()
                 : null;
 
-        // Получаем лекции
         $lectures = $selectedGroupId
             ? DB::table('lectures')
                 ->orderBy('lecture_number', 'asc')
                 ->get()
             : array();
 
-        // Получаем лимиты для каждой лекции
         $limits = array();
         if ($selectedGroupId) {
             foreach ($lectures as $lecture) {
@@ -724,16 +723,15 @@ class StatementsController extends Controller{
         }
 
         $marks = array();
-        $currentAttendanceCount = array(); // ДОБАВЛЯЕМ: считаем ТЕКУЩИЕ отметки
+        $currentAttendanceCount = array();
         
         if ($selectedGroupId) {
             foreach ($lectures as $lecture) {
-                // === ИСПРАВЛЕНИЕ: Берем ТОЛЬКО ТЕКУЩИЕ отметки (presence = 1) ===
                 $lectureMarks = DB::table('lecture_passes')
                     ->join('users', 'lecture_passes.id_user', '=', 'users.id')
                     ->where('lecture_passes.id_lecture', $lecture->id_lecture)
                     ->where('users.group', $selectedGroupId)
-                    ->where('lecture_passes.presence', 1) // ← ВАЖНО: только присутствующие!
+                    ->where('lecture_passes.presence', 1)
                     ->select('users.id as id_user', 'lecture_passes.presence')
                     ->get();
 
@@ -741,19 +739,19 @@ class StatementsController extends Controller{
                     $marks[$mark->id_user][$lecture->id_lecture] = $mark->presence;
                 }
                 
-                // Считаем количество ТЕКУЩИХ отметок для отображения лимита
                 $currentAttendanceCount[$lecture->id_lecture] = count($lectureMarks);
             }
         }
 
-        return view('view_steward_attendance', [
+        return [
             'groups' => $groups,
             'students' => $students,
             'lectures' => $lectures,
             'marks' => $marks,
             'limits' => $limits,
-            'currentAttendanceCount' => $currentAttendanceCount, // ← ПЕРЕДАЕМ в представление
-        ]);
+            'currentAttendanceCount' => $currentAttendanceCount,
+            'selectedGroupId' => $selectedGroupId,
+        ];
     }
 
 

@@ -59,7 +59,7 @@ class ScheduleBoardController extends Controller
         $prevWeek = $weekStart->copy()->subWeek()->toDateString();
         $nextWeek = $weekStart->copy()->addWeek()->toDateString();
 
-        $canEdit = in_array(Auth::user()->role, ['Преподаватель', 'Админ']);
+        $canEdit = $this->canEditBoard(Auth::user());
 
         return view('schedule_board.index', compact(
             'teachers', 'days', 'entryMap', 'weekStart', 'weekEnd', 'prevWeek', 'nextWeek', 'canEdit'
@@ -72,7 +72,7 @@ class ScheduleBoardController extends Controller
     public function create(Request $request)
     {
         $user = Auth::user();
-        if (!in_array($user->role, ['Преподаватель', 'Админ'])) {
+        if (!$this->canEditBoard($user)) {
             abort(403);
         }
 
@@ -92,7 +92,7 @@ class ScheduleBoardController extends Controller
     public function store(Request $request)
     {
         $user = Auth::user();
-        if (!in_array($user->role, ['Преподаватель', 'Админ'])) {
+        if (!$this->canEditBoard($user)) {
             abort(403);
         }
 
@@ -205,6 +205,10 @@ class ScheduleBoardController extends Controller
         $entry = ScheduleBoardEntry::findOrFail($id);
         $user  = Auth::user();
 
+        if (!$this->canEditBoard($user)) {
+            abort(403);
+        }
+
         if ($user->role !== 'Админ' && $entry->teacher_id !== $user->id) {
             abort(403);
         }
@@ -222,6 +226,10 @@ class ScheduleBoardController extends Controller
     {
         $entry = ScheduleBoardEntry::findOrFail($id);
         $user  = Auth::user();
+
+        if (!$this->canEditBoard($user)) {
+            abort(403);
+        }
 
         if ($user->role !== 'Админ' && $entry->teacher_id !== $user->id) {
             abort(403);
@@ -279,6 +287,10 @@ class ScheduleBoardController extends Controller
         $entry = ScheduleBoardEntry::findOrFail($id);
         $user  = Auth::user();
 
+        if (!$this->canEditBoard($user)) {
+            abort(403);
+        }
+
         if ($user->role !== 'Админ' && $entry->teacher_id !== $user->id) {
             abort(403);
         }
@@ -332,7 +344,7 @@ class ScheduleBoardController extends Controller
                 ->get();
         }
 
-        $canEdit = in_array(Auth::user()->role, ['Преподаватель', 'Админ'])
+        $canEdit = $this->canEditBoard(Auth::user())
             && (Auth::user()->role === 'Админ' || Auth::user()->id === $teacherId);
 
         $html = view('schedule_board.cell_detail', compact(
@@ -349,6 +361,10 @@ class ScheduleBoardController extends Controller
     {
         $entry = ScheduleBoardEntry::findOrFail($id);
         $user  = Auth::user();
+
+        if (!$this->canEditBoard($user)) {
+            abort(403);
+        }
 
         if ($user->role !== 'Админ' && $entry->teacher_id !== $user->id) {
             abort(403);
@@ -445,6 +461,11 @@ class ScheduleBoardController extends Controller
         }
 
         return [$teachers, $groups];
+    }
+
+    private function canEditBoard(User $user): bool
+    {
+        return in_array($user->role, ['Преподаватель', 'Админ']);
     }
 
     private function validateEntry(Request $request): void

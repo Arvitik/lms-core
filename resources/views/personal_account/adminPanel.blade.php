@@ -35,13 +35,6 @@
                                 </div>
                             </a>
                         </li>
-                        <li class="tile">
-                            <a href="{{ route('verify_students')}}" class="tile-content ink-reaction">
-                            <div class="tile-text">
-                                Добавление студентов
-                            </div>
-                            </a>
-                        </li>
                         @if(Auth::user()['role'] == 'Админ')
                         <li class="tile">
                             <a href="{{ route('change_role')}}" class="tile-content ink-reaction">
@@ -52,13 +45,6 @@
                         </li>
                         @endif
                         @if(Auth::user()['role'] == 'Админ')
-                        <li class="tile">
-                            <a href="{{ route('manage_users') }}" class="tile-content ink-reaction">
-                                <div class="tile-text">
-                                    Управление пользовательскими учетками
-                                </div>
-                            </a>
-                        </li>
                         <li class="tile">
                             <a href="{{ route('student_info')}}" class="tile-content ink-reaction">
                             <div class="tile-text">
@@ -99,15 +85,6 @@
                             <a href="{{ route('lectures.limitForm') }}" class="tile-content ink-reaction">
                                 <div class="tile-text">
                                     Контроль посещаемости
-                                </div>
-                            </a>
-                        </li>
-                        @endif
-                        @if(in_array(Auth::user()['role'], ['Админ', 'Преподаватель']))
-                        <li class="tile">
-                            <a href="{{ route('view.steward.attendance') }}" class="tile-content ink-reaction">
-                                <div class="tile-text">
-                                    Просмотреть ведомости старост
                                 </div>
                             </a>
                         </li>
