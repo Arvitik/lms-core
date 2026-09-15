@@ -122,6 +122,9 @@ class StatisticController extends Controller {
         $results = [];
         $test_results = Result::whereId_test($id_test)->whereNotNull('result')->where('result', '<>', -1)->where('result', '<>', -2)->select('mark_eu')->get();
         foreach ($test_results as $result) {
+            if (!isset($results[$result->mark_eu])) {
+                $results[$result->mark_eu] = 0;
+            }
             $results[$result->mark_eu]++;
         }
         return json_encode($results);
@@ -135,6 +138,9 @@ class StatisticController extends Controller {
             ->whereRaw("users.`group` in (select group_id from groups where `group` = " . $id_group . ")")
             ->select('results.mark_eu')->get();
         foreach ($test_results as $result) {
+            if (!isset($results[$result->mark_eu])) {
+                $results[$result->mark_eu] = 0;
+            }
             $results[$result->mark_eu]++;
         }
         return json_encode($results);

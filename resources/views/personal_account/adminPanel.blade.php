@@ -6,6 +6,21 @@
     {!! HTML::style('css/materialadmin.css') !!}
     {!! HTML::style('css/full.css') !!}
     {!! HTML::style('css/tests_list.css') !!}
+    <style>
+        .admin-dashboard { max-width: 1180px; margin: 28px auto 48px; padding: 0 20px; }
+        .admin-dashboard > h2 { margin: 0 0 24px; color: #17384b; font-size: 30px; font-weight: 500; }
+        .admin-section-title { clear: both; margin: 28px 0 12px; padding: 0; border-bottom: 2px solid #0d827e; }
+        .admin-section-title h2 { margin: 0 0 8px; color: #17384b; font-size: 20px; font-weight: 600; }
+        .admin-links { clear: both; margin: 0; padding: 0; }
+        .admin-links .card-body { padding: 0; }
+        .admin-links .list { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin: 0; padding: 0; }
+        .admin-links .tile { min-height: 64px; border: 1px solid #d7e0e4; background: #fff; list-style: none; }
+        .admin-links .tile-content { display: flex; align-items: center; min-height: 64px; padding: 12px 16px; color: #17384b; text-decoration: none; }
+        .admin-links .tile-content:hover, .admin-links .tile-content:focus { border-left: 4px solid #0d827e; background: #f1f8f7; color: #075f5c; }
+        .admin-links .tile-text { width: 100%; font-size: 15px; line-height: 1.35; }
+        @media (max-width: 900px) { .admin-links .list { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+        @media (max-width: 560px) { .admin-dashboard { padding: 0 12px; } .admin-links .list { grid-template-columns: 1fr; } }
+    </style>
 @stop
 
 @section('background')
@@ -13,18 +28,32 @@
 @stop
 
 @section('content')
-    <div class="card style-default-light">
+    <div class="admin-dashboard">
         <h2 class="text-center">Панель управления системой</h2>
-            <div class="col-md-12 col-sm-12 style-gray">
+            <div class="admin-section-title">
                 <h2 class="text-default-bright">Общие административные функции</h2>
             </div>
-            <div class="card col-md-10 col-sm-10 col-md-offset-1">
+            <div class="admin-links">
                 <div class="card-body no-padding">
                     <ul class="list divider-full-bleed">
                         <li class="tile">
                             <a href="{{ route('statements')}}" class="tile-content ink-reaction">
                             <div class="tile-text">
                                 Работа с ведомостями
+                            </div>
+                            </a>
+                        </li>
+                        <li class="tile">
+                            <a href="{{ route('current_control.schedule') }}" class="tile-content ink-reaction">
+                            <div class="tile-text">
+                                Задать расписание группы
+                            </div>
+                            </a>
+                        </li>
+                        <li class="tile">
+                            <a href="{{ route('current_control.checker') }}" class="tile-content ink-reaction">
+                            <div class="tile-text">
+                                Чекер заполнения ведомостей
                             </div>
                             </a>
                         </li>
@@ -111,10 +140,10 @@
                     </ul>
                 </div><!--end .card-body -->
             </div>
-            <div class="col-md-12 col-sm-12 style-gray">
+            <div class="admin-section-title">
                 <h2 class="text-default-bright">Модуль тестирования</h2>
             </div>
-            <div class="card col-md-10 col-sm-10 col-md-offset-1">
+            <div class="admin-links">
                 <div class="card-body no-padding">
                     <ul class="list divider-full-bleed">
                         <li class="tile">
@@ -208,10 +237,10 @@
                     </ul>
                 </div><!--end .card-body -->
             </div>
-            <div class="col-md-12 col-sm-12 style-gray">
+            <div class="admin-section-title">
                 <h2 class="text-default-bright">Электронная библиотека</h2>
             </div>
-            <div class="card col-md-10 col-sm-10 col-md-offset-1">
+            <div class="admin-links">
                 <div class="card-body no-padding">
                     <ul class="list divider-full-bleed">
                         <li class="tile">

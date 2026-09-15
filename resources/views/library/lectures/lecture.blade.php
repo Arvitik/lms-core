@@ -52,6 +52,14 @@
             </div>
         </article>
     </div>
+
+    @if(in_array($role, ['Студент', 'Староста']))
+        @include('feedback._widget', [
+            'fbType'     => 'lecture',
+            'fbTargetId' => $lecture->id_lecture,
+            'fbTitle'    => 'Оцените эту лекцию',
+        ])
+    @endif
 @stop
 @section('js-down')
     {!! HTML::script('js/core/source/App.js') !!}

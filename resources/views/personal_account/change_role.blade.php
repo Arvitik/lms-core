@@ -13,7 +13,7 @@
         }
         .users-toolbar {
             display: grid;
-            grid-template-columns: minmax(220px, 1.1fr) minmax(220px, 1fr) minmax(220px, 1fr) auto;
+            grid-template-columns: minmax(210px, 1.1fr) minmax(180px, .8fr) minmax(210px, 1fr) minmax(210px, 1fr) auto;
             gap: 18px 14px;
             align-items: end;
             margin: 26px 0 20px;
@@ -52,6 +52,7 @@
         .users-table .group-col { width: 170px; }
         .users-table .name-col { width: 170px; }
         .users-table .email-col { width: 260px; }
+        .users-table .date-col { width: 145px; }
         .users-table .role-col { width: 150px; }
         .users-table thead th {
             height: 42px;
@@ -111,7 +112,7 @@
                 <form method="GET" action="{{ route('change_role') }}" class="users-toolbar">
                     <div class="form-group">
                         <select name="group" id="groupSearch" class="form-control">
-                            <option value="">Только новые регистрации</option>
+                            <option value="">Все группы</option>
                             @foreach($groups as $group)
                                 <option value="{{ $group['group_id'] }}" {{ request('group') == $group['group_id'] ? 'selected' : '' }}>
                                     {{ $group['group_name'] }}
@@ -119,6 +120,16 @@
                             @endforeach
                         </select>
                         <label for="groupSearch">Группа</label>
+                    </div>
+                    <div class="form-group">
+                        <select name="role" id="roleSearch" class="form-control">
+                            <option value="new" {{ request('role', (request('group') ? 'all' : 'new')) === 'new' ? 'selected' : '' }}>Новые регистрации</option>
+                            <option value="all" {{ request('role') === 'all' || (request('group') && request('role') === null) ? 'selected' : '' }}>Все роли</option>
+                            @foreach(['Студент', 'Староста', 'Преподаватель', 'Старший преподаватель', 'Админ', 'Обычный'] as $role)
+                                <option value="{{ $role }}" {{ request('role') === $role ? 'selected' : '' }}>{{ $role }}</option>
+                            @endforeach
+                        </select>
+                        <label for="roleSearch">Роль</label>
                     </div>
                     <div class="form-group">
                         <input type="text" name="email" id="emailInput" class="form-control" value="{{ request('email') }}" placeholder="Введите email">
@@ -154,6 +165,7 @@
                                     <th class="name-col">Фамилия</th>
                                     <th class="name-col">Имя</th>
                                     <th class="email-col">Email</th>
+                                    <th class="date-col">Дата регистрации</th>
                                     <th class="role-col">Роль</th>
                                 </tr>
                             </thead>
@@ -181,13 +193,14 @@
                                     <td class="email-cell" title="{{ $user['email'] }}">
                                         {{ $user['email'] }}
                                     </td>
+                                    <td>{{ $user->created_at ? $user->created_at->format('d.m.Y H:i') : '—' }}</td>
                                     <td>
                                         {{ $user['role'] ?: 'Новая регистрация' }}
                                     </td>
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="6" class="empty-users">
+                                    <td colspan="7" class="empty-users">
                                         Нет пользователей для отображения.
                                     </td>
                                 </tr>

@@ -92,24 +92,29 @@ class DirectedEdge {
      * @param int $printable
      */
     private function setCapacity($test_type, $printable) {
-        switch ($this->type) {
-            case EdgeType::BEGIN :
-                // TODO: count capacity using test's properties: print, lang, control
-                $sections = [$this->node_to->section_code];
-                $themes = [$this->node_to->theme_code];
-                $types = [$this->node_to->type_code];
-                $type = $types[0];
-                // TODO: remove hard code of grouped questions
-                $amount = Question::getAmount($sections, $themes, $types, $test_type, $printable);
-                $this->capacity = ($type == 5 || $type == 7) ? floor($amount / Question::GROUP_AMOUNT) : $amount;
-                break;
-            case EdgeType::MIDDLE :
-                $this->capacity = $this->node_to->amount;
-                break;
-            case EdgeType::END :
-                $this->capacity = $this->node_from->amount;
-                break;
+        if ($this->type === EdgeType::BEGIN) {
+            // TODO: count capacity using test's properties: print, lang, control
+            $sections = [$this->node_to->section_code];
+            $themes = [$this->node_to->theme_code];
+            $types = [$this->node_to->type_code];
+            $type = $types[0];
+            // TODO: remove hard code of grouped questions
+            $amount = Question::getAmount($sections, $themes, $types, $test_type, $printable);
+            $this->capacity = ($type == 5 || $type == 7) ? floor($amount / Question::GROUP_AMOUNT) : $amount;
+            return;
         }
+
+        if ($this->type === EdgeType::MIDDLE) {
+            $this->capacity = $this->node_to->amount;
+            return;
+        }
+
+        if ($this->type === EdgeType::END) {
+            $this->capacity = $this->node_from->amount;
+            return;
+        }
+
+        throw new TestGenerationException("Unknown edge type");
     }
 
     public function saturate(){

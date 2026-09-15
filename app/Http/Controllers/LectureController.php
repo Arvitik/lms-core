@@ -55,8 +55,7 @@ class LectureController extends Controller
         $lectures = DB::table('lectures')->orderBy('date', 'asc')->get();
 
         $groups = DB::table('groups')
-            #->where('archived', 0)
-            ->where('group_name', 'LIKE', '%Б22-524%')
+            ->where('archived', 0)
             ->where('group_name', '!=', 'Админы')
             ->orderBy('group_name')
             ->get();
@@ -101,23 +100,6 @@ class LectureController extends Controller
                 $currentAttendance[$mark->id_lecture][$mark->group] = (int)$mark->count;
             }
 
-            // === Получаем количество студентов в каждой группе ===
-            $groupStudentCounts = array();
-            $studentCounts = DB::table('users')
-                ->whereIn('group', $groupIds)
-                ->where(function($query) {
-                    $query->where('role', 'Студент')
-                          ->orWhere('role', 'Староста');
-                })
-                ->whereNull('deleted_at') // Только НЕ удаленные (deleted_at IS NULL)
-                ->select('group', DB::raw('COUNT(*) as count'))
-                ->groupBy('group')
-                ->get();
-
-            foreach ($studentCounts as $row) {
-                $groupStudentCounts[$row->group] = (int)$row->count;
-            }
-
             // === Считаем статистику для каждой группы ===
             foreach ($groups as $group) {
                 $groupId = $group->group_id;
@@ -131,19 +113,12 @@ class LectureController extends Controller
                     $limit = isset($limits[$lectureId][$groupId]) ? $limits[$lectureId][$groupId] : null;
             
                     // Учитываем только если есть лимит (>0)
-                    if ($limit !== null && $limit >= 0) {
+                    if ($limit !== null && $limit > 0) {
                         $lecturesWithLimit++;
-                    
-                        // Количество студентов в группе (для расчета процента)
-                        $studentsInGroup = isset($groupStudentCounts[$groupId]) ? $groupStudentCounts[$groupId] : 0;
-                    
-                        // Если в группе нет студентов, процент = 0
-                        if ($studentsInGroup > 0) {
-                            // ПРАВИЛЬНЫЙ расчет: (лимит) / (студентов в группе) × 100
-                            $percentage = ($limit / $studentsInGroup) * 100;
-                        } else {
-                            $percentage = 0;
-                        }
+                        $attendance = isset($currentAttendance[$lectureId][$groupId])
+                            ? $currentAttendance[$lectureId][$groupId]
+                            : 0;
+                        $percentage = min(100, ($attendance / $limit) * 100);
                     
                         $lecturePercentages[] = $percentage;
                     }

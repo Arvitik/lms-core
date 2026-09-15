@@ -14,6 +14,12 @@
     <div class="col-lg-offset-0 col-md-12 col-sm-6">
         <div class="card" id="edit-list">
             <div class="card-body">
+                @if (session('success'))
+                    <div class="alert alert-success">{{ session('success') }}</div>
+                @endif
+                @if ($errors->any())
+                    <div class="alert alert-danger">{{ $errors->first() }}</div>
+                @endif
                 <div id="container" class="container-list">
                     <div class="col-lg-offset-0 col-md-12 col-sm-12 card style-gray">
                         <h2 class="text-default-bright">Контрольные тесты</h2>
@@ -70,12 +76,9 @@
                                     </a>
                                 </td>
                                 <td class="text-center">
-                                    <form method="POST" action="{{ route('tests.archive', ['id' => $test['id_test']]) }}" style="display:inline;">
-                                        <input type="hidden" name="_token" value="{{ csrf_token() }}">
-                                        <button class="btn btn-warning btn-sm" onclick="return confirm('Архивировать тест?')">
-                                            <i class="md md-archive"></i>
-                                        </button>
-                                    </form>
+                                    <button type="submit" form="archive-test-{{ $test['id_test'] }}" class="btn btn-warning btn-sm" onclick="return confirm('Архивировать тест?')">
+                                        <i class="md md-archive"></i>
+                                    </button>
                                 </td>
                             </tr>
                             @endforeach
@@ -148,12 +151,9 @@
                                     </a>
                                 </td>
                                 <td class="text-center">
-                                    <form method="POST" action="{{ route('tests.archive', ['id' => $test['id_test']]) }}" style="display:inline;">
-                                        <input type="hidden" name="_token" value="{{ csrf_token() }}">
-                                        <button class="btn btn-warning btn-sm" onclick="return confirm('Архивировать тест?')">
-                                            <i class="md md-archive"></i>
-                                        </button>
-                                    </form>
+                                    <button type="submit" form="archive-test-{{ $test['id_test'] }}" class="btn btn-warning btn-sm" onclick="return confirm('Архивировать тест?')">
+                                        <i class="md md-archive"></i>
+                                    </button>
                                 </td>
                             </tr>
                             @endforeach
@@ -163,6 +163,41 @@
                     <button class="btn btn-primary btn-raised btn-unavailable-all-train-tests" type="button">
                         Сделать недоступными<br>все тренировочные тесты<br>для всех групп
                     </button>
+
+                    <div class="col-lg-offset-0 col-md-12 col-sm-12 card style-gray" style="margin-top: 24px;">
+                        <h2 class="text-default-bright">Архивные тесты</h2>
+                    </div>
+                    <div style="overflow-x: auto; width: 100%">
+                        <table class="table table-condensed">
+                            <tr>
+                                <th>Название теста</th>
+                                <th>Тип</th>
+                                <th class="text-center">Восстановить</th>
+                            </tr>
+                            @forelse($archived_tests as $test)
+                                <tr>
+                                    <td>{{ $test['test_name'] }}</td>
+                                    <td>{{ $test['test_type'] }}</td>
+                                    <td class="text-center">
+                                        <form method="POST" action="{{ route('tests.restore', ['id' => $test['id_test']]) }}">
+                                            <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                                            <button type="submit" class="btn btn-primary btn-sm" onclick="return confirm('Восстановить тест из архива?')">
+                                                <i class="md md-restore"></i>
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr><td colspan="3" class="text-center">В архиве нет тестов.</td></tr>
+                            @endforelse
+                        </table>
+                    </div>
+
+                    @foreach($ctr_tests->concat($tr_tests) as $test)
+                        <form id="archive-test-{{ $test['id_test'] }}" method="POST" action="{{ route('tests.archive', ['id' => $test['id_test']]) }}" style="display:none;">
+                            <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                        </form>
+                    @endforeach
                 </div>
             </div>
         </div>

@@ -23,11 +23,22 @@ class SingleTest
         if ($active_result){
             $active_test_id = $active_result->id_test;
             $active_test = Test::whereId_test($active_test_id)->first();
+            if (!$active_test) {
+                $stale_results = Result::whereId(Auth::user()['id'])->whereResult(null)->select('id_result')->get();
+                foreach ($stale_results as $stale_result) {
+                    \App\Testing\TestTask::whereId_result($stale_result->id_result)->delete();
+                }
+                Result::whereId(Auth::user()['id'])->whereResult(null)->delete();
+                return $next($request);
+            }
             $active_is_adaptive = $active_test->is_adaptive === 1;
 
             $first_seg = $request->segment(1);
             $desired_is_adaptive = $first_seg !== 'questions';
             $desired_test_id = $request->segment(3);
+            if (!$desired_test_id || !Test::whereId_test($desired_test_id)->first()) {
+                return $next($request);
+            }
 
             if ($active_is_adaptive ||
                 $desired_is_adaptive !== $active_is_adaptive ||

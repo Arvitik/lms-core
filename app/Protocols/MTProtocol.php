@@ -15,6 +15,6 @@ class MTProtocol extends Protocol {
         $this->test = $id;
     }
     public function setBaseDir(){
-        return $this::PROTOCOL_PATH.$this::MT_PROTOCOL_DIR;
+        return storage_path('app/'.$this::PROTOCOL_PATH.$this::MT_PROTOCOL_DIR);
     }
 } 

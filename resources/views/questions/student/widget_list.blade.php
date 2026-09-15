@@ -6,7 +6,7 @@
     <meta name="csrf_token" content="{{ csrf_token() }}" />
     <title>Тест</title>
     {!! HTML::script('js/modules.js') !!}
-    {!! HTML::script('js/superForm.js') !!}
+    {!! HTML::script('js/superForm.js?v=20260429_1635') !!}
     {!! HTML::style('css/font-awesome.min.css') !!}
     {!! HTML::style('css/material-design-iconic-font.min.css') !!}
     {!! HTML::style('css/materialadmin_demo.css') !!}
@@ -55,7 +55,7 @@
 @if ($test_type == 'Тренировочный')
     <div class="col-sm-6">
         {!! Form::open(['method' => 'POST', 'route' => 'drop_test', 'id' => 'drop-test', 'name' => 'drop_test']) !!}
-            <input id="id-result" type="hidden" name="id_result" value="{{ $current_result }}">
+            <input id="id-result" type="hidden" name="id_result" value="{{ $result_id }}">
             <input id="amount" type="hidden" name="amount" value="{{ $amount }}">
             <input type="hidden" name="id_test" value="{{ $id_test }}">
             <input id="drop" class="btn btn-warning btn-lg col-md-4 col-md-offset-4 style-danger" type="submit" name="drop_btn" value="Отказаться">

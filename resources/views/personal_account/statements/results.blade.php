@@ -9,6 +9,7 @@
        data-id-course_plan="{{$course_plan->id_course_plan}}"
        data-id_group="{{$id_group}}">
     <tr class="info">
+        <td rowspan="3" class="warning">№</td>
         <td rowspan="3" class="warning">Группа</td>
         <td rowspan="3" class="warning">Фамилия</td>
         <td rowspan="3" class="warning">Имя</td>
@@ -80,9 +81,10 @@
     </tr>
     <tbody id="target">
     @foreach($statement_result as $statement)
-        @include('personal_account.statements.one_result', array('statement' => $statement, 'course_plan' => $course_plan))
+        @include('personal_account.statements.one_result', array('statement' => $statement, 'course_plan' => $course_plan, 'rowNumber' => $loop->iteration))
     @endforeach
     <tr>
+        <td></td>
         <td></td>
         <td></td>
         <td></td>

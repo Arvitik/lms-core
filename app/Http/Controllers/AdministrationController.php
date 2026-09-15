@@ -56,8 +56,16 @@ class AdministrationController extends Controller{
 
         if (request('group') !== null && request('group') !== '') {
             $query->where('users.group', request('group'));
-        } else {
-            $query->where('users.role', '');
+        }
+
+        $role = request('role');
+        if ($role === 'new' || (($role === null || $role === '') && (request('group') === null || request('group') === ''))) {
+            $query->where(function ($roles) {
+                $roles->where('users.role', '')
+                    ->orWhereNull('users.role');
+            });
+        } elseif ($role !== null && $role !== '' && $role !== 'all') {
+            $query->where('users.role', $role);
         }
 
         if (request('email') !== null && request('email') !== '') {
@@ -68,11 +76,7 @@ class AdministrationController extends Controller{
             $query->where('users.last_name', 'like', '%' . request('last_name') . '%');
         }
 
-        $query = $query->where(function ($q) {
-                $q->whereNull('groups.archived')
-                    ->orWhere('groups.archived', 0);
-            })
-            ->orderBy('users.id', 'desc')
+        $query = $query->orderBy('users.id', 'desc')
             ->get();
 
         return view('personal_account/change_role', compact('query', 'groups'));
@@ -196,6 +200,14 @@ class AdministrationController extends Controller{
     }
 
     public function add_news(Request $request){
+        $this->validate($request, [
+            'title' => 'required|string|max:255',
+            'body' => 'required|string',
+            'file' => 'nullable|file|max:10240',
+        ], [
+            'file.max' => 'Размер файла не должен превышать 10 МБ.',
+        ]);
+
         $news = new News();
         $news->body = $request->input('body');
         $news->title = $request->input('title');
@@ -215,35 +227,33 @@ class AdministrationController extends Controller{
     }
     public function manageUsers(Request $request)
     {
-        $query = User::join('groups', 'groups.group_id', '=', 'users.group')
+        $query = User::leftJoin('groups', 'groups.group_id', '=', 'users.group')
             ->select('users.*', 'groups.group_name');
 
-        if ($request->has('email')) {
+        if (trim((string) $request->input('email')) !== '') {
             $query->where('users.email', 'like', '%' . $request->email . '%');
         }
 
-        if ($request->has('last_name')) {
+        if (trim((string) $request->input('last_name')) !== '') {
             $query->where('users.last_name', 'like', '%' . $request->last_name . '%');
         }
 
-        // показывать только если выбрана группа
-        if ($request->has('group') && $request->group !== '') {
-            // фильтр по конкретной группе
+        if ((string) $request->input('group') !== '') {
             $query->where('users.group', $request->group);
-            $users = $query->get();
         } else {
-            // показываем всех, кто не студент и не староста
-            $users = User::join('groups', 'groups.group_id', '=', 'users.group')
-                ->select('users.*', 'groups.group_name')
-                ->whereNotIn('users.role', ['Студент', 'Староста', 'Обычный', 'Админ', 'Преподаватель'])
-                ->where('groups.archived', 1)
-                ->orderBy('users.id', 'desc')
-                ->get();
+            // По умолчанию показываем ожидающих назначения и сотрудников.
+            $query->where(function ($roles) {
+                $roles->whereNotIn('users.role', ['Студент', 'Староста'])
+                    ->orWhereNull('users.role');
+            });
         }
 
+        $users = $query->orderBy('users.id', 'desc')->get();
+
         $groups = DB::table('groups')
-            ->where('archived', 1)
+            ->where('archived', 0)
             ->select('group_id', 'group_name')
+            ->orderBy('group_name')
             ->get();
 
         return view('admin.manage_users', compact('users', 'groups'));
@@ -275,8 +285,7 @@ class AdministrationController extends Controller{
                     break;
 
                 case 'set_teacher':
-                    $user->role = 'Преподаватель';
-                    $user->save();
+                    $this->setStaffRole($user, 'Преподаватель');
                     break;
 
                 case 'set_average':
@@ -290,13 +299,11 @@ class AdministrationController extends Controller{
                     break;
 
                 case 'set_senior_teacher':
-                    $user->role = 'Старший преподаватель';
-                    $user->save();
+                    $this->setStaffRole($user, 'Старший преподаватель');
                     break;
 
                 case 'set_admin':
-                    $user->role = 'Админ';
-                    $user->save();
+                    $this->setStaffRole($user, 'Админ');
                     break;
             }
         }
@@ -405,10 +412,7 @@ class AdministrationController extends Controller{
     public function add_admin(Request $request){
         $id = json_decode($request->input('id'),true);
         $user = User::find($id);
-        if($user['role'] != 'Админ') {
-            $user->role = 'Админ';
-            $user->save();
-        }
+        $this->setStaffRole($user, 'Админ');
         return $id;
     }
     public function add_average(Request $request){
@@ -424,11 +428,18 @@ class AdministrationController extends Controller{
     public function add_tutor(Request $request){
         $id = json_decode($request->input('id'),true);
         $user = User::find($id);
-        if($user['role'] != 'Преподаватель') {
-            $user->role = 'Преподаватель';
-            $user->save();
-        }
+        $this->setStaffRole($user, 'Преподаватель');
         return $id;
+    }
+
+    private function setStaffRole(User $user, $role)
+    {
+        $adminGroupId = Group::where('group_name', 'Админы')->value('group_id');
+        $user->role = $role;
+        if ($adminGroupId) {
+            $user->group = $adminGroupId;
+        }
+        $user->save();
     }
 
     public static function getAdminPanel(){

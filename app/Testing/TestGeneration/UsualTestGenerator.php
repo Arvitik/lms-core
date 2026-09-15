@@ -60,8 +60,7 @@ class UsualTestGenerator implements TestGenerator {
                     else {                                                                                                  //если вопрос может использоваться только в группе
                         $query = Question::whereId_question($temp_question)->first();
                         $base_question_type = $query->type_code;                                                            //получаем код типа базового вопроса, для которого будем создавать группу
-                        $max_id = Question::max('id_question');
-                        $new_id = $max_id+1;
+                        $new_id = null;
                         $new_title = $query->title;                                                                         //берем данные текущего вопроса
                         $new_answer = $query->answer;
                         array_pop($temp_array);                                                                             //и убираем его из массива
@@ -101,10 +100,27 @@ class UsualTestGenerator implements TestGenerator {
                             array_pop($new_temp_array);                                                                     //и из нового
                             $l++;
                         }
-                        Question::insert(array('id_question' => $new_id,'title' => $new_title,                              //вопрос про код и баллы
-                            'variants' => '', 'answer' => $new_answer,
-                            'points' => 1, 'control' => 0, 'theme_code' => -1,
-                            'section_code' => -1, 'type_code' => $base_question_type));
+                        for ($attempt = 0; $attempt < 50; $attempt++) {
+                            $candidate_id = Question::max('id_question') + 1 + $attempt;
+                            if (Question::whereId_question($candidate_id)->first()) {
+                                continue;
+                            }
+                            try {
+                                Question::insert(array('id_question' => $candidate_id,'title' => $new_title,                              //вопрос про код и баллы
+                                    'variants' => '', 'answer' => $new_answer,
+                                    'points' => 1, 'control' => 0, 'theme_code' => -1,
+                                    'section_code' => -1, 'type_code' => $base_question_type));
+                                $new_id = $candidate_id;
+                                break;
+                            } catch (\Exception $e) {
+                                if ($attempt == 49) {
+                                    throw $e;
+                                }
+                            }
+                        }
+                        if ($new_id === null) {
+                            throw new TestGenerationException("Could not create grouped question");
+                        }
                         $array[$k] = $new_id;                                                                               //добавляем сформированный вопрос в выходной массив
                         $k++;
                         $amount--;

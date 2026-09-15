@@ -7,6 +7,7 @@ use App\TeacherHasGroup;
 use App\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
+use App\Services\NotificationService;
 
 class ReportService
 {
@@ -164,6 +165,17 @@ class ReportService
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now(),
             ]);
+
+            NotificationService::send(
+                $teacher->id,
+                'announcement',
+                'Еженедельный отчёт сформирован',
+                'Отчёт за период ' . $periodFrom->format('d.m.Y') . ' — ' . $periodTo->format('d.m.Y') . '. '
+                    . 'Студентов: ' . count($reportData)
+                    . ', проблемных: ' . $problemCount
+                    . ', неактивных: ' . $inactiveCount . '.',
+                ['from' => $periodFrom->toDateString(), 'to' => $periodTo->toDateString()]
+            );
 
             $generated++;
         }

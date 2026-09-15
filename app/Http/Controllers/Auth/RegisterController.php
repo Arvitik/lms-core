@@ -2,8 +2,13 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Group;
 use App\User;
 use App\Http\Controllers\Controller;
+use GuzzleHttp\Exception\ConnectException;
+use Illuminate\Auth\Events\Registered;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Foundation\Auth\RegistersUsers;
 
@@ -39,32 +44,70 @@ class RegisterController extends Controller
         $this->middleware('guest');
     }
 
+    public function showRegistrationForm()
+    {
+        return view('auth.register', [
+            'groups' => $this->registrationGroups(),
+            'captchaEnabled' => $this->captchaConfigured(),
+        ]);
+    }
+
+    public function register(Request $request)
+    {
+        $validateCaptcha = $this->captchaConfigured();
+
+        try {
+            $this->validator($request->all(), $validateCaptcha)->validate();
+        } catch (ConnectException $exception) {
+            Log::warning('reCAPTCHA is unavailable; registration rejected.', [
+                'error' => $exception->getMessage(),
+            ]);
+            return redirect()->back()
+                ->withInput($request->except(['password', 'password_confirmation']))
+                ->withErrors(['g-recaptcha-response' => 'Сервис проверки временно недоступен. Повторите регистрацию позже.']);
+        }
+
+        event(new Registered($user = $this->create($request->all())));
+        $this->guard()->login($user);
+
+        return $this->registered($request, $user)
+            ?: redirect($this->redirectPath());
+    }
+
     /**
      * Получить валидатор для входящих данных регистрации.
      *
      * @param  array  $data
      * @return \Illuminate\Contracts\Validation\Validator
      */
-    protected function validator(array $data)
+    protected function validator(array $data, $validateCaptcha = true)
     {
+        $rules = [
+            'first_name' => ['required','string','min:2','max:50','regex:/^[\p{Cyrillic}A-Za-z][\p{Cyrillic}A-Za-z \'\-]{1,49}$/u'],
+            'last_name' => ['required','string','min:2','max:50','regex:/^[\p{Cyrillic}A-Za-z][\p{Cyrillic}A-Za-z \'\-]{1,49}$/u'],
+            'group' => 'required|integer',
+            'email' => 'required|email|max:255|unique:users,email',
+            'password' => 'required|confirmed|min:6',
+            'website' => 'max:0',
+        ];
+
+        if ($validateCaptcha) {
+            $rules['g-recaptcha-response'] = 'required|captcha';
+        }
+
         $v = Validator::make(
             $data,
+            $rules,
             [
-                'first_name'           => ['required','string','min:2','max:50','regex:/^[\p{Cyrillic}A-Za-z][\p{Cyrillic}A-Za-z \'\-]{1,49}$/u'],
-                'last_name'            => ['required','string','min:2','max:50','regex:/^[\p{Cyrillic}A-Za-z][\p{Cyrillic}A-Za-z \'\-]{1,49}$/u'],
-                'group'                => 'numeric',
-                'email'                => 'required|email|max:255|unique:users,email',
-                'password'             => 'required|confirmed|min:6',
-                'g-recaptcha-response' => 'nullable',
-            ],
-            [
-                'first_name.regex'           => 'Имя должно содержать только буквы, пробел, дефис или апостроф.',
-                'last_name.regex'            => 'Фамилия должна содержать только буквы, пробел, дефис или апостроф.',
-                'g-recaptcha-response.required' => 'Подтвердите, что вы не робот.', // legacy
+                'first_name.regex'              => 'Имя должно содержать только буквы, пробел, дефис или апостроф.',
+                'last_name.regex'               => 'Фамилия должна содержать только буквы, пробел, дефис или апостроф.',
+                'group.required'                 => 'Выберите учебную группу.',
+                'g-recaptcha-response.required' => 'Подтвердите, что вы не робот.',
+                'g-recaptcha-response.captcha'  => 'Проверка reCAPTCHA не пройдена. Попробуйте ещё раз.',
+                'website.max'                    => 'Регистрация отклонена.',
             ]
         );
 
-        // Дополнительная антиспам-проверка + валидация reCAPTCHA на стороне сервера
         $v->after(function ($v) use ($data) {
             foreach (['first_name', 'last_name'] as $f) {
                 if (!empty($data[$f]) && preg_match('/(.)\1{3,}/u', $data[$f])) {
@@ -72,46 +115,38 @@ class RegisterController extends Controller
                 }
             }
 
-            if (empty($data['g-recaptcha-response'])) {
-                return;
-            }
-
-            $secret = config('recaptcha.secret_key');
-            if (empty($secret)) {
-                return;
-            }
-
-            try {
-                $ch = curl_init('https://www.google.com/recaptcha/api/siteverify');
-                curl_setopt_array($ch, [
-                    CURLOPT_RETURNTRANSFER => true,
-                    CURLOPT_TIMEOUT        => 5,
-                    CURLOPT_POST           => true,
-                    CURLOPT_POSTFIELDS     => [
-                        'secret'   => $secret,
-                        'response' => $data['g-recaptcha-response'],
-                        'remoteip' => request()->ip(),
-                    ],
-                ]);
-                $result = curl_exec($ch);
-                $curlError = curl_errno($ch);
-                curl_close($ch);
-
-                if ($curlError || $result === false) {
-                    // Сетевая ошибка — не блокируем регистрацию
-                    return;
-                }
-
-                $body = json_decode($result, true);
-                if (empty($body['success'])) {
-                    $v->errors()->add('g-recaptcha-response', 'Проверка reCAPTCHA не пройдена. Попробуйте ещё раз.');
-                }
-            } catch (\Exception $e) {
-                // При любой ошибке проверки не блокируем регистрацию
+            if (!empty($data['group']) && !$this->registrationGroups()->contains('group_id', (int) $data['group'])) {
+                $v->errors()->add('group', 'Выбранная группа недоступна для регистрации.');
             }
         });
 
         return $v;
+    }
+
+    private function registrationGroups()
+    {
+        return Group::where(function ($query) {
+                $query->where(function ($academic) {
+                    $academic->where('archived', 0)->where('academic', 1);
+                })->orWhere('group_name', 'Админы');
+            })
+            ->whereNotIn('group_name', ['Преподаватель', 'Преподаватели'])
+            ->orderBy('academic', 'asc')
+            ->orderBy('group_name', 'asc')
+            ->get(['group_id', 'group_name']);
+    }
+
+    private function captchaServiceAvailable()
+    {
+        $host = 'www.google.com';
+        $resolved = @gethostbyname($host);
+
+        return $resolved && $resolved !== $host;
+    }
+
+    private function captchaConfigured()
+    {
+        return (bool) config('captcha.secret') && (bool) config('captcha.sitekey');
     }
     /**
      * Create a new user instance after a valid registration.

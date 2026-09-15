@@ -18,6 +18,6 @@ class TeacherHasGroup extends Model
 {
     protected $table = 'teacher_has_group';
     public $timestamps = false;
-    protected $fillable = ['*'];
+    protected $fillable = ['user_id', 'group'];
 
 }

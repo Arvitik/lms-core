@@ -6,8 +6,6 @@ use App\User;
 use Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
-use App\Services\NotificationService;
 use Carbon\Carbon;
 use Session;
 class PersonalAccount extends Controller{
@@ -239,10 +237,6 @@ class PersonalAccount extends Controller{
         }
         
         // 3. Ставим presence = 1 только для выбранных студентов
-        $lecture = DB::table('lectures')->where('id_lecture', $lectureId)->first();
-        $lectureName = $lecture ? $lecture->lecture_name : 'Лекция №' . $lectureId;
-        $markedBy = $user->first_name . ' ' . $user->last_name;
-
         foreach ($selectedStudentIds as $studentId) {
             // НОВАЯ СИСТЕМА
             DB::table('lecture_passes')->updateOrInsert(
@@ -255,7 +249,7 @@ class PersonalAccount extends Controller{
                     'marked_by' => $user->id,
                 ]
             );
-
+            
             // СТАРАЯ СИСТЕМА
             if ($id_lecture_plan) {
                 DB::table('lecture_passes')->updateOrInsert(
@@ -267,19 +261,6 @@ class PersonalAccount extends Controller{
                         'presence' => 1,
                     ]
                 );
-            }
-
-            // === УВЕДОМЛЕНИЕ: посещаемость отмечена ===
-            try {
-                NotificationService::send(
-                    $studentId,
-                    'attendance',
-                    'Отмечена посещаемость',
-                    'Ваше присутствие на лекции «' . $lectureName . '» зафиксировано (' . $markedBy . ').',
-                    ['lecture_id' => $lectureId, 'url' => route('personal_account')]
-                );
-            } catch (\Exception $ne) {
-                Log::warning('Notification send failed: ' . $ne->getMessage());
             }
         }
 

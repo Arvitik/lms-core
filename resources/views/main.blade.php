@@ -31,7 +31,7 @@ full
         @foreach($news as $post)
             @if($post['is_visible'] == 1)
                 <div class="card card-bordered style-warning">
-                    <div class="card-head">
+                    <div class="card-head style-warning">
                         <header><i class="fa fa-fw fa-tag"></i>{{ $post['title'] }}</header>
                     </div>
                     <div class="card-body style-default-bright">

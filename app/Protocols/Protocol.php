@@ -13,7 +13,7 @@ use App\Mypdf;
 use App\User;
 
 abstract class Protocol {
-    const PROTOCOL_PATH = 'archive/protocols/';
+    const PROTOCOL_PATH = 'protocols/';
     public $test;
     public $user;
     public $group;
@@ -23,8 +23,12 @@ abstract class Protocol {
     public function __construct($test, $user, $html){
         $this->setTest($test);
         $query = User::whereId($user)->select('first_name', 'last_name', 'group')->first();
+        if (!$query) {
+            throw new \InvalidArgumentException('User for protocol not found.');
+        }
         $this->user = $query->first_name.' '.$query->last_name;
-        $this->group = Group::whereGroup_id($query->group)->select('group_name')->first()->group_name;
+        $group = Group::whereGroup_id($query->group)->select('group_name')->first();
+        $this->group = $group ? $group->group_name : '';
         $now =  date("Y-m-d H-i-s");
         $this->filename = Mypdf::translit($this->user).' '.$now.'.pdf';
         $this->html = $html;
@@ -47,7 +51,9 @@ abstract class Protocol {
     /** если каталога с путем $path нет, создает этот каталог. В люом случае возвращает путь в этот каталог */
     private function makeDir($path){
         if (!file_exists($path)){
-            mkdir($path);
+            if (!mkdir($path, 0775, true) && !is_dir($path)) {
+                throw new \RuntimeException('Unable to create protocol directory: '.$path);
+            }
         }
         return $path.'/';
     }

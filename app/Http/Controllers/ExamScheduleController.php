@@ -16,7 +16,7 @@ class ExamScheduleController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('auth');
+        $this->middleware('general_auth');
     }
 
     public function index()
@@ -147,8 +147,13 @@ class ExamScheduleController extends Controller
         }
 
         // Удаляем связанную запись на доске
-        ScheduleBoardEntry::where('exam_schedule_id', $schedule->id)->delete();
+        $boardEntries = ScheduleBoardEntry::where('exam_schedule_id', $schedule->id)->get();
+        foreach ($boardEntries as $boardEntry) {
+            $boardEntry->groups()->detach();
+            $boardEntry->delete();
+        }
 
+        $schedule->groups()->detach();
         $schedule->delete();
 
         return redirect()->route('exam_schedules.index')->with('success', 'Контрольная удалена.');
@@ -157,20 +162,28 @@ class ExamScheduleController extends Controller
     public function studentIndex()
     {
         $user    = Auth::user();
-        $groupId = $user->group;
+        $groupId = (int) $user->group;
+
+        if ($groupId <= 0) {
+            return view('exam_schedules.student', [
+                'upcoming' => collect(),
+                'past'     => collect(),
+            ]);
+        }
+
+        $examIds = DB::table('exam_schedule_groups')
+            ->where('group_id', $groupId)
+            ->pluck('exam_schedule_id')
+            ->all();
 
         $upcoming = ExamSchedule::with(['teacher', 'groups'])
-            ->whereHas('groups', function ($q) use ($groupId) {
-                $q->where('group_id', $groupId);
-            })
+            ->whereIn('id', $examIds)
             ->where('scheduled_date', '>=', Carbon::today()->toDateString())
             ->orderBy('scheduled_date')
             ->get();
 
         $past = ExamSchedule::with(['teacher', 'groups'])
-            ->whereHas('groups', function ($q) use ($groupId) {
-                $q->where('group_id', $groupId);
-            })
+            ->whereIn('id', $examIds)
             ->where('scheduled_date', '<', Carbon::today()->toDateString())
             ->orderBy('scheduled_date', 'desc')
             ->limit(5)
@@ -188,11 +201,18 @@ class ExamScheduleController extends Controller
     public function upcomingCount()
     {
         $user    = Auth::user();
-        $groupId = $user->group;
+        $groupId = (int) $user->group;
 
-        $count = ExamSchedule::whereHas('groups', function ($q) use ($groupId) {
-                $q->where('group_id', $groupId);
-            })
+        if ($groupId <= 0) {
+            return response()->json(['count' => 0]);
+        }
+
+        $examIds = DB::table('exam_schedule_groups')
+            ->where('group_id', $groupId)
+            ->pluck('exam_schedule_id')
+            ->all();
+
+        $count = ExamSchedule::whereIn('id', $examIds)
             ->where('scheduled_date', '>=', Carbon::today()->toDateString())
             ->whereNotIn('id', function ($q) use ($user) {
                 $q->from('exam_schedule_views')

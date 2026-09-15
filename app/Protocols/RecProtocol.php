@@ -14,6 +14,6 @@ class RecProtocol extends Protocol {
     }
 
     public function setBaseDir(){
-        return $this::PROTOCOL_PATH.$this::Rec_PROTOCOL_DIR;
+        return storage_path('app/'.$this::PROTOCOL_PATH.$this::Rec_PROTOCOL_DIR);
     }
 }

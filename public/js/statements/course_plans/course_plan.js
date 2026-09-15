@@ -1,5 +1,64 @@
 
 
+function numericValue(value) {
+    var parsed = parseFloat(String(value || '').replace(',', '.'));
+    return isNaN(parsed) ? 0 : parsed;
+}
+
+function displayTotal(value) {
+    return Math.round(value * 100) / 100;
+}
+
+function recalculateCoursePlanTotals() {
+    var controls = 0;
+    var seminars = 0;
+    var seminarWork = 0;
+    var lectures = 0;
+    var exam = 0;
+
+    $('.course_plan .section').each(function () {
+        var section = $(this);
+        var isExam = String(section.find('input[name="is_exam"]').first().val()) === '1';
+        var sectionControls = 0;
+
+        section.find('.control_work input[name="max_points"]').each(function () {
+            sectionControls += numericValue($(this).val());
+        });
+
+        if (isExam) {
+            exam += sectionControls;
+            return;
+        }
+
+        controls += sectionControls;
+        seminars += numericValue(section.find('input[name="max_seminar_pass_point"]').first().val());
+        seminarWork += numericValue(section.find('input[name="max_seminar_work_point"]').first().val());
+        lectures += numericValue(section.find('input[name="max_lecture_pass_point"]').first().val());
+    });
+
+    $('input[name="max_controls"]').val(displayTotal(controls));
+    $('input[name="max_seminars"]').val(displayTotal(seminars));
+    $('input[name="max_seminars_work"]').val(displayTotal(seminarWork));
+    $('input[name="max_lecrures"]').val(displayTotal(lectures));
+    $('input[name="max_exam"]').val(displayTotal(exam));
+}
+
+function showCoursePlanSaveState(message, isError) {
+    var state = $('.course-plan-save-state');
+    state.removeClass('is-success is-error')
+        .addClass('is-visible ' + (isError ? 'is-error' : 'is-success'))
+        .text(message);
+}
+
+$(document).ready(function () {
+    recalculateCoursePlanTotals();
+});
+
+$(document).on('input change', '.section input, .section select', recalculateCoursePlanTotals);
+$(document).ajaxComplete(function () {
+    recalculateCoursePlanTotals();
+});
+
 //Изменяет course_plan для редактирования
 $(document).on('click', '.activate_edit_course_plan', function () {
     var thisCoursePlan = $(this).closest('.course_plan');
@@ -22,7 +81,7 @@ $(document).on('click', '.update_course_plan', function () {
     $.ajax({
         type: 'PATCH',
         beforeSend: function (xhr) {
-            var token = $('input[name="csrf-token"]').attr('content');
+            var token = $('meta[name="csrf-token"]').attr('content');
 
             if (token) {
                 return xhr.setRequestHeader('X-CSRF-TOKEN', token);
@@ -49,6 +108,7 @@ $(document).on('click', '.update_course_plan', function () {
                 currentErrorDiv.css('display','none');
                 //отображение иконки редактировать
                 $('.activate_edit_course_plan').show();
+                showCoursePlanSaveState('Изменения сохранены.', false);
             }else{
                 //добавление в html сообщений об ошибках
                 var divError = thisForm.find('.print-error-msg').filter( ':first' );
@@ -58,6 +118,13 @@ $(document).on('click', '.update_course_plan', function () {
                     divError.find("ul").append('<li>'+value+'</li>');
                 });
             }
+        },
+        error: function(xhr) {
+            var message = 'Не удалось сохранить учебный план.';
+            if (xhr.status === 419 || (xhr.responseJSON && xhr.responseJSON.csrf)) {
+                message = 'Сессия устарела. Обновите страницу и повторите действие.';
+            }
+            showCoursePlanSaveState(message, true);
         }
     });
 

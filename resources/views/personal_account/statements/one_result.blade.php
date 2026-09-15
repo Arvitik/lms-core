@@ -1,6 +1,7 @@
 <tr id="{{$statement['user']->id}}"
     style="{{$statement['sections_total_diff_1_or_more'] ? 'background-color: rgb(220 255 0 / 19%)' : ''}}"
 >
+    <td>{{ $rowNumber }}</td>
     <td style="position: sticky; left: 0; z-index: 3; background: #fff;">{{$statement['user']->group_name}}</td>
     <td style="position: sticky; left: 0; z-index: 3; background: #fff;">{{$statement['user']->last_name}}</td>
     <td>{{$statement['user']->first_name}}</td>

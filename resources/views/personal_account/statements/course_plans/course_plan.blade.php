@@ -8,13 +8,20 @@
     <!-- END META -->
 
     <!-- BEGIN STYLESHEETS -->
-    <link href='http://fonts.googleapis.com/css?family=Roboto:300italic,400italic,300,400,500,700,900' rel='stylesheet' type='text/css'/>
+    <link href='https://fonts.googleapis.com/css?family=Roboto:300italic,400italic,300,400,500,700,900' rel='stylesheet' type='text/css'/>
     {!! HTML::style('css/bootstrap.css') !!}
     {!! HTML::style('css/materialadmin.css') !!}
     {!! HTML::style('css/font-awesome.min.css') !!}
     {!! HTML::style('css/material-design-iconic-font.min.css') !!}
     <!-- END STYLESHEETS -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.8/css/select2.min.css" rel="stylesheet" />
+    <style>
+        .course-plan-save-state { display: none; margin-left: 12px; font-size: 14px; }
+        .course-plan-save-state.is-visible { display: inline-block; }
+        .course-plan-save-state.is-success { color: #237a48; }
+        .course-plan-save-state.is-error { color: #b33232; }
+        .course-plan-summary input[readonly] { background: #f3f6f7; color: #17384b; font-weight: 600; }
+    </style>
 @stop
 @section('content')
     <div class="container-fluid">
@@ -85,7 +92,7 @@
                 <div class="card-body style-default-bright">
                      {!! Form::open(array('method' => 'PATCH' , ' style' => 'margin-bottom: 2%', 'class' => 'course_plan_form')) !!}
                         {{ csrf_field() }}
-                    <div class="row">
+                    <div class="row course-plan-summary">
                         <div class="col-lg-6">
                         <h5 class="card-title">{!! Form::label('course_plan_name' , 'Учебный план:') !!}
                             {!! Form::text('course_plan_name',$course_plan->course_plan_name,['class' => 'form-control','placeholder' => 'Введите название учебного плана',
@@ -146,6 +153,7 @@
                     <div class="update_button_course_plan" style="margin-bottom: 10px">
 
                     </div>
+                    <span class="course-plan-save-state" role="status" aria-live="polite"></span>
                     {!! Form::close() !!}
 
 

@@ -6,6 +6,7 @@
 <br>
 <table class="table table-condensed table-bordered" data-id-course_plan="{{$course_plan->id_course_plan}}">
     <tr>
+        <td rowspan="2" class="warning" style="width: 44px;">№</td>
         <td rowspan="2" class="warning">Группа</td>
         <td rowspan="2" class="warning">Фамилия</td>
         <td rowspan="2" class="warning">Имя</td>
@@ -25,6 +26,7 @@
     <tbody id="target">
     @foreach($statement_seminar as $statement)
         <tr id ="{{$statement['user']->id}}">
+            <td>{{ $loop->iteration }}</td>
             <td style="position: sticky; left: 0; z-index: 3; background: #fff;">{{$statement['user']->group_name}}</td>
             <td style="position: sticky; left: 0; z-index: 3; background: #fff;">{{$statement['user']->last_name}}</td>
             <td>{{$statement['user']->first_name}}</td>
@@ -55,6 +57,7 @@
         </tr>
     @endforeach
     <tr class="functionalty_tr">
+        <td></td>
         <td></td>
         <td></td>
         <td></td>

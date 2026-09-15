@@ -72,14 +72,17 @@ class TestController extends Controller{
             ->whereVisibility(1)->whereArchived(0)->whereOnly_for_print(0)->get();
         $ctr_tests = [];
         foreach ($query as $test){
-            $availability_for_group = TestForGroup::whereId_group(Auth::user()['group'])
+            $testForGroup = TestForGroup::whereId_group(Auth::user()['group'])
                 ->whereId_test($test['id_test'])
-                ->select('availability')->first()->availability;
+                ->select('availability')->first();
+            $availability_for_group = is_null($testForGroup) ? 0 : $testForGroup->availability;
             if ($availability_for_group/* && $us_state['all_ok'] == 1*/) {
                 $fine = Fine::whereId_test($test['id_test'])->whereId(Auth::user()['id'])->select('access')->get();
 
                 $test['access_for_student'] = (count($fine) == 0 || $isAdmin) ? 1 : $fine[0]->access;
-                $test['max_points'] = Fine::levelToPercent(Fine::whereId(Auth::user()['id'])->whereId_test($test['id_test'])->select('fine')->first()->fine) / 100 * $test['total'];
+                $fineValue = Fine::whereId(Auth::user()['id'])->whereId_test($test['id_test'])->select('fine')->first();
+                $fineLevel = is_null($fineValue) ? 0 : $fineValue->fine;
+                $test['max_points'] = Fine::levelToPercent($fineLevel) / 100 * $test['total'];
                 $test['amount'] = Test::getAmount($test['id_test']);
                 $test['attempts'] = Result::whereId_test($test['id_test'])->whereId(Auth::user()['id'])->where('mark_ru', '>=', 0)->count();
                 array_push($ctr_tests, $test);
@@ -893,7 +896,9 @@ class TestController extends Controller{
         }
         else $score = $total;
 
-        $fine = Fine::countFactor(Fine::whereId_test($id_test)->whereId($id_user)->select('fine')->first()->fine);      //учитываем штраф, если он есть
+        $fineValue = Fine::whereId_test($id_test)->whereId($id_user)->select('fine')->first();
+        $fineLevel = is_null($fineValue) ? 0 : $fineValue->fine;
+        $fine = Fine::countFactor($fineLevel);      //учитываем штраф, если он есть
         $score = $score * $fine;
 
         $mark_bologna = $this->test->calcMarkBologna($total, $score);                                                         //оценки
@@ -1015,7 +1020,9 @@ class TestController extends Controller{
         }
         else $score = $total;
 
-        $fine = Fine::countFactor(Fine::whereId_test($id_test)->whereId($id_user)->select('fine')->first()->fine);      //учитываем штраф, если он есть
+        $fineValue = Fine::whereId_test($id_test)->whereId($id_user)->select('fine')->first();
+        $fineLevel = is_null($fineValue) ? 0 : $fineValue->fine;
+        $fine = Fine::countFactor($fineLevel);      //учитываем штраф, если он есть
         $score = $score * $fine;
 
         $mark_bologna = $this->test->calcMarkBologna($total, $score);                                                         //оценки
@@ -1039,7 +1046,9 @@ class TestController extends Controller{
             $fraction_score = $score / $total;
             Test::addToStatements($id_test, $id_user, $fraction_score);                                                          //занесение балла в ведомость
             $screenshot = $request->input('screenshot');
-            $this->saveTestScreenshot($screenshot, $userId, $id_test);
+            if (false && !empty($screenshot)) {
+                $this->saveTestScreenshot($screenshot, $userId, $id_test);
+            }
         } else {                                                                                                          //тест тренировочный
             $widgetListView = View::make('questions.student.training_test',compact('total','score','right_or_wrong', 'mark_bologna', 'mark_rus', 'right_percent', 'link_to_lecture'))->with('widgets', $widgets);
         }

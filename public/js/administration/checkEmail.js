@@ -19,10 +19,10 @@ $(".checkEmail").change(function() {
         success: function(data){
             if (data == "notExists") {
                 $('#loginError').show();
-                $(':input[type="submit"]').prop('disabled', true);
+                $('#login-form :input[type="submit"]').prop('disabled', true);
             } else {
                 $('#loginError').hide();
-                $(':input[type="submit"]').prop('disabled', false);
+                $('#login-form :input[type="submit"]').prop('disabled', false);
             }
         }
     });
@@ -46,10 +46,10 @@ $(".checkEmailUnique").change(function() {
         success: function(data){
             if (data == "exists") {
                 $('#registerError').show();
-                $(':input[type="submit"]').prop('disabled', true);
+                $('#register-form :input[type="submit"]').prop('disabled', true);
             } else {
                 $('#registerError').hide();
-                $(':input[type="submit"]').prop('disabled', false);
+                $('#register-form :input[type="submit"]').prop('disabled', false);
             }
         }
     });
@@ -73,10 +73,10 @@ $(".checkRestoreEmail").change(function() {
         success: function(data){
             if (data == "notExists") {
                 $('#restoreError').show();
-                $(':input[type="submit"]').prop('disabled', true);
+                $('#reset-form :input[type="submit"]').prop('disabled', true);
             } else {
                 $('#restoreError').hide();
-                $(':input[type="submit"]').prop('disabled', false);
+                $('#reset-form :input[type="submit"]').prop('disabled', false);
             }
         }
     });
@@ -84,6 +84,19 @@ $(".checkRestoreEmail").change(function() {
 });
 
 $(function() {
+    $('#login-form, #register-form, #reset-form').on('submit', function(e) {
+        var $form = $(this);
+
+        if ($form.data('submitted')) {
+            e.preventDefault();
+            return false;
+        }
+
+        if (!$form.find('.form-group.has-error').length) {
+            $form.data('submitted', true);
+            $form.find('input[type="submit"], button[type="submit"]').prop('disabled', true);
+        }
+    });
 
     $('#login-form-link').click(function(e) {
         $("#login-form").delay(100).fadeIn(100);

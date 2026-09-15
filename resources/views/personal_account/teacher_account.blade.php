@@ -17,6 +17,17 @@
             <div class="col-lg-10 col-lg-offset-1 col-md-10 col-md-offset-1 col-sm-12">
                 <div class="card">
                     <div class="card-body">
+                <div class="row" style="margin-bottom: 20px;">
+                    <div class="col-md-4">
+                        <a href="{{ route('schedule_board.index') }}" class="btn btn-info btn-block">Информационное табло</a>
+                    </div>
+                    <div class="col-md-4">
+                        <a href="{{ route('exam_schedules.index') }}" class="btn btn-info btn-block">Контрольные работы</a>
+                    </div>
+                    <div class="col-md-4">
+                        <a href="{{ route('broadcast.create') }}" class="btn btn-info btn-block">Уведомления</a>
+                    </div>
+                </div>
                 <h2 class="text-center">Результаты тестов всех пользователей</h2>
                 <div class="form">
                     <form action="">

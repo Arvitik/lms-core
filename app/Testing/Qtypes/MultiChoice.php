@@ -83,6 +83,10 @@ class MultiChoice extends QuestionType implements Checkable {
         $j = 0;
         $num_answers = [];
         for ($i = 0; $i < count($variants); $i++) {
+            if ($j >= count($answers)) {
+                break;
+            }
+
             if ($variants[$i] == $answers[$j]) {
                 array_push($num_answers, $i);
                 $j++;

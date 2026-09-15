@@ -2,6 +2,7 @@
 
 use Exception;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Illuminate\Session\TokenMismatchException;
 
 class Handler extends ExceptionHandler {
 
@@ -36,6 +37,20 @@ class Handler extends ExceptionHandler {
 	 */
 	public function render($request, Exception $e)
 	{
+		if ($e instanceof TokenMismatchException) {
+			if ($request->ajax() || $request->wantsJson()) {
+				return response()->json([
+					'success' => false,
+					'csrf' => true,
+					'message' => 'Сессия формы устарела. Обновите страницу и повторите действие.'
+				], 419);
+			}
+
+			return redirect()->back()
+				->withInput($request->except('_token'))
+				->withErrors(['csrf' => 'Сессия формы устарела. Попробуйте отправить форму ещё раз.']);
+		}
+
 		return parent::render($request, $e);
 	}
 

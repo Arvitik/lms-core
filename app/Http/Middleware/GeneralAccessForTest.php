@@ -19,6 +19,10 @@ class GeneralAccessForTest {
     public function handle(Request $request, Closure $next) {
         $id_test = strrev(explode('/',strrev($request->url()))[0]);
         $test = Test::whereId_test($id_test)->first();
+        if (!$test) {
+            $message = "Тест не найден";
+            return redirect()->route('no_access', compact('message'));
+        }
         if (!$test->visibility) {
             $message = "Тест не доступен в данный момент";
             return redirect()->route('no_access', compact('message'));
@@ -31,9 +35,10 @@ class GeneralAccessForTest {
             $message = "Тест предназначен только для печатной версии";
             return redirect()->route('no_access', compact('message'));
         }
-        $availability_for_group = TestForGroup::whereId_group(Auth::user()['group'])
+        $groupAvailability = TestForGroup::whereId_group(Auth::user()['group'])
             ->whereId_test($id_test)
-            ->select('availability')->first()->availability;
+            ->select('availability')->first();
+        $availability_for_group = $groupAvailability ? $groupAvailability->availability : 0;
         if (!$availability_for_group) {
             $message = "Тест не доступен для вашей группы";
             return redirect()->route('no_access', compact('message'));

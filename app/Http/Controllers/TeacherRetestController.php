@@ -14,7 +14,6 @@ use App\Testing\Test;
 use App\User;
 use DB;
 use Illuminate\Http\Request;
-use Illuminate\Routing\Controller;
 
 /** Модуль преподавателя для управления возможностью переписывания тестов студентами */
 class TeacherRetestController extends Controller {
@@ -56,8 +55,7 @@ class TeacherRetestController extends Controller {
         $fines = [];
 
         foreach ($fine_table as $row) {
-            $resultRow = Result::whereId_test($row->id_test)->whereId($row->id)->select('mark_eu')->orderBy('id_result', 'desc')->first();
-            $result = $resultRow ? $resultRow->mark_eu : null;
+            $result = Result::whereId_test($row->id_test)->whereId($row->id)->select('mark_eu')->orderBy('id_result', 'desc')->first()->mark_eu;
 
             $fine = [];
             $fine['id'] = $row->id_fine;

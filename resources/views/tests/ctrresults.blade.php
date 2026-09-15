@@ -38,6 +38,14 @@
     </div>
     <br>
 
+    @if(Auth::check() && in_array(Auth::user()->role, ['Студент', 'Староста']))
+        @include('feedback._widget', [
+            'fbType'     => 'test',
+            'fbTargetId' => $id_test,
+            'fbTitle'    => 'Оцените этот тест',
+        ])
+    @endif
+
     <div class="row">
         <a href="{{URL::route('home')}}" class="btn btn-warning btn-lg col-md-4 col-md-offset-4 style-primary" role="button">На главную</a>
     </div>

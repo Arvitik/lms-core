@@ -178,14 +178,25 @@ class Test extends Eloquent {
      public static function addToStatements($id_test, $id_user, $fraction_score){
         //toDo необходимо переделать см карточку в трелло
 
-        $id_group = User::where('id', '=', $id_user)->select('group')->first()->group;
-        $id_course_plan = Group::whereGroup_id($id_group)->select('id_course_plan')->first()->id_course_plan;
+        $user = User::where('id', '=', $id_user)->select('group')->first();
+        if (is_null($user)) {
+            return 0;
+        }
+        $id_group = $user->group;
+        $group = Group::whereGroup_id($id_group)->select('id_course_plan')->first();
+        if (is_null($group)) {
+            return 0;
+        }
+        $id_course_plan = $group->id_course_plan;
         $id_section_arr = SectionPlan::where('id_course_plan', '=', $id_course_plan)
             ->pluck('id_section_plan')->toArray();
 
         $control_work_plan = ControlWorkPlan::whereIn('id_section_plan', $id_section_arr)
             ->where('id_test', '=', $id_test)
             ->first();
+        if (is_null($control_work_plan)) {
+            return 0;
+        }
         $id_control_work_plan = $control_work_plan->id_control_work_plan;
         $control_work_max_point =  $control_work_plan->max_points;
         $control_work_score = round($control_work_max_point * $fraction_score, 1);
@@ -249,6 +260,9 @@ class Test extends Eloquent {
                 $real_even_points_sum += $tasks[$i]->points;
                 $max_odd_points_sum += Question::whereId_question($tasks[$i+1]->id_question)->select('points')->first()->points;
                 $real_odd_points_sum += $tasks[$i+1]->points;
+            }
+            if ($max_odd_points_sum == 0 || $max_even_points_sum == 0) {
+                continue;
             }
             array_push($odd_points, $real_odd_points_sum * 100 / $max_odd_points_sum);
             array_push($even_points, $real_even_points_sum * 100 / $max_even_points_sum);

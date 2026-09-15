@@ -18,6 +18,8 @@
                     {{--<div class="card-body test-list">--}}
                     <h2 class="text-center">Личный кабинет</h2>
                     <h3 class="text-center">{{ $user['first_name'] }} {{ $user['last_name'] }} <b>{{ $user['email'] }}</b></h3>
+                        <a href="{{ route('exam_schedules.student') }}" class="btn btn-info col-md-offset-3 col-md-6" style="margin-top: 0.5%">Мои контрольные работы</a>
+                        <a href="{{ route('current_control.student_schedule') }}" class="btn btn-info col-md-offset-3 col-md-6" style="margin-top: 0.5%">Моё расписание занятий</a>
                         <a href="{{ route('test_results')}}" class="btn btn-warning col-md-offset-3 col-md-6 ">Перейти на страницу результатов системы тестирования</a>
         <a href="{{ route('student_сabinet')}}" class="btn btn-warning col-md-offset-3 col-md-6 " style="margin-top: 0.5%">Перейти на страницу "Заказы книг" </a>
 

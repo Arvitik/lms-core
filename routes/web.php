@@ -27,6 +27,7 @@ Route::get('public', function() {
 });
 
 Route::get('home', ['as' => 'home', 'uses' => 'HomeController@get_home']);
+Route::get('tests', function() { return redirect()->route('control_tests'); });
 
 Route::get('in-process', ['as' => 'in_process', function() {
     return view('in_process');
@@ -46,13 +47,19 @@ Route::get('tests/single-test/{active_test_id}/{active_is_adaptive}/{desired_tes
 }]);
 
 Route::get('tests/drop-opened-test/{id_test_new}', ['as' => 'drop_opened_test', function($id_test_new) {
-    $nonfinished_results = Result::whereId(Auth::user()['id'])->whereResult(null)->get();
-    foreach ($nonfinished_results as $res) {
-        TestTask::whereId_result($res->id_result)->delete();
+    $test = App\Testing\Test::whereId_test($id_test_new)->select('is_adaptive')->first();
+    if (!$test) {
+        $message = 'Тест не найден';
+        return redirect()->route('no_access', compact('message'));
     }
-    Result::whereId(Auth::user()['id'])->whereResult(null)->delete();
-    $is_adaptive = App\Testing\Test::whereId_test($id_test_new)->select('is_adaptive')->first()->is_adaptive;
-    if ($is_adaptive) {
+    \Illuminate\Support\Facades\DB::transaction(function () {
+        $nonfinished_results = Result::whereId(Auth::user()['id'])->whereResult(null)->get();
+        foreach ($nonfinished_results as $res) {
+            TestTask::whereId_result($res->id_result)->delete();
+        }
+        Result::whereId(Auth::user()['id'])->whereResult(null)->delete();
+    });
+    if ($test->is_adaptive) {
         return redirect()->route('prepare_adaptive_test', ['test_id' => $id_test_new]);
     }
     return redirect()->route('question_showtest', ['id_test' => $id_test_new]);
@@ -62,13 +69,18 @@ Route::get('tests/no-attempts/{max_test_points}/{total}', ['as' => 'no_attempts'
     return view('tests.no_attempts', compact('max_test_points', 'total'));
 }]);
 
+// Обратная связь
+Route::post('feedback', ['as' => 'feedback.store', 'uses' => 'FeedbackController@store', 'middleware' => 'general_auth']);
+Route::get('feedback/analytics', ['as' => 'feedback.analytics', 'uses' => 'FeedbackController@analytics', 'middleware' => ['general_auth', 'admin']]);
+
 // Авторизация
 Route::post('auth/login', ['as' => 'login', 'uses' => 'Auth\LoginController@login']);
 Route::get('auth/logout', ['as' => 'logout', 'uses' => 'Auth\LoginController@logout']);
 Route::get('auth/login', ['as' => 'login', 'uses' => 'HomeController@get_home']);
 
 // Регистрация
-Route::post('auth/register', ['as' => 'register', 'uses' => 'Auth\RegisterController@register']);
+Route::get('auth/register', ['as' => 'register.form', 'uses' => 'Auth\RegisterController@showRegistrationForm']);
+Route::post('auth/register', ['as' => 'register', 'uses' => 'Auth\RegisterController@register', 'middleware' => 'throttle:5,10']);
 
 // Восстановление пароля
 Route::get('password/email', 'Auth\ForgotPasswordController@showLinkRequestForm')->name('password.email');
@@ -82,7 +94,8 @@ Route::get('tests/adaptive', ['as' => 'adaptive_tests', 'uses' => 'AdaptiveTestC
 Route::get('tests/control', ['as' => 'control_tests', 'uses' => 'TestController@controlTests', 'middleware' => ['general_auth', 'student']]);
 Route::get('questions/show-test/{id_test}', ['as' => 'question_showtest', 'uses' => 'TestController@showViews', 'middleware' => ['general_auth', 'single_test', 'have_attempts', 'test_is_available']]);
 Route::get('questions/show-adaptive-test/{id_test}', ['as' => 'show_adaptive_test', 'uses' => 'TestController@showAdaptiveTest', 'middleware' => ['general_auth', 'single_test', 'have_attempts', 'test_is_available']]);
-Route::patch('questions/check-test', ['as' => 'question_checktest', 'uses' => 'TestController@checkTest']);
+Route::patch('questions/check-test', ['as' => 'question_checktest', 'uses' => 'TestController@checkTest', 'middleware' => 'general_auth']);
+Route::post('questions/check-test', ['uses' => 'TestController@checkTest', 'middleware' => 'general_auth']);
 Route::get('questions/virtual-student/{id_test}', ['as' => 'traditional_test_virtual_student', 'uses' => 'TestController@virtualStudent', 'middleware' => ['general_auth', 'student']]);
 Route::post('tests/drop', ['as' => 'drop_test', 'uses' => 'TestController@dropTest', 'middleware' => 'general_auth']);
 Route::post('tests/get-protocol', ['as' => 'get_protocol', 'uses' => 'TestController@getProtocol', 'middleware' => 'general_auth']);
@@ -338,7 +351,7 @@ Route::get('course_plans/create', ['as' => 'course_plans_create', 'uses' => 'Sta
 //сохранение учебного плана
 Route::post('course_plans', ['as' => 'course_plan_store', 'uses' => 'StatementsController@storeCoursePlan']);
 //Редактирование основ информации учебного плана
-Route::patch('course_plan/update', ['as' =>'ourse_plan_update', 'uses' => 'StatementsController@updateCoursePlan', 'middleware' => ['general_auth', 'admin']]);
+Route::patch('course_plan/update', ['as' => 'course_plan_update', 'uses' => 'StatementsController@updateCoursePlan', 'middleware' => ['general_auth', 'admin']]);
 //Удаление учебного плана
 Route::delete('course_plan/delete', ['as' => 'course_plan_delete', 'uses' => 'StatementsController@deleteCoursePlan', 'middleware' => ['general_auth', 'admin']]);
 //Утверждение учебного плана для групп
@@ -521,7 +534,8 @@ Route::get('manage_users', ['as' => 'manage_users', 'uses' => 'AdministrationCon
 
 Route::post('/users/bulk_action', ['uses' => 'AdministrationController@bulkAction', 'as' => 'users.bulk_action']);
 
-Route::post('tests/{id}/archive', ['as' => 'tests.archive', 'uses' => 'TestController@archive']);
+Route::post('tests/{id}/archive', ['as' => 'tests.archive', 'uses' => 'TestController@archive', 'middleware' => ['general_auth', 'admin']]);
+Route::post('tests/{id}/restore', ['as' => 'tests.restore', 'uses' => 'TestController@restore', 'middleware' => ['general_auth', 'admin']]);
 
 //Отчеты
 Route::get('/testing/reports', ['as' => 'testing.reports', 'uses' => 'TestingController@reports', 'middleware' => ['general_auth', 'admin']]);
@@ -607,6 +621,88 @@ Route::post('/steward/attendance/toggle', [
     'middleware' => ['general_auth', 'admin']
 ]);
 
+// Расписание занятий и проверка заполнения ведомостей
+Route::get('current-control', [
+    'as' => 'current_control.index',
+    'uses' => 'CurrentControlController@index',
+    'middleware' => ['general_auth', 'admin']
+]);
+Route::get('current-control/schedule', [
+    'as' => 'current_control.schedule',
+    'uses' => 'CurrentControlController@schedulePage',
+    'middleware' => ['general_auth', 'admin']
+]);
+Route::get('current-control/checker', [
+    'as' => 'current_control.checker',
+    'uses' => 'CurrentControlController@checkerPage',
+    'middleware' => ['general_auth', 'admin']
+]);
+Route::get('current-control/checker/week', [
+    'as' => 'current_control.checker.week',
+    'uses' => 'CurrentControlController@checkerWeekDetails',
+    'middleware' => ['general_auth', 'admin']
+]);
+Route::get('current-control/dean-counts', [
+    'as' => 'current_control.dean_counts',
+    'uses' => 'CurrentControlController@deanCountsPage',
+    'middleware' => ['general_auth', 'admin']
+]);
+Route::post('current-control/dean-counts', [
+    'as' => 'current_control.dean_counts.save',
+    'uses' => 'CurrentControlController@saveDeanCounts',
+    'middleware' => ['general_auth', 'admin']
+]);
+Route::post('current-control/schedule', [
+    'as' => 'current_control.schedule.store',
+    'uses' => 'CurrentControlController@storeSchedule',
+    'middleware' => ['general_auth', 'admin']
+]);
+Route::post('current-control/schedule/import', [
+    'as' => 'current_control.schedule.import',
+    'uses' => 'CurrentControlController@importSchedule',
+    'middleware' => ['general_auth', 'admin']
+]);
+Route::post('current-control/schedule/bulk', [
+    'as' => 'current_control.schedule.bulk',
+    'uses' => 'CurrentControlController@storeBulkSchedule',
+    'middleware' => ['general_auth', 'admin']
+]);
+Route::patch('current-control/schedule/{id}', [
+    'as' => 'current_control.schedule.update',
+    'uses' => 'CurrentControlController@updateSchedule',
+    'middleware' => ['general_auth', 'admin']
+]);
+Route::delete('current-control/schedule/{id}', [
+    'as' => 'current_control.schedule.delete',
+    'uses' => 'CurrentControlController@deleteSchedule',
+    'middleware' => ['general_auth', 'admin']
+]);
+Route::post('current-control/dean-count', [
+    'as' => 'current_control.dean_count.save',
+    'uses' => 'CurrentControlController@saveDeanCount',
+    'middleware' => ['general_auth', 'admin']
+]);
+Route::get('my-schedule', [
+    'as' => 'current_control.student_schedule',
+    'uses' => 'CurrentControlController@studentSchedule',
+    'middleware' => ['general_auth']
+]);
+
+// Information board.
+Route::group(['middleware' => ['auth']], function () {
+    Route::get('/schedule-board', ['as' => 'schedule_board.index', 'uses' => 'ScheduleBoardController@index']);
+    Route::get('/schedule-board/create', ['as' => 'schedule_board.create', 'uses' => 'ScheduleBoardController@create']);
+    Route::post('/schedule-board', ['as' => 'schedule_board.store', 'uses' => 'ScheduleBoardController@store']);
+    Route::get('/schedule-board/cell', ['as' => 'schedule_board.cell', 'uses' => 'ScheduleBoardController@cellDetail']);
+    Route::get('/schedule-board/manage', ['as' => 'schedule_board.manage', 'uses' => 'ScheduleBoardController@manageTeachers']);
+    Route::post('/schedule-board/manage/teachers', ['as' => 'schedule_board.teachers.add', 'uses' => 'ScheduleBoardController@addTeachers']);
+    Route::delete('/schedule-board/manage/teachers/{id}', ['as' => 'schedule_board.teachers.remove', 'uses' => 'ScheduleBoardController@removeTeacher']);
+    Route::get('/schedule-board/{id}/edit', ['as' => 'schedule_board.edit', 'uses' => 'ScheduleBoardController@edit']);
+    Route::put('/schedule-board/{id}', ['as' => 'schedule_board.update', 'uses' => 'ScheduleBoardController@update']);
+    Route::delete('/schedule-board/{id}', ['as' => 'schedule_board.destroy', 'uses' => 'ScheduleBoardController@destroy']);
+    Route::delete('/schedule-board/{id}/series', ['as' => 'schedule_board.destroy_series', 'uses' => 'ScheduleBoardController@destroySeries']);
+});
+
 // ==============================
 // Модуль уведомлений
 // ==============================
@@ -640,24 +736,6 @@ Route::group(['middleware' => ['auth']], function () {
     Route::post('/broadcast',             ['as' => 'broadcast.send',         'uses' => 'BroadcastNotificationController@send']);
     Route::post('/broadcast/exam',        ['as' => 'broadcast.exam.store',   'uses' => 'BroadcastNotificationController@storeExam']);
     Route::delete('/broadcast/exam/{id}', ['as' => 'broadcast.exam.destroy', 'uses' => 'BroadcastNotificationController@destroyExam']);
-});
-
-// ==============================
-// Информационное табло
-// ==============================
-Route::group(['middleware' => ['auth']], function () {
-    Route::get('/schedule-board',                          ['as' => 'schedule_board.index',          'uses' => 'ScheduleBoardController@index']);
-    Route::get('/schedule-board/create',                   ['as' => 'schedule_board.create',         'uses' => 'ScheduleBoardController@create']);
-    Route::post('/schedule-board',                         ['as' => 'schedule_board.store',          'uses' => 'ScheduleBoardController@store']);
-    Route::get('/schedule-board/cell',                     ['as' => 'schedule_board.cell',           'uses' => 'ScheduleBoardController@cellDetail']);
-    Route::get('/schedule-board/manage',                   ['as' => 'schedule_board.manage',         'uses' => 'ScheduleBoardController@manageTeachers']);
-    Route::post('/schedule-board/manage/teachers',         ['as' => 'schedule_board.teachers.add',   'uses' => 'ScheduleBoardController@addTeachers']);
-    Route::delete('/schedule-board/manage/teachers/{id}',  ['as' => 'schedule_board.teachers.remove','uses' => 'ScheduleBoardController@removeTeacher']);
-
-    Route::get('/schedule-board/{id}/edit',                ['as' => 'schedule_board.edit',           'uses' => 'ScheduleBoardController@edit']);
-    Route::put('/schedule-board/{id}',                     ['as' => 'schedule_board.update',         'uses' => 'ScheduleBoardController@update']);
-    Route::delete('/schedule-board/{id}',                  ['as' => 'schedule_board.destroy',        'uses' => 'ScheduleBoardController@destroy']);
-    Route::delete('/schedule-board/{id}/series',           ['as' => 'schedule_board.destroy_series', 'uses' => 'ScheduleBoardController@destroySeries']);
 });
 
 

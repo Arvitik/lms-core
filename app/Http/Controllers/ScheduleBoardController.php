@@ -16,7 +16,7 @@ class ScheduleBoardController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('auth');
+        $this->middleware('general_auth');
     }
 
     /**
@@ -24,6 +24,10 @@ class ScheduleBoardController extends Controller
      */
     public function index(Request $request)
     {
+        if (!$this->canViewBoard(Auth::user())) {
+            return redirect()->route('current_control.student_schedule');
+        }
+
         $weekStart = $request->get('week')
             ? Carbon::parse($request->get('week'))->startOfWeek(Carbon::MONDAY)
             : Carbon::now()->startOfWeek(Carbon::MONDAY);
@@ -299,9 +303,14 @@ class ScheduleBoardController extends Controller
             ->startOfWeek(Carbon::MONDAY)->toDateString();
 
         if ($entry->exam_schedule_id) {
-            ExamSchedule::where('id', $entry->exam_schedule_id)->delete();
+            $examSchedule = ExamSchedule::find($entry->exam_schedule_id);
+            if ($examSchedule) {
+                $examSchedule->groups()->detach();
+                $examSchedule->delete();
+            }
         }
 
+        $entry->groups()->detach();
         $entry->delete();
 
         return redirect()->route('schedule_board.index', ['week' => $week])
@@ -314,6 +323,10 @@ class ScheduleBoardController extends Controller
      */
     public function cellDetail(Request $request)
     {
+        if (!$this->canViewBoard(Auth::user())) {
+            abort(403);
+        }
+
         $teacherId = (int) $request->get('teacher_id');
         $date      = $request->get('date');
 
@@ -331,16 +344,22 @@ class ScheduleBoardController extends Controller
 
         // Для семинаров — подгружаем ближайшие контрольные группы
         $controlWorks = collect();
-        $seminarGroupIds = $entries->where('entry_type', 'Семинар')
-            ->pluck('group_id')->filter()->unique();
+        $seminarGroupIds = collect();
+        foreach ($entries->where('entry_type', 'Семинар') as $seminarEntry) {
+            $seminarGroupIds = $seminarGroupIds->merge($seminarEntry->groups->pluck('group_id'));
+        }
+        $seminarGroupIds = $seminarGroupIds->filter()->unique()->values();
 
         if ($seminarGroupIds->isNotEmpty()) {
             $dateFrom = Carbon::parse($date)->subDays(7)->toDateString();
             $dateTo   = Carbon::parse($date)->addDays(14)->toDateString();
-            $controlWorks = ExamSchedule::with(['group'])
-                ->whereIn('group_id', $seminarGroupIds)
-                ->whereBetween('scheduled_date', [$dateFrom, $dateTo])
-                ->orderBy('scheduled_date')
+            $controlWorks = ExamSchedule::with(['groups'])
+                ->join('exam_schedule_groups', 'exam_schedule_groups.exam_schedule_id', '=', 'exam_schedules.id')
+                ->whereIn('exam_schedule_groups.group_id', $seminarGroupIds->all())
+                ->whereBetween('exam_schedules.scheduled_date', [$dateFrom, $dateTo])
+                ->select('exam_schedules.*')
+                ->distinct()
+                ->orderBy('exam_schedules.scheduled_date')
                 ->get();
         }
 
@@ -374,12 +393,17 @@ class ScheduleBoardController extends Controller
             ->startOfWeek(Carbon::MONDAY)->toDateString();
 
         if ($entry->series_id) {
-            $count = ScheduleBoardEntry::where('series_id', $entry->series_id)->count();
-            ScheduleBoardEntry::where('series_id', $entry->series_id)->delete();
+            $seriesEntries = ScheduleBoardEntry::where('series_id', $entry->series_id)->get();
+            $count = $seriesEntries->count();
+            foreach ($seriesEntries as $seriesEntry) {
+                $seriesEntry->groups()->detach();
+                $seriesEntry->delete();
+            }
             return redirect()->route('schedule_board.index', ['week' => $week])
                 ->with('success', "Серия удалена ({$count} занятий).");
         }
 
+        $entry->groups()->detach();
         $entry->delete();
         return redirect()->route('schedule_board.index', ['week' => $week])
             ->with('success', 'Запись удалена.');
@@ -466,6 +490,11 @@ class ScheduleBoardController extends Controller
     private function canEditBoard(User $user): bool
     {
         return in_array($user->role, ['Преподаватель', 'Админ']);
+    }
+
+    private function canViewBoard(User $user): bool
+    {
+        return in_array($user->role, ['Преподаватель', 'Старший преподаватель', 'Админ']);
     }
 
     private function validateEntry(Request $request): void

@@ -97,18 +97,26 @@ async function sendForm(form, status){
         alert('Время вышло');
     }
     if (shouldSubmit) {
-        const navEl = document.querySelector('.fixed-nav');
-        navEl.style.position = 'static';
-        await generateScreenshot();
-        navEl.style.position = '';
+        var submitButton = document.getElementById('check');
+        if (submitButton) {
+            submitButton.disabled = true;
+        }
+        var screenshotInput = document.getElementById('screenshot');
+        if (screenshotInput) {
+            screenshotInput.value = '';
+        }
         form.submit();
     }
 }
 
 function fillSuper(){
     // Execute Turing program before send result
-    window.mt2List.submit();
-    window.ham2List.submit();
+    if (window.mt2List && typeof window.mt2List.submit === 'function') {
+        window.mt2List.submit();
+    }
+    if (window.ham2List && typeof window.ham2List.submit === 'function') {
+        window.ham2List.submit();
+    }
     // Execute Post program before send result
     var cnt = 0;
     $("[name^=post-entity]").each(function(){

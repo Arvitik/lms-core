@@ -4,6 +4,7 @@ FROM php:${PHP_IMAGE_TAG}
 RUN apt-get update && apt-get install -y --no-install-recommends \
     git \
     unzip \
+    poppler-utils \
     libzip-dev \
     libicu-dev \
     libpng-dev \
@@ -18,5 +19,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+COPY docker/php/uploads.ini /usr/local/etc/php/conf.d/uploads.ini
 
 WORKDIR /var/www

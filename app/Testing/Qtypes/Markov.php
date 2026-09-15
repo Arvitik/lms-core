@@ -91,6 +91,15 @@ class Markov extends QuestionType implements Checkable {
 
     public function check($array) {
         $fees = HamFees::first();
+        if (count($array) < 5) {
+            return array('mark' => 'Неверно', 'score' => 0,
+                'id' => $this->id_question, 'points' => $this->points,
+                'right_percent' => 0,
+                'choice' => ['debug_counter' => 0, 'check_syntax_counter' => 0,
+                    'run_counter' => 0, 'sequences_true' => 0, 'sequences_all' => 0,
+                    'fee_percent' => 0, 'score' => 0, 'total_cycle' => 0,
+                    'right_percent' => 0]);
+        }
         $debug_counter = $array[0];
         $check_syntax_counter = $array[1];
         $run_counter = $array[2];
@@ -116,7 +125,7 @@ class Markov extends QuestionType implements Checkable {
         if ($should_increment_debug_counter && $sequences_true < $sequences_all) {
             $debug_counter++;
         }
-        $right_percent = $sequences_true / $sequences_all;
+        $right_percent = $sequences_all == 0 ? 0 : $sequences_true / $sequences_all;
         $fee_percent = ($fees->debug_fee / 100)*$debug_counter
             + ($fees->check_syntax_fee / 100)*$check_syntax_counter
             + ($fees->run_fee / 100)*$run_counter;

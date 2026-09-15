@@ -26,7 +26,12 @@ class TestingController extends Controller
             $report->students_count = $parsed['students_count'];
         }
 
-        return view('testing.reports', ['reports' => $reports]);
+        // Группируем по дате формирования (с точностью до минуты = одна пачка)
+        $batches = $reports->groupBy(function ($r) {
+            return \Carbon\Carbon::parse($r->created_at)->format('Y-m-d H:i');
+        });
+
+        return view('testing.reports', ['batches' => $batches]);
     }
 
     public function generate(Request $request, ReportService $reportService)

@@ -76,7 +76,7 @@ class GroupsController extends Controller{
         $groupId = $data->groupId;
         $teacherIds = $data->teacherIds;
         foreach ($teacherIds as $id) {
-            TeacherHasGroup::insert(['user_id' => $id, 'group' => $groupId]);
+            TeacherHasGroup::firstOrCreate(['user_id' => $id, 'group' => $groupId]);
         }
         $teachers = $this->loadTeachersByGroup($groupId);
         return response()->json($teachers);
@@ -87,7 +87,7 @@ class GroupsController extends Controller{
         $teacherId = $data->teacherId;
         $groupIds = $data->groupIds;
         foreach ($groupIds as $id) {
-            TeacherHasGroup::insert(['user_id' => $teacherId, 'group' => $id]);
+            TeacherHasGroup::firstOrCreate(['user_id' => $teacherId, 'group' => $id]);
         }
         $groups = $this->loadGroupsByTeacher($teacherId);
         return response()->json($groups);
@@ -141,15 +141,21 @@ class GroupsController extends Controller{
      * ]
      */
     private function loadTeachers($teacherIds = null) {
-        $teachers = User::
-            join('groups', 'groups.group_id', '=', 'users.group')
-            ->where('groups.group_name', 'ÐÐ´Ð¼Ð¸Ð½Ñ‹')
-            ->where('users.role', 'ÐŸÑ€ÐµÐ¿Ð¾Ð´Ð°Ð²Ð°Ñ‚ÐµÐ»ÑŒ');
+        $teachers = User::join('groups', 'groups.group_id', '=', 'users.group')
+            ->where('groups.group_name', 'Админы')
+            ->whereNull('users.deleted_at')
+            ->whereIn('users.role', [
+                'Преподаватель',
+                'Старший преподаватель',
+                'Админ',
+            ])
+            ->select('users.*');
         if ($teacherIds !== null) {
-            $teachers = $teachers->whereIn('users.id', $teacherIds);
+            $teachers = $teachers->whereIn('id', $teacherIds);
         }
         return $teachers
-            ->orderBy('users.id', 'desc')
+            ->orderBy('last_name')
+            ->orderBy('first_name')
             ->get()
             ->map(function($x) {
                 return $this->convertTeacher($x);
@@ -185,7 +191,7 @@ class GroupsController extends Controller{
     private function loadGroups($groupIds = null) {
         $groups = Group::
             where('archived', 0)
-            ->where('group_name', '!=', 'ÐÐ´Ð¼Ð¸Ð½Ñ‹');
+            ->where('group_name', '!=', 'Админы');
         if ($groupIds !== null) {
             $groups = $groups->whereIn('group_id', $groupIds);
         }

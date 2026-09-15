@@ -12,7 +12,7 @@
 
     <title>Algorithms theory LMS</title>
     <meta name="csrf_token" content="{{ csrf_token() }}" />
-    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+    {!! NoCaptcha::renderJs() !!}
     <!-- Yandex.Metrika counter --> <script type="text/javascript"> (function (d, w, c) { (w[c] = w[c] || []).push(function() { try { w.yaCounter41063559 = new Ya.Metrika({ id:41063559, clickmap:true, trackLinks:true, accurateTrackBounce:true, webvisor:true, trackHash:true }); } catch(e) { } }); var n = d.getElementsByTagName("script")[0], s = d.createElement("script"), f = function () { n.parentNode.insertBefore(s, n); }; s.type = "text/javascript"; s.async = true; s.src = "https://mc.yandex.ru/metrika/watch.js"; if (w.opera == "[object Opera]") { d.addEventListener("DOMContentLoaded", f, false); } else { f(); } })(document, window, "yandex_metrika_callbacks"); </script> <noscript><div><img src="https://mc.yandex.ru/watch/41063559" style="position:absolute; left:-9999px;" alt="" /></div></noscript> <!-- /Yandex.Metrika counter -->
 </head>
 <body class="full2">
@@ -37,6 +37,9 @@
                                  {!! csrf_field() !!}
 
                                 <label id="loginError" class="text-danger" hidden>Пользователь с таким email не зарегистрирован!</label>
+                                @if(session('login_failed'))
+                                    <div class="alert alert-danger" role="alert">{{ session('login_failed') }}</div>
+                                @endif
 
                                 <div class="form-group">
                                     <input type="email" name="email" value="{{ old('email') }}" id="email" tabindex="1" class="form-control checkEmail" required>
@@ -81,9 +84,11 @@
                                     <select name="group" id="group" class="form-control" size="1">
                                         <option value="0"></option>
                                         <option value="0">Простой пользователь</option>
-                                        <option value="0">Преподаватель</option>
                                         @foreach($groups as $group)
-                                            <option value="{{ $group['group_id'] }}">{{ $group['group_name'] }}</option>/td>
+                                            @if(in_array(trim($group['group_name']), ['Преподаватель', 'Преподаватели']))
+                                                @continue
+                                            @endif
+                                            <option value="{{ $group['group_id'] }}">{{ $group['group_name'] }}</option>
                                         @endforeach
                                     </select>
                                     <label for="select-type">Выберите</label>
@@ -103,7 +108,7 @@
                                     <div class="help-block with-errors"></div>
                                 </div>
                                 <div class="form-group">
-                                    <div class="g-recaptcha" data-sitekey="{{ config('recaptcha.site_key') }}"></div>
+                                    {!! NoCaptcha::display() !!}
                                     @if ($errors->has('g-recaptcha-response'))
                                         <span class="text-danger">{{ $errors->first('g-recaptcha-response') }}</span>
                                     @endif

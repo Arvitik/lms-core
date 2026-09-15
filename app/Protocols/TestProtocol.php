@@ -14,10 +14,11 @@ class TestProtocol extends Protocol {
     const TEST_PROTOCOL_DIR = 'test_protocols/';
 
     public function setTest($id_test){
-        $this->test = Test::whereId_test($id_test)->select('test_name')->first()->test_name;
+        $test = Test::whereId_test($id_test)->select('test_name')->first();
+        $this->test = $test ? $test->test_name : 'test_'.$id_test;
     }
 
     public function setBaseDir(){
-        return $this::PROTOCOL_PATH.$this::TEST_PROTOCOL_DIR;
+        return storage_path('app/'.$this::PROTOCOL_PATH.$this::TEST_PROTOCOL_DIR);
     }
 } 

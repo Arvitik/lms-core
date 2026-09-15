@@ -49,12 +49,13 @@ class TestController extends Controller{
 
     public function trainTests() {
         $tr_tests = [];
-        $query = $this->test->whereTest_type('Ð¢Ñ€ÐµÐ½Ð¸Ñ€Ð¾Ð²Ð¾Ñ‡Ð½Ñ‹Ð¹')
+        $query = $this->test->whereTest_type('Тренировочный')
             ->whereVisibility(1)->whereArchived(0)->whereOnly_for_print(0)->whereIs_adaptive(0)->get();
         foreach ($query as $test) {
-            $availability_for_group = TestForGroup::whereId_group(Auth::user()['group'])
+            $groupAvailability = TestForGroup::whereId_group(Auth::user()['group'])
                 ->whereId_test($test['id_test'])
-                ->select('availability')->first()->availability;
+                ->select('availability')->first();
+            $availability_for_group = $groupAvailability ? $groupAvailability->availability : 0;
             if ($availability_for_group) {
                 $test['amount'] = Test::getAmount($test['id_test']);
                 $test['attempts'] = Result::whereId_test($test['id_test'])->whereId(Auth::user()['id'])->where('mark_ru', '>=', 0)->count();
@@ -68,8 +69,8 @@ class TestController extends Controller{
 
     public function controlTests() {
         $role = User::whereId(Auth::user()['id'])->select('role')->first()->role;
-        $isAdmin = $role === 'ÐÐ´Ð¼Ð¸Ð½' || $role === 'ÐŸÑ€ÐµÐ¿Ð¾Ð´Ð°Ð²Ð°Ñ‚ÐµÐ»ÑŒ';
-        $query = $this->test->whereTest_type('ÐšÐ¾Ð½Ñ‚Ñ€Ð¾Ð»ÑŒÐ½Ñ‹Ð¹')
+        $isAdmin = $role === 'Админ' || $role === 'Преподаватель';
+        $query = $this->test->whereTest_type('Контрольный')
             ->whereVisibility(1)->whereArchived(0)->whereOnly_for_print(0)->get();
         $ctr_tests = [];
         foreach ($query as $test){
@@ -87,7 +88,9 @@ class TestController extends Controller{
                 $fine = Fine::whereId_test($test['id_test'])->whereId(Auth::user()['id'])->select('access')->get();
 
                 $test['access_for_student'] = (count($fine) == 0 || $isAdmin) ? 1 : $fine[0]->access;
-                $test['max_points'] = Fine::levelToPercent(Fine::whereId(Auth::user()['id'])->whereId_test($test['id_test'])->select('fine')->first()->fine) / 100 * $test['total'];
+                $fineValue = Fine::whereId(Auth::user()['id'])->whereId_test($test['id_test'])->select('fine')->first();
+                $fineLevel = $fineValue ? $fineValue->fine : 0;
+                $test['max_points'] = Fine::levelToPercent($fineLevel) / 100 * $test['total'];
                 $test['amount'] = Test::getAmount($test['id_test']);
                 $test['attempts'] = Result::whereId_test($test['id_test'])->whereId(Auth::user()['id'])->where('mark_ru', '>=', 0)->count();
                 array_push($ctr_tests, $test);
@@ -137,7 +140,7 @@ class TestController extends Controller{
         $test_for_groups = [];
 
         $general_settings['test_name'] = $request->input('test-name');
-        $general_settings['test_type'] = $request->input('training') ? 'Ð¢Ñ€ÐµÐ½Ð¸Ñ€Ð¾Ð²Ð¾Ñ‡Ð½Ñ‹Ð¹' : 'ÐšÐ¾Ð½Ñ‚Ñ€Ð¾Ð»ÑŒÐ½Ñ‹Ð¹';
+        $general_settings['test_type'] = $request->input('training') ? 'Тренировочный' : 'Контрольный';
         $general_settings['adaptive'] = $request->input('adaptive') ? 1 : 0;
         $general_settings['visibility'] = $request->input('visibility') ? 1 : 0;
         $general_settings['multilanguage'] = $request->input('multilanguage') ? 1 : 0;
@@ -305,28 +308,28 @@ class TestController extends Controller{
             }
         }
         // === УВЕДОМЛЕНИЕ: новый тест добавлен ===
-        // try {
-        // $testName = $general_settings['test_name'];
-        // $testType = isset($general_settings['test_type']) ? $general_settings['test_type'] : '';
-        // $groupIds = array_keys($request->session()->get('test_for_groups', []));
-        // if (!empty($groupIds)) {
-        // $studentIds = User::whereIn('group', $groupIds)
-        // ->whereIn('role', ['Студент', 'Студент-заочник', 'Староста'])
-        // ->pluck('id')
-        // ->toArray();
-        // if (!empty($studentIds)) {
-        // NotificationService::sendMany(
-        // $studentIds,
-        // 'new_test',
-        // 'Новый тест доступен',
-        // 'Добавлен тест «' . $testName . '». Проверьте раздел Тестирование.',
-        // ['test_id' => $id_test, 'url' => route('train_tests')]
-        // );
-        // }
-        // }
-        // } catch (\Exception $ne) {
-        // Log::warning('Notification send failed: ' . $ne->getMessage());
-        // }
+        try {
+            $testName = $general_settings['test_name'];
+            $testType = isset($general_settings['test_type']) ? $general_settings['test_type'] : '';
+            $groupIds = array_keys($request->session()->get('test_for_groups', []));
+            if (!empty($groupIds)) {
+                $studentIds = User::whereIn('group', $groupIds)
+                    ->whereIn('role', ['Студент', 'Студент-заочник'])
+                    ->pluck('id')
+                    ->toArray();
+                if (!empty($studentIds)) {
+                    NotificationService::sendMany(
+                        $studentIds,
+                        'new_test',
+                        'Новый тест доступен',
+                        'Добавлен тест «' . $testName . '». Проверьте раздел Тестирование.',
+                        ['test_id' => $id_test, 'url' => route('train_tests')]
+                    );
+                }
+            }
+        } catch (\Exception $ne) {
+            Log::warning('Notification send failed: ' . $ne->getMessage());
+        }
 
         $request->session()->forget('general_settings');
         $request->session()->forget('test_for_groups');
@@ -362,7 +365,7 @@ class TestController extends Controller{
         }
         $available_tests = $this->getAvailableTests();
 
-        $ctr_tests = $this->test->whereTest_type('ÐšÐ¾Ð½Ñ‚Ñ€Ð¾Ð»ÑŒÐ½Ñ‹Ð¹')
+        $ctr_tests = $this->test->whereTest_type('Контрольный')
             ->where('archived', '<>', '1')
             ->orderByDesc('id_test')
             ->select()
@@ -372,7 +375,7 @@ class TestController extends Controller{
             $test['at_least_one_available'] = array_key_exists($test['id_test'], $available_tests);
         }
 
-        $tr_tests = $this->test->whereTest_type('Ð¢Ñ€ÐµÐ½Ð¸Ñ€Ð¾Ð²Ð¾Ñ‡Ð½Ñ‹Ð¹')
+        $tr_tests = $this->test->whereTest_type('Тренировочный')
             ->where('archived', '<>', '1')
             ->orderByDesc('id_test')
             ->select()
@@ -382,9 +385,13 @@ class TestController extends Controller{
             $test['at_least_one_available'] = array_key_exists($test['id_test'], $available_tests);
         }
 
+        $archived_tests = $this->test->where('archived', 1)
+            ->orderByDesc('id_test')
+            ->get();
+
         $id_group = Auth::user()->group;
 
-        return view('personal_account.test_list', compact('ctr_tests', 'tr_tests', 'id_group'));
+        return view('personal_account.test_list', compact('ctr_tests', 'tr_tests', 'archived_tests', 'id_group'));
     }
 
    
@@ -437,6 +444,7 @@ class TestController extends Controller{
         $test = Test::whereId_test($id_test)->first();
         $test['is_resolved'] = Test::isResolved($id_test);
         $test['finish_opportunity'] = Test::isFinished($id_test) ? 0 : 1;
+        $structures = TestStructure::whereId_test($id_test)->get();
         $test_for_groups = TestForGroup::whereId_test($test->id_test)
             ->join('groups', 'test_for_group.id_group', 'groups.group_id')
             ->where('archived', '=', 0)
@@ -445,7 +453,7 @@ class TestController extends Controller{
             $test_for_group['group_name'] = Group::whereGroup_id($test_for_group['id_group'])->select('group_name')->first()->group_name;
             $test_for_group['finish_opportunity'] = Test::isFinishedForGroup($id_test, $test_for_group['id_group']) ? 0 : 1;
         }
-        return view ('tests.edit', compact('test',  'test_for_groups'));
+        return view ('tests.edit', compact('test',  'test_for_groups', 'structures'));
     }
 
     public function cloneTest(Request $request) {
@@ -573,7 +581,7 @@ class TestController extends Controller{
     }
 
     private function makeAllTestsUnavailable($test_type) {
-        $test_type_real = $test_type === 'control' ? 'ÐšÐ¾Ð½Ñ‚Ñ€Ð¾Ð»ÑŒÐ½Ñ‹Ð¹' : 'Ð¢Ñ€ÐµÐ½Ð¸Ñ€Ð¾Ð²Ð¾Ñ‡Ð½Ñ‹Ð¹';
+        $test_type_real = $test_type === 'control' ? 'Контрольный' : 'Тренировочный';
         TestForGroup::whereAvailability(1)
             ->whereIn('id_test', function($query) use ($test_type_real) {
                 $query->from('tests')
@@ -706,9 +714,9 @@ class TestController extends Controller{
     public function getAmount(Request $request){
         if ($request->ajax()) {
             if ($request->input('training')) {
-                $test_type = 'Ð¢Ñ€ÐµÐ½Ð¸Ñ€Ð¾Ð²Ð¾Ñ‡Ð½Ñ‹Ð¹';
+                $test_type = 'Тренировочный';
             }
-            else $test_type = 'ÐšÐ¾Ð½Ñ‚Ñ€Ð¾Ð»ÑŒÐ½Ñ‹Ð¹';
+            else $test_type = 'Контрольный';
             if ($request->input('printable')) {
                 $printable = 1;
             }
@@ -728,9 +736,17 @@ class TestController extends Controller{
     /** Ð’ Ñ„Ð¾Ð½Ð¾Ð²Ð¾Ð¼ Ñ€ÐµÐ¶Ð¸Ð¼Ðµ ÑÐ¾Ð·Ð´Ð°Ð½Ð¸Ðµ Ð¿Ñ€Ð¾Ñ‚Ð¾ÐºÐ¾Ð»Ð° Ð¿Ð¾ ÐºÐ¾Ð½Ñ‚Ñ€Ð¾Ð»ÑŒÐ½Ð¾Ð¼Ñƒ Ñ‚ÐµÑÑ‚Ñƒ */
     public function getProtocol(Request $request){
         if ($request->ajax()) {
-            $protocol = new TestProtocol($request->input('id_test'), $request->input('id_user'), $request->input('html_text'));
-            $protocol->create();
-            return;
+            try {
+                $protocol = new TestProtocol($request->input('id_test'), $request->input('id_user'), $request->input('html_text'));
+                $protocol->create();
+            } catch (\Exception $e) {
+                \Log::error('Protocol generation failed: '.$e->getMessage(), [
+                    'id_test' => $request->input('id_test'),
+                    'id_user' => $request->input('id_user')
+                ]);
+                return response()->json(['success' => false, 'message' => 'Не удалось создать протокол.'], 500);
+            }
+            return response()->json(['success' => true]);
         }
     }
 
@@ -770,7 +786,9 @@ class TestController extends Controller{
                 $data = $question->show($id, $i+1, false);
 
                 $saved_test[] = $data;
-                $widgets[] = View::make($data['view'], $data['arguments']);
+                $widget = View::make($data['view'], $data['arguments']);
+                $widget->render();
+                $widgets[] = $widget;
             }
 
             //Ð²Ñ€ÐµÐ¼Ñ ÐºÐ¾Ð½Ñ†Ð°
@@ -802,9 +820,23 @@ class TestController extends Controller{
 
             $saved_test = $test->saved_test;
             $saved_test = unserialize($saved_test);
+            if (!is_array($saved_test) || count($saved_test) < $amount) {
+                TestTask::whereId_result($result_id)->delete();
+                Result::whereId_result($result_id)->delete();
+                return redirect()->route('question_showtest', ['id_test' => $id_test]);
+            }
             for ($i=0; $i<$amount; $i++){
                 //Log::debug($saved_test[$i]);
-                $widgets[] = View::make($saved_test[$i]['view'], $saved_test[$i]['arguments']);
+                try {
+                    $widget = View::make($saved_test[$i]['view'], $saved_test[$i]['arguments']);
+                    $widget->render();
+                    $widgets[] = $widget;
+                } catch (\Exception $e) {
+                    Log::warning('Saved test render failed; regenerating', ['id_test' => $id_test, 'id_result' => $result_id, 'error' => $e->getMessage()]);
+                    TestTask::whereId_result($result_id)->delete();
+                    Result::whereId_result($result_id)->delete();
+                    return redirect()->route('question_showtest', ['id_test' => $id_test]);
+                }
             }
         }
 
@@ -970,8 +1002,9 @@ class TestController extends Controller{
         }
         else $score = $total;
 
-        $fineRow = Fine::whereId_test($id_test)->whereId($id_user)->select('fine')->first();
-        $fine = $fineRow ? Fine::countFactor($fineRow->fine) : 1;      //ÑƒÑ‡Ð¸Ñ‚Ñ‹Ð²Ð°ÐµÐ¼ ÑˆÑ‚Ñ€Ð°Ñ„, ÐµÑÐ»Ð¸ Ð¾Ð½ ÐµÑÑ‚ÑŒ
+        $fineValue = Fine::whereId_test($id_test)->whereId($id_user)->select('fine')->first();
+        $fineLevel = is_null($fineValue) ? 0 : $fineValue->fine;
+        $fine = Fine::countFactor($fineLevel);      //ÑƒÑ‡Ð¸Ñ‚Ñ‹Ð²Ð°ÐµÐ¼ ÑˆÑ‚Ñ€Ð°Ñ„, ÐµÑÐ»Ð¸ Ð¾Ð½ ÐµÑÑ‚ÑŒ
         $score = $score * $fine;
 
         $mark_bologna = $this->test->calcMarkBologna($total, $score);                                                         //Ð¾Ñ†ÐµÐ½ÐºÐ¸
@@ -988,7 +1021,7 @@ class TestController extends Controller{
             $widgets[] = View::make($saved_test[$i]['view'].'T', $saved_test[$i]['arguments'])->with('choice', $choice[$i+1]);
         }
 
-        if ($test_type != 'Ð¢Ñ€ÐµÐ½Ð¸Ñ€Ð¾Ð²Ð¾Ñ‡Ð½Ñ‹Ð¹'){                                                                             //Ñ‚ÐµÑÑ‚ ÐºÐ¾Ð½Ñ‚Ñ€Ð¾Ð»ÑŒÐ½Ñ‹Ð¹
+        if ($test_type != 'Тренировочный'){
             $widgetListView = View::make('tests.ctrresults',compact('total','score','right_or_wrong', 'mark_bologna', 'mark_rus', 'right_percent', 'id_test', 'id_user'))->with('widgets', $widgets);
             $fine = new Fine();
             $fine->updateFine(Auth::user()['id'], $id_test, $mark_rus);                                                 //Ð²Ð½Ð¾ÑÐ¸Ð¼ Ð² Ñ‚Ð°Ð±Ð»Ð¸Ñ†Ñƒ ÑˆÑ‚Ñ€Ð°Ñ„Ð¾Ð² Ð½ÐµÐ¾Ð±Ñ…Ð¾Ð´Ð¸Ð¼ÑƒÑŽ Ð¸Ð½Ñ„Ñƒ
@@ -1026,9 +1059,11 @@ class TestController extends Controller{
         $img = str_replace(' ', '+', $img);
         $fileData = base64_decode($img);
         //saving
-        $dir = 'screenshots/tests/' . $userId;
+        $dir = storage_path('app/public/screenshots/tests/' . $userId);
         if (!file_exists($dir)) {
-            mkdir($dir, 0777, true);
+            if (!mkdir($dir, 0775, true) && !is_dir($dir)) {
+                throw new \RuntimeException('Unable to create screenshot directory.');
+            }
         }
         $today =  date("Y-m-d H-i-s");
         $fileName = $dir . '/' . $testId . '_' . $today . '.png';
@@ -1036,114 +1071,143 @@ class TestController extends Controller{
     }
 
     /** ÐŸÑ€Ð¾Ð²ÐµÑ€ÐºÐ° ÐºÐ¾Ð½Ñ‚Ñ€Ð¾Ð»ÑŒÐ½Ð¾Ð¹ (Ñ‚ÐµÑÑ‚Ð°) */
+    /** Проверка контрольной (теста) */
     public function checkTest(Request $request) {
         $userId = Auth::user()['id'];
-        // id ÐºÐ¾Ð½Ñ‚Ñ€Ð¾Ð»ÑŒÐ½Ð¾Ð¹
         $id_test = $request->input('id_test');
-        // ÐŸÐ¾Ð»ÑƒÑ‡Ð°ÐµÐ¼ Ð½Ð°Ñ‡Ð°Ñ‚ÑƒÑŽ Ð¿Ð¾Ð»ÑŒÐ·Ð¾Ð²Ð°Ñ‚ÐµÐ»ÐµÐ¼ Ð¿Ð¾Ð¿Ñ‹Ñ‚ÐºÑƒ Ð¿Ñ€Ð¾Ñ…Ð¾Ð¶Ð´ÐµÐ½Ð¸Ñ ÐºÐ¾Ð½Ñ‚Ñ€Ð¾Ð»ÑŒÐ½Ð¾Ð¹ Ñ id = $id_test
         $current_test = Result::getCurrentResult($userId, $id_test);
         if ($current_test == -1) {
+            return redirect()->route('control_tests');
+        }
+
+        $amount = (int) $request->input('amount');
+        if ($amount < 1) {
+            return redirect()->route('question_showtest', ['id_test' => $id_test]);
+        }
+
+        $test = $this->test->whereId_test($id_test)->select('total', 'test_name', 'test_type')->first();
+        $resultRow = Result::whereId_result($current_test)->first();
+        if (!$test || !$resultRow) {
             return redirect('tests');
         }
-        // Ð§Ð¸ÑÐ»Ð¾ Ð²Ð¾Ð¿Ñ€Ð¾ÑÐ¾Ð².
-        $amount = $request->input('amount');
-        if ($amount < 2) {
-            return "Error. Too few questions";
+
+        $saved_test = @unserialize($resultRow->saved_test);
+        if (!is_array($saved_test) || count($saved_test) == 0) {
+            TestTask::whereId_result($current_test)->delete();
+            Result::whereId_result($current_test)->delete();
+            return redirect()->route('question_showtest', ['id_test' => $id_test]);
         }
-        //ÑÑƒÐ¼Ð¼Ð° Ð½Ð°Ð±Ñ€Ð°Ð½Ð½Ñ‹Ñ… Ð±Ð°Ð»Ð»Ð¾Ð²
+        $amount = min($amount, count($saved_test));
+
+        $total = $test->total;
+        $test_type = $test->test_type;
+        $id_user = $resultRow->id;
         $score_sum = 0;
-        //ÑÑƒÐ¼Ð¼Ð° Ð¼Ð°ÐºÑÐ¸Ð¼Ð°Ð»ÑŒÐ½Ð¾ Ð²Ð¾Ð·Ð¼Ð¾Ð¶Ð½Ñ‹Ñ… Ð±Ð°Ð»Ð»Ð¾Ð²
         $points_sum = 0;
-        //Ð·Ð°Ð¿Ð¾Ð¼Ð¸Ð½Ð°ÐµÐ¼ Ð²Ñ‹Ð±Ñ€Ð°Ð½Ð½Ñ‹Ðµ Ð²Ð°Ñ€Ð¸Ð°Ð½Ñ‚Ñ‹ Ð¿Ð¾Ð»ÑŒÐ·Ð¾Ð²Ð°Ñ‚ÐµÐ»Ñ
         $choice = [];
-        //ÐŸÑ€Ð¾Ñ†ÐµÐ½Ñ‚ Ð¿Ñ€Ð°Ð²Ð¸Ð»ÑŒÐ½Ð¾ÑÑ‚Ð¸ Ð¾Ñ‚Ð²ÐµÑ‚Ð° Ð½Ð° Ð½ÐµÐ²ÐµÑ€Ð½Ñ‹Ð¹ Ð²Ð¾Ð¿Ñ€Ð¾Ñ
         $right_percent = [];
-        $j = 1;
+        $right_or_wrong = [];
+        $link_to_lecture = [];
         $question = new Question();
+        $j = 1;
 
-        $query = $this->test->whereId_test($id_test)->select('total', 'test_name', 'test_type')->first();
-        $total = $query->total;
-        $test_type = $query->test_type;
+        TestTask::whereId_result($current_test)->delete();
 
-        $id_user = Result::whereId_result($current_test)
-            ->join('users', 'results.id', '=', 'users.id')->select('users.id')->first()->id;
-
-        //Ð¾Ð±Ñ€Ð°Ð±Ð°Ñ‚Ñ‹Ð²Ð°ÐµÐ¼ ÐºÐ°Ð¶Ð´Ñ‹Ð¹ Ð²Ð¾Ð¿Ñ€Ð¾Ñ
-        for ($i=0; $i<$amount; $i++) {
-            $data = $request->input($i);
-            $array = json_decode($data);
-            $link_to_lecture[$j] = $question->linkToLecture($array[0]);
-
-            // get type of test
-            $id_question = $array[0];
-            $query1 = Question::whereId_question($id_question)->select('answer','points', 'type_code')->first();
-            $type_name = Type::whereType_code($query1['type_code'])->select('type_name')->first()->type_name;
-
-            if ($type_name == 'Ð­Ð¼ÑƒÐ»ÑÑ‚Ð¾Ñ€ Ð¢ÑŒÑŽÑ€Ð¸Ð½Ð³Ð°' || $type_name == 'Ð­Ð¼ÑƒÐ»ÑÑ‚Ð¾Ñ€ ÐœÐ°Ñ€ÐºÐ¾Ð²Ð°') {
-                /* Get current saved test */
-                $test = Result::whereId_result($current_test)->first();
-                $saved_test = $test->saved_test;
-                $saved_test = unserialize($saved_test);
-
-                $arguments = $saved_test[$i]['arguments'];
-                $debug_counter = $arguments['debug_counter'];
-                $solution = $array[2];
-                $should_increment_debug_counter = false;
-                $check_syntax_counter = $arguments['check_syntax_counter'];
-                $run_counter = $arguments['run_counter'];
-                $data = $question->check([$id_question, $debug_counter, $check_syntax_counter, $run_counter,
-                    $should_increment_debug_counter, $solution]);
-            } else {
-                $data = $question->check($array);
+        for ($i = 0; $i < $amount; $i++) {
+            $raw = $request->input($i);
+            $array = json_decode($raw, true);
+            if (!is_array($array)) {
+                $array = [];
             }
-            $right_or_wrong[$j] = $data['mark'];
-            $choice[$j] = $data['choice'];
-            $right_percent[$j] = $data['right_percent'];
-            TestTask::insert(['points' => $data['score'], 'id_question' => $array[0], 'id_result' => $current_test]);
+            if (!isset($array[0]) && isset($saved_test[$i]['arguments']['id'])) {
+                $array = [$saved_test[$i]['arguments']['id']];
+            }
+
+            $id_question = isset($array[0]) ? $array[0] : null;
+            $query1 = $id_question ? Question::whereId_question($id_question)->select('answer','points', 'type_code')->first() : null;
+            if (!$query1) {
+                Log::warning('Check test skipped missing question', ['id_test' => $id_test, 'id_result' => $current_test, 'index' => $i, 'id_question' => $id_question]);
+                $right_or_wrong[$j] = 'Неверно';
+                $choice[$j] = [];
+                $right_percent[$j] = 0;
+                $j++;
+                continue;
+            }
+
+            try {
+                $link_to_lecture[$j] = $question->linkToLecture($id_question);
+            } catch (\Exception $e) {
+                $link_to_lecture[$j] = [];
+            }
+
+            $type = Type::whereType_code($query1['type_code'])->select('type_name')->first();
+            $type_name = $type ? $type->type_name : '';
+
+            try {
+                if ($type_name == 'Эмулятор Тьюринга' || $type_name == 'Эмулятор Маркова') {
+                    $arguments = isset($saved_test[$i]['arguments']) && is_array($saved_test[$i]['arguments']) ? $saved_test[$i]['arguments'] : [];
+                    $debug_counter = isset($arguments['debug_counter']) ? $arguments['debug_counter'] : 0;
+                    $check_syntax_counter = isset($arguments['check_syntax_counter']) ? $arguments['check_syntax_counter'] : 0;
+                    $run_counter = isset($arguments['run_counter']) ? $arguments['run_counter'] : 0;
+                    $solution = isset($array[2]) ? $array[2] : '';
+                    $data = $question->check([$id_question, $debug_counter, $check_syntax_counter, $run_counter, false, $solution]);
+                } else {
+                    $data = $question->check($array);
+                }
+            } catch (\Exception $e) {
+                Log::warning('Check test question failed', ['id_test' => $id_test, 'id_result' => $current_test, 'id_question' => $id_question, 'error' => $e->getMessage()]);
+                $data = ['mark' => 'Неверно', 'score' => 0, 'points' => $query1->points, 'choice' => [], 'right_percent' => 0];
+            }
+
+            $right_or_wrong[$j] = isset($data['mark']) ? $data['mark'] : 'Неверно';
+            $choice[$j] = isset($data['choice']) ? $data['choice'] : [];
+            $right_percent[$j] = isset($data['right_percent']) ? $data['right_percent'] : 0;
+            TestTask::insert(['points' => isset($data['score']) ? $data['score'] : 0, 'id_question' => $id_question, 'id_result' => $current_test]);
             $j++;
-            $score_sum += $data['score'];                                                                               //ÑÑƒÐ¼Ð¼Ð° Ð½Ð°Ð±Ñ€Ð°Ð½Ð½Ñ‹Ñ… Ð±Ð°Ð»Ð»Ð¾Ð²
-            $points_sum += $data['points'];                                                                             //ÑÑƒÐ¼Ð¼Ð° Ð¼Ð°ÐºÑÐ¸Ð¼Ð°Ð»ÑŒÐ½Ð¾ Ð²Ð¾Ð·Ð¼Ð¾Ð¶Ð½Ñ‹Ñ… Ð±Ð°Ð»Ð»Ð¾Ð²
+            $score_sum += isset($data['score']) ? $data['score'] : 0;
+            $points_sum += isset($data['points']) ? $data['points'] : 0;
         }
-        if ($points_sum != 0){
-            $score = $total*$score_sum/$points_sum;
-            $score = round($score,1);
+
+        if ($points_sum != 0) {
+            $score = round($total * $score_sum / $points_sum, 1);
+        } else {
+            $score = 0;
         }
-        else $score = $total;
 
-        $fineRow = Fine::whereId_test($id_test)->whereId($id_user)->select('fine')->first();
-        $fine = $fineRow ? Fine::countFactor($fineRow->fine) : 1;      //ÑƒÑ‡Ð¸Ñ‚Ñ‹Ð²Ð°ÐµÐ¼ ÑˆÑ‚Ñ€Ð°Ñ„, ÐµÑÐ»Ð¸ Ð¾Ð½ ÐµÑÑ‚ÑŒ
-        $score = $score * $fine;
+        $fineValue = Fine::whereId_test($id_test)->whereId($id_user)->select('fine')->first();
+        $fineLevel = is_null($fineValue) ? 0 : $fineValue->fine;
+        $score = $score * Fine::countFactor($fineLevel);
 
-        $mark_bologna = $this->test->calcMarkBologna($total, $score);                                                         //Ð¾Ñ†ÐµÐ½ÐºÐ¸
+        $mark_bologna = $this->test->calcMarkBologna($total, $score);
         $mark_rus = $this->test->calcMarkRus($total, $score);
 
-        $result = new Result();
-        $date = date('Y-m-d H:i:s', time());                                                                            //Ñ‚ÐµÐºÑƒÑ‰ÐµÐµ Ð²Ñ€ÐµÐ¼Ñ
+        $date = date('Y-m-d H:i:s', time());
         $widgets = [];
-        $query = $result->whereId_result($current_test)->first();                                                       //Ð±ÐµÑ€ÐµÐ¼ ÑÐ¾Ñ…Ñ€Ð°Ð½ÐµÐ½Ð½Ñ‹Ð¹ Ñ‚ÐµÑÑ‚ Ð¸Ð· Ð‘Ð”
-        $saved_test = $query->saved_test;
-        $saved_test = unserialize($saved_test);
-
-        for ($i=0; $i<$amount; $i++){
-            $widgets[] = View::make($saved_test[$i]['view'].'T', $saved_test[$i]['arguments'])->with('choice', $choice[$i+1]);
+        for ($i = 0; $i < $amount; $i++) {
+            if (!isset($saved_test[$i]['view']) || !isset($saved_test[$i]['arguments']) || !is_array($saved_test[$i]['arguments'])) {
+                continue;
+            }
+            $widgets[] = View::make($saved_test[$i]['view'].'T', $saved_test[$i]['arguments'])->with('choice', isset($choice[$i + 1]) ? $choice[$i + 1] : []);
         }
 
-        if ($test_type != 'Ð¢Ñ€ÐµÐ½Ð¸Ñ€Ð¾Ð²Ð¾Ñ‡Ð½Ñ‹Ð¹'){                                                                             //Ñ‚ÐµÑÑ‚ ÐºÐ¾Ð½Ñ‚Ñ€Ð¾Ð»ÑŒÐ½Ñ‹Ð¹
-            $widgetListView = View::make('tests.ctrresults',compact('total','score','right_or_wrong', 'mark_bologna', 'mark_rus', 'right_percent', 'id_test', 'id_user'))->with('widgets', $widgets);
+        if ($test_type != 'Тренировочный') {
+            $widgetListView = View::make('tests.ctrresults', compact('total','score','right_or_wrong', 'mark_bologna', 'mark_rus', 'right_percent', 'id_test', 'id_user'))->with('widgets', $widgets);
             $fine = new Fine();
-            $fine->updateFine(Auth::user()['id'], $id_test, $mark_rus);                                                 //Ð²Ð½Ð¾ÑÐ¸Ð¼ Ð² Ñ‚Ð°Ð±Ð»Ð¸Ñ†Ñƒ ÑˆÑ‚Ñ€Ð°Ñ„Ð¾Ð² Ð½ÐµÐ¾Ð±Ñ…Ð¾Ð´Ð¸Ð¼ÑƒÑŽ Ð¸Ð½Ñ„Ñƒ
-            $fraction_score = $score / $total;
-            Test::addToStatements($id_test, $id_user, $fraction_score);                                                          //Ð·Ð°Ð½ÐµÑÐµÐ½Ð¸Ðµ Ð±Ð°Ð»Ð»Ð° Ð² Ð²ÐµÐ´Ð¾Ð¼Ð¾ÑÑ‚ÑŒ
+            $fine->updateFine(Auth::user()['id'], $id_test, $mark_rus);
+            $fraction_score = $total ? $score / $total : 0;
+            Test::addToStatements($id_test, $id_user, $fraction_score);
             $screenshot = $request->input('screenshot');
-            $this->saveTestScreenshot($screenshot, $userId, $id_test);
-        } else {                                                                                                          //Ñ‚ÐµÑÑ‚ Ñ‚Ñ€ÐµÐ½Ð¸Ñ€Ð¾Ð²Ð¾Ñ‡Ð½Ñ‹Ð¹
-            $widgetListView = View::make('questions.student.training_test',compact('total','score','right_or_wrong', 'mark_bologna', 'mark_rus', 'right_percent', 'link_to_lecture'))->with('widgets', $widgets);
+            if (!empty($screenshot)) {
+                $this->saveTestScreenshot($screenshot, $userId, $id_test);
+            }
+        } else {
+            $widgetListView = View::make('questions.student.training_test', compact('total','score','right_or_wrong', 'mark_bologna', 'mark_rus', 'right_percent', 'link_to_lecture'))->with('widgets', $widgets);
         }
-        $result->whereId_result($current_test)->update(['result_date' => $date, 'result' => $score, 'mark_ru' => $mark_rus, 'mark_eu' => $mark_bologna]);
+
+        Result::whereId_result($current_test)->update(['result_date' => $date, 'result' => $score, 'mark_ru' => $mark_rus, 'mark_eu' => $mark_bologna]);
         return $widgetListView;
     }
 
-    /** ÐŸÐ¾Ð»ÑŒÐ·Ð¾Ð²Ð°Ñ‚ÐµÐ»ÑŒ Ð¾Ñ‚ÐºÐ°Ð·Ð°Ð»ÑÑ Ð¾Ñ‚ Ð¿Ñ€Ð¾Ñ…Ð¾Ð¶Ð´ÐµÐ½Ð¸Ñ Ñ‚ÐµÑÑ‚Ð° */
     public function dropTest(Request $request){
         $current_result = Result::getCurrentResult(Auth::user()['id'], $request->input('id_test'));
         if ($current_result != -1) {
@@ -1175,11 +1239,22 @@ class TestController extends Controller{
     }
     public function archive($id_test)
     {
+        if (ControlWorkPlan::where('id_test', $id_test)->exists()) {
+            return redirect()->back()->withErrors([
+                'Тест используется в учебном плане. Сначала выберите для этого пункта другой тест.'
+            ]);
+        }
+
         Test::whereId_test($id_test)->update(['archived' => 1]);
         TestForGroup::whereId_test($id_test)->update(['availability' => 0]);
 
         return redirect()->back()->with('success', 'Ð¢ÐµÑÑ‚ ÑƒÑÐ¿ÐµÑˆÐ½Ð¾ Ð¾Ñ‚Ð¿Ñ€Ð°Ð²Ð»ÐµÐ½ Ð² Ð°Ñ€Ñ…Ð¸Ð²');
     }
+
+    public function restore($id_test)
+    {
+        Test::whereId_test($id_test)->update(['archived' => 0]);
+
+        return redirect()->back()->with('success', 'Тест восстановлен из архива. Настройте его видимость и доступность для групп.');
+    }
 }
-
-

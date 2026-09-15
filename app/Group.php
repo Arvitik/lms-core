@@ -20,9 +20,9 @@ use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
 
 class Group extends Model
 {
-    protected $table      = 'groups';
+    protected $table = 'groups';
     protected $primaryKey = 'group_id';
-    public $timestamps    = false;
-    protected $fillable   = ['*'];
+    public $timestamps = false;
+    protected $fillable = ['*'];
 
 }

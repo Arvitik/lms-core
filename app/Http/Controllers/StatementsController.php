@@ -362,12 +362,14 @@ class StatementsController extends Controller{
     }
 
     private function getScreenshots($userId) {
-        $dir = 'screenshots/tests/' . $userId;
+        $dir = storage_path('app/public/screenshots/tests/' . $userId);
         if (!file_exists($dir)) {
             return [];
         }
         $res = glob($dir . '/*.png');
-        return preg_filter('/^/', '/', $res);
+        return array_map(function ($path) {
+            return '/storage/screenshots/tests/' . basename(dirname($path)) . '/' . basename($path);
+        }, $res);
     }
 
     public function getStudentsByGroup(Request $request) {
@@ -398,9 +400,9 @@ class StatementsController extends Controller{
         \Log::info('Группа: ' . $id_group);
 
         $group = Group::where('group_id', $id_group)->select('id_course_plan')->first();
-        if (!$group) {
-            \Log::error('Группа не найдена!');
-            abort(404, 'Группа не найдена');
+        if (!$group || !$group->id_course_plan) {
+            \Log::warning('Course plan is not assigned to the selected group.', ['group_id' => $id_group]);
+            return $this->missingCoursePlanResponse();
         }
 
         $id_course_plan = $group->id_course_plan;
@@ -439,9 +441,12 @@ class StatementsController extends Controller{
 
     public function get_resulting(Request $request){
         $id_group = $request->input('group');
+        $group = Group::where('group_id', $id_group)->select('id_course_plan')->first();
+        if (!$group || !$group->id_course_plan) {
+            return $this->missingCoursePlanResponse();
+        }
         $statement_result = $this->result_statement->getResultingStatementByGroup($id_group);
-        $id_course_plan = Group::where('group_id', $id_group)->select('id_course_plan')
-            ->first()->id_course_plan;
+        $id_course_plan = $group->id_course_plan;
         $course_plan = $this->course_plan_DAO->getCoursePlan($id_course_plan);
         // $this->modifySecOk($statement_result, $course_plan);
         return view('personal_account/statements/results',
@@ -462,8 +467,11 @@ class StatementsController extends Controller{
 
         $id_group = $request->input('group');
         $file = $request->file;
-        $id_course_plan = Group::where('group_id', $id_group)->select('id_course_plan')
-            ->first()->id_course_plan;
+        $group = Group::where('group_id', $id_group)->select('id_course_plan')->first();
+        if (!$group || !$group->id_course_plan) {
+            return redirect()->back()->withErrors(['group' => 'Для выбранной группы не назначен учебный план.']);
+        }
+        $id_course_plan = $group->id_course_plan;
         $course_plan = $this->course_plan_DAO->getCoursePlan($id_course_plan);
         $statement_result = $this->result_statement->getResultingStatementByGroup($id_group);
         Storage::disk('local')->put('file.xlsx', file_get_contents($file));
@@ -473,6 +481,18 @@ class StatementsController extends Controller{
             $statement_result,
             '/storage/app/file.xlsx',
             $stat_type);;
+    }
+
+    private function missingCoursePlanResponse()
+    {
+        return response(
+            '<div class="alert alert-warning" role="alert">'
+            . 'Для выбранной группы не назначен учебный план. '
+            . 'Назначьте план в разделе &laquo;Учебные планы&raquo;.'
+            . '</div>',
+            200,
+            ['Content-Type' => 'text/html; charset=UTF-8']
+        );
     }
 
     // Отмечает или раз-отмечает студента на лекции (СТАРАЯ СИСТЕМА → НОВАЯ СИСТЕМА)
