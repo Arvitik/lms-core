@@ -141,14 +141,35 @@ class GroupsController extends Controller{
      * ]
      */
     private function loadTeachers($teacherIds = null) {
-        $teachers = User::join('groups', 'groups.group_id', '=', 'users.group')
-            ->where('groups.group_name', 'Админы')
+        $activeTeacherIds = TeacherHasGroup::join('groups', 'groups.group_id', '=', 'teacher_has_group.group')
+            ->where('groups.archived', 0)
+            ->where('groups.group_name', '!=', 'Админы')
+            ->pluck('teacher_has_group.user_id')
+            ->unique()
+            ->values()
+            ->all();
+        $assignedTeacherIds = TeacherHasGroup::pluck('user_id')->unique()->values()->all();
+
+        $teachers = User::join('groups as account_groups', 'account_groups.group_id', '=', 'users.group')
+            ->where('account_groups.group_name', 'Админы')
             ->whereNull('users.deleted_at')
             ->whereIn('users.role', [
                 'Преподаватель',
                 'Старший преподаватель',
                 'Админ',
             ])
+            ->where(function ($staff) use ($activeTeacherIds, $assignedTeacherIds) {
+                $staff->where('users.role', 'Админ')
+                    ->orWhere(function ($teachers) use ($activeTeacherIds, $assignedTeacherIds) {
+                        $teachers->whereIn('users.role', ['Преподаватель', 'Старший преподаватель'])
+                            ->where(function ($activity) use ($activeTeacherIds, $assignedTeacherIds) {
+                                $activity->whereIn('users.id', $activeTeacherIds);
+                                if (!empty($assignedTeacherIds)) {
+                                    $activity->orWhereNotIn('users.id', $assignedTeacherIds);
+                                }
+                            });
+                    });
+            })
             ->select('users.*');
         if ($teacherIds !== null) {
             $teachers = $teachers->whereIn('id', $teacherIds);

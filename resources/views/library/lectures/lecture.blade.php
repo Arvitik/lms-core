@@ -1,6 +1,6 @@
 @extends('templates.base')
 @section('head')
-    <title>Лекция {{$number}}</title>
+    <title>Лекция {{$lecture->lecture_number}}</title>
 
     <!-- BEGIN META -->
     <meta charset="utf-8">
@@ -47,6 +47,12 @@
                 <article style="margin-left:10%; margin-right:10%; text-align: justify">
 
                     {!! $lecture->lecture_text !!}
+
+                    <hr>
+                    <p class="text-muted">
+                        Текст обновлён:
+                        {{ $lecture->text_updated_at ? \Carbon\Carbon::parse($lecture->text_updated_at)->format('d.m.Y H:i') : 'дата не зафиксирована' }}
+                    </p>
 
                 </article>
             </div>

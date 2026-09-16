@@ -7,7 +7,7 @@
 {!! HTML::style('css/full.css') !!}
 <style>
 .form-card {
-    max-width: 560px;
+    max-width: 900px;
     margin: 30px auto;
     background: #fff;
     border-radius: 8px;
@@ -26,7 +26,7 @@
     display: flex; align-items: center; gap: 6px;
     font-size: 14px; font-weight: 500; cursor: pointer;
 }
-.form-actions { margin-top: 24px; display: flex; gap: 10px; }
+.form-actions { margin-top: 24px; display: flex; gap: 10px; flex-wrap: wrap; }
 .time-preview {
     display: inline-block;
     margin-top: 6px;
@@ -220,10 +220,22 @@
             @endif
 
             <div class="form-actions">
+                @if(isset($entry) && $entry->series_id)
+                <button type="submit" name="update_scope" value="current" class="btn btn-primary">
+                    <span class="glyphicon glyphicon-ok"></span> Сохранить текущее занятие
+                </button>
+                <button type="submit" name="update_scope" value="future" class="btn btn-info">
+                    Сохранить текущее и последующие
+                </button>
+                <button type="submit" name="update_scope" value="series" class="btn btn-warning">
+                    Сохранить всю серию
+                </button>
+                @else
                 <button type="submit" class="btn btn-primary">
                     <span class="glyphicon glyphicon-ok"></span>
-                    {{ isset($entry) ? 'Сохранить изменения' : 'Добавить' }}
+                    {{ isset($entry) ? 'Сохранить занятие' : 'Добавить' }}
                 </button>
+                @endif
                 <a href="{{ route('schedule_board.index') }}" class="btn btn-default">Отмена</a>
             </div>
         </form>

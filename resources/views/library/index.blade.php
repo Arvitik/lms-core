@@ -75,7 +75,7 @@
 
                 <div class="btn-group">
                     <button type="button" class="btn ink-reaction btn-flat">
-                        {!! HTML::link('library/educationalMaterials', 'Научные материалы') !!}
+                        {!! HTML::link('library/educationalMaterials', 'Подготовка к контрольным') !!}
                     </button>
                 </div>
                 <a>&nbsp;&nbsp;&nbsp;</a>
@@ -151,6 +151,11 @@
                                             {!! HTML::linkRoute('lecture', 'Лекция '.$lecture->lecture_number.': '.$lecture->lecture_name, array('index' => $lecture->lecture_number)) !!}
                                         @endif
                                 </h4></th>
+                            <td style="min-width: 190px">
+                                <small>Текст: {{ $lecture->text_updated_at ? \Carbon\Carbon::parse($lecture->text_updated_at)->format('d.m.Y H:i') : '—' }}</small><br>
+                                <small>DOC: {{ $lecture->doc_updated_at ? \Carbon\Carbon::parse($lecture->doc_updated_at)->format('d.m.Y H:i') : '—' }}</small><br>
+                                <small>Презентация: {{ $lecture->ppt_updated_at ? \Carbon\Carbon::parse($lecture->ppt_updated_at)->format('d.m.Y H:i') : '—' }}</small>
+                            </td>
                             <td>
                                 @if ($lecture->ppt_path == null)
                                 {!! HTML::link("library/persons/".$lecture->id_lecture."/downloadPpt", 'скачать ppt', array('class' => 'btn btn-warning', 'disabled')) !!}
@@ -199,6 +204,11 @@
                                                         {!! HTML::linkRoute('lecture', 'Лекция '.$lecture->lecture_number.': '.$lecture->lecture_name, array('index' => $lecture->lecture_number)) !!}
                                                 @endif
                                             </h4></th>
+                                        <td style="min-width: 190px">
+                                            <small>Текст: {{ $lecture->text_updated_at ? \Carbon\Carbon::parse($lecture->text_updated_at)->format('d.m.Y H:i') : '—' }}</small><br>
+                                            <small>DOC: {{ $lecture->doc_updated_at ? \Carbon\Carbon::parse($lecture->doc_updated_at)->format('d.m.Y H:i') : '—' }}</small><br>
+                                            <small>Презентация: {{ $lecture->ppt_updated_at ? \Carbon\Carbon::parse($lecture->ppt_updated_at)->format('d.m.Y H:i') : '—' }}</small>
+                                        </td>
                                         <td>
                                             @if ($lecture->ppt_path == null)
                                                 {!! HTML::link("library/persons/".$lecture->id_lecture."/downloadPpt", 'скачать ppt', array('class' => 'btn btn-warning', 'disabled')) !!}
@@ -245,6 +255,11 @@
                                                         {!! HTML::linkRoute('lecture', 'Лекция '.$lecture->lecture_number.': '.$lecture->lecture_name, array('index' => $lecture->lecture_number)) !!}
                                                 @endif
                                             </h4></th>
+                                        <td style="min-width: 190px">
+                                            <small>Текст: {{ $lecture->text_updated_at ? \Carbon\Carbon::parse($lecture->text_updated_at)->format('d.m.Y H:i') : '—' }}</small><br>
+                                            <small>DOC: {{ $lecture->doc_updated_at ? \Carbon\Carbon::parse($lecture->doc_updated_at)->format('d.m.Y H:i') : '—' }}</small><br>
+                                            <small>Презентация: {{ $lecture->ppt_updated_at ? \Carbon\Carbon::parse($lecture->ppt_updated_at)->format('d.m.Y H:i') : '—' }}</small>
+                                        </td>
                                         <td>
                                             @if ($lecture->ppt_path == null)
                                                 {!! HTML::link("library/persons/".$lecture->id_lecture."/downloadPpt", 'скачать ppt', array('class' => 'btn btn-warning', 'disabled')) !!}
@@ -290,6 +305,11 @@
                                                         {!! HTML::linkRoute('lecture', 'Лекция '.$lecture->lecture_number.': '.$lecture->lecture_name, array('index' => $lecture->lecture_number)) !!}
                                                 @endif
                                             </h4></th>
+                                        <td style="min-width: 190px">
+                                            <small>Текст: {{ $lecture->text_updated_at ? \Carbon\Carbon::parse($lecture->text_updated_at)->format('d.m.Y H:i') : '—' }}</small><br>
+                                            <small>DOC: {{ $lecture->doc_updated_at ? \Carbon\Carbon::parse($lecture->doc_updated_at)->format('d.m.Y H:i') : '—' }}</small><br>
+                                            <small>Презентация: {{ $lecture->ppt_updated_at ? \Carbon\Carbon::parse($lecture->ppt_updated_at)->format('d.m.Y H:i') : '—' }}</small>
+                                        </td>
                                         <td>
                                             @if ($lecture->ppt_path == null)
                                                 {!! HTML::link("library/persons/".$lecture->id_lecture."/downloadPpt", 'скачать ppt', array('class' => 'btn btn-warning', 'disabled')) !!}

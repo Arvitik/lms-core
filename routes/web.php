@@ -154,9 +154,9 @@ Route::get('library', ['as' => 'library_index', 'uses' => 'LibraryController@ind
 //создание новой лекции
 Route::get('library/lecture/create', ['as' => 'lecture_create', 'uses' => 'LibraryController@addNewLecture', 'middleware' => ['general_auth', 'access_for_library', 'admin']]);
 //сохранение и валидация данных о новой лекции
-Route::post('library/lecture/store', ['as' => 'lecture_store', 'uses' => 'LibraryController@storeLecture']);
+Route::post('library/lecture/store', ['as' => 'lecture_store', 'uses' => 'LibraryController@storeLecture', 'middleware' => ['general_auth', 'admin']]);
 // обновление данных о лекции
-Route::patch('library/lecture/{id}', ['as' => 'lecture_update', 'uses' => 'LibraryController@updateLecture']);
+Route::patch('library/lecture/{id}', ['as' => 'lecture_update', 'uses' => 'LibraryController@updateLecture', 'middleware' => ['general_auth', 'admin']]);
 // редактирование лекции
 Route::get('library/lecture/{id}/edit', ['as' => 'lecture_edit', 'uses' => 'LibraryController@editLecture', 'middleware' => ['general_auth', 'admin']]);
 // Удаление лекции
@@ -220,9 +220,9 @@ Route::get('library/educationalMaterials', ['as' => 'educational_materials', 'us
 //добавление учебного материала
 Route::get('library/educationalMaterials/create', ['as' => 'educational_materials_create', 'uses' => 'LibraryController@addEducationalMaterial', 'middleware' => ['general_auth', 'admin']]);
 //сохранение и валидация данных о новой лекции
-Route::post('library/educationalMaterials/store', ['as' => 'educational_materials_store', 'uses' => 'LibraryController@storeEducationalMaterial']);
+Route::post('library/educationalMaterials/store', ['as' => 'educational_materials_store', 'uses' => 'LibraryController@storeEducationalMaterial', 'middleware' => ['general_auth', 'admin']]);
 // обновление данных о научном материале
-Route::patch('library/educationalMaterials/{id}', ['as' => 'educationalMaterial_update', 'uses' => 'LibraryController@updateEducationalMaterial']);
+Route::patch('library/educationalMaterials/{id}', ['as' => 'educationalMaterial_update', 'uses' => 'LibraryController@updateEducationalMaterial', 'middleware' => ['general_auth', 'admin']]);
 // редактирование научных материалов
 Route::get('library/educationalMaterials/{id}/edit', ['as' => 'educationalMaterial_edit', 'uses' => 'LibraryController@editEducationalMaterial', 'middleware' => ['general_auth', 'admin']]);
 // Удаление научного материала

@@ -30,6 +30,7 @@ use App\Person;
 use App\Theorem;
 use App\Testing\Lecture;
 use App\User;
+use App\Services\PublicFileStorage;
 use Auth;
 use Illuminate\Http\Request;
 use  Symfony\Component\HttpFoundation\File\File;
@@ -78,7 +79,7 @@ class LibraryController extends Controller {
     public function lecture($index, $anchor = null){
         $role = User::whereId(Auth::user()['id'])->select('role')->first()->role;
         $lecture = $this->lectureDao->getLecture($index);
-        return view('library.lectures.lecture'.$anchor, compact('lecture', 'role'));
+        return view('library.lectures.lecture', compact('lecture', 'role', 'anchor'));
     }
 
     public function persons(){
@@ -248,7 +249,11 @@ class LibraryController extends Controller {
 
     public function docDownload($id) {
         $lecture = Lecture::findOrFail($id);
-        $file = new File($lecture->doc_path);
+        $path = PublicFileStorage::absolutePath($lecture->doc_path);
+        if (!is_file($path)) {
+            abort(404);
+        }
+        $file = new File($path);
         $mimetypes = new MimeType;
         $returnName = 'TA_lec'.$lecture->lecture_number;
         switch ($mimetypes->guess($file->getMimeType())) {
@@ -259,12 +264,16 @@ class LibraryController extends Controller {
                 $returnName = $returnName.".docx";
                 break;
         }
-        return response()->download($lecture->doc_path, $returnName);
+        return response()->download($path, $returnName);
     }
 
     public function pptDownload($id) {
         $lecture = Lecture::findOrFail($id);
-        $file = new File($lecture->ppt_path);
+        $path = PublicFileStorage::absolutePath($lecture->ppt_path);
+        if (!is_file($path)) {
+            abort(404);
+        }
+        $file = new File($path);
         $mimetypes = new MimeType;
         $returnName = 'TA_lec'.$lecture->lecture_number;
         switch ($mimetypes->guess($file->getMimeType())) {
@@ -275,7 +284,7 @@ class LibraryController extends Controller {
                 $returnName = $returnName.".pptx";
                 break;
         }
-        return response()->download($lecture->ppt_path, $returnName);
+        return response()->download($path, $returnName);
     }
 
     public function educationalMaterials() {
@@ -299,7 +308,11 @@ class LibraryController extends Controller {
     public function educationalMaterialsDownload($id){
         $educationalMaterial = $this->educationalMaterialDao->getEducationalMaterial($id);
         $returnName = str_replace(' ', '_', $educationalMaterial->name);
-        $file = new File($educationalMaterial->file_path);
+        $path = PublicFileStorage::absolutePath($educationalMaterial->file_path);
+        if (!is_file($path)) {
+            abort(404);
+        }
+        $file = new File($path);
         $mimetypes = new MimeType;
         switch ($mimetypes->guess($file->getMimeType())) {
             case "doc":
@@ -312,7 +325,7 @@ class LibraryController extends Controller {
                 $returnName = $returnName.".pdf";
                 break;
         }
-        return response()->download($educationalMaterial->file_path, $returnName);
+        return response()->download($path, $returnName);
     }
 
 
@@ -331,7 +344,7 @@ class LibraryController extends Controller {
 
     public function deleteEducationalMaterial($id){
         $resultAction = $this->educationalMaterialDao->deleteEducationalMaterial($id);
-        return  json_encode(array("msg" => $resultAction, "id" => $id));
+        return response()->json(array("msg" => $resultAction, "id" => $id));
     }
 
     public function ebooks() {

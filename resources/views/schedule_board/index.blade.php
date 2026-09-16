@@ -10,6 +10,10 @@
 .board-wrap {
     padding: 20px 10px;
 }
+.board-wrap.container-fluid {
+    width: 100%;
+    max-width: none;
+}
 .board-toolbar {
     display: flex;
     align-items: center;
@@ -35,7 +39,8 @@
 }
 .board-table {
     border-collapse: collapse;
-    min-width: 700px;
+    table-layout: fixed;
+    min-width: 980px;
     width: 100%;
     background: #fff;
     box-shadow: 0 1px 6px rgba(0,0,0,.09);
@@ -53,7 +58,7 @@
 }
 .board-table th.col-teacher {
     text-align: left;
-    min-width: 160px;
+    width: 170px;
     background: #0D47A1;
 }
 .board-table td {
@@ -72,23 +77,18 @@
     background: #e8edf5;
 }
 .board-table td.board-cell {
-    min-width: 110px;
     cursor: pointer;
     transition: background .15s;
 }
 .board-table td.board-cell:hover {
     background: #e3f2fd;
 }
-.board-table td.board-cell.today {
-    background: #fffde7;
-}
-.board-table td.board-cell.today:hover {
-    background: #fff9c4;
-}
-
 /* ===== Бейджи в ячейках ===== */
 .entry-badge {
-    display: inline-block;
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    overflow: hidden;
     border-radius: 4px;
     padding: 2px 7px;
     font-size: 11px;
@@ -122,6 +122,11 @@
     font-weight: 400;
     color: #777;
     margin-top: 1px;
+}
+.entry-groups {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 /* ===== Пустая ячейка ===== */
@@ -239,9 +244,8 @@
                     @php
                         $ds       = $day->format('Y-m-d');
                         $cellEntries = $entryMap[$teacher->id][$ds] ?? [];
-                        $isToday  = $day->isToday();
                     @endphp
-                    <td class="board-cell {{ $isToday ? 'today' : '' }}"
+                    <td class="board-cell"
                         data-teacher="{{ $teacher->id }}"
                         data-date="{{ $ds }}"
                         title="{{ $teacher->last_name }}, {{ $day->format('d.m.Y') }}">
@@ -262,7 +266,13 @@
                                 @if($e->all_groups)
                                 <span class="entry-time">Все группы</span>
                                 @elseif($e->groups->isNotEmpty())
-                                <span class="entry-time">{{ $e->groups->pluck('group_name')->implode(', ') }}</span>
+                                @php
+                                    $entryGroupNames = $e->groups->pluck('group_name');
+                                    $visibleGroupNames = $entryGroupNames->take(2)->implode(', ');
+                                @endphp
+                                <span class="entry-time entry-groups" title="{{ $entryGroupNames->implode(', ') }}">
+                                    {{ $visibleGroupNames }}{{ $entryGroupNames->count() > 2 ? ', …' : '' }}
+                                </span>
                                 @endif
                             </div>
                             @endforeach
@@ -289,7 +299,6 @@
         <span><span class="entry-badge sem">С Г208</span> — Семинар</span>
         <span><span class="entry-badge zac">З Б305</span> — Зачет</span>
         <span><span class="entry-badge kr">КР А101</span> — Контрольная работа</span>
-        <span style="color:#bbb;">Ячейки с жёлтым фоном — сегодня</span>
     </div>
 </div>
 

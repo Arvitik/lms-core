@@ -12,7 +12,7 @@
 
     <title>Algorithms theory LMS</title>
     <meta name="csrf_token" content="{{ csrf_token() }}" />
-    {!! NoCaptcha::renderJs() !!}
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
     <!-- Yandex.Metrika counter --> <script type="text/javascript"> (function (d, w, c) { (w[c] = w[c] || []).push(function() { try { w.yaCounter41063559 = new Ya.Metrika({ id:41063559, clickmap:true, trackLinks:true, accurateTrackBounce:true, webvisor:true, trackHash:true }); } catch(e) { } }); var n = d.getElementsByTagName("script")[0], s = d.createElement("script"), f = function () { n.parentNode.insertBefore(s, n); }; s.type = "text/javascript"; s.async = true; s.src = "https://mc.yandex.ru/metrika/watch.js"; if (w.opera == "[object Opera]") { d.addEventListener("DOMContentLoaded", f, false); } else { f(); } })(document, window, "yandex_metrika_callbacks"); </script> <noscript><div><img src="https://mc.yandex.ru/watch/41063559" style="position:absolute; left:-9999px;" alt="" /></div></noscript> <!-- /Yandex.Metrika counter -->
 </head>
 <body class="full2">
@@ -108,7 +108,7 @@
                                     <div class="help-block with-errors"></div>
                                 </div>
                                 <div class="form-group">
-                                    {!! NoCaptcha::display() !!}
+                                    <div class="g-recaptcha" data-sitekey="{{ config('recaptcha.site_key') }}"></div>
                                     @if ($errors->has('g-recaptcha-response'))
                                         <span class="text-danger">{{ $errors->first('g-recaptcha-response') }}</span>
                                     @endif

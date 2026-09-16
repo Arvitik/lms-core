@@ -1,6 +1,6 @@
 @extends('templates.base')
 @section('head')
-<title>Научные материалы</title>
+<title>Подготовка к контрольным</title>
 <!-- BEGIN META -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -28,7 +28,7 @@
                     <ol class="breadcrumb">
                         <li>{!! HTML::linkRoute('home', 'Главная') !!}</li>
                         <li>{!! HTML::linkRoute('library_index', 'Библиотека') !!}</li>
-                        <li class="active">Научные материалы</li>
+                        <li class="active">Подготовка к контрольным</li>
                     </ol>
                 </div>
             </section><!--end .section-header -->
@@ -58,6 +58,10 @@
                                 <td>
                                         {!! HTML::link("library/educationalMaterials/".$educationalMaterial->id."/download", 'скачать материал', array('class' => 'btn btn-warning')) !!}
 
+                                </td>
+                                <td style="min-width: 180px">
+                                    Актуализировано:<br>
+                                    {{ $educationalMaterial->updated_at ? \Carbon\Carbon::parse($educationalMaterial->updated_at)->format('d.m.Y H:i') : 'дата не зафиксирована' }}
                                 </td>
                                 @if ($role == 'Админ')
                                     <td>

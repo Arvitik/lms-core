@@ -248,39 +248,80 @@ class ScheduleBoardController extends Controller
         $timeEnd   = $this->calcTimeEnd($request);
         $krTitle   = $request->entry_type === 'КР' ? trim($request->kr_title) : $entry->title;
 
-        $entry->update([
-            'teacher_id'  => $teacherId, 'group_id' => null,
-            'entry_date'  => $request->entry_date,
-            'time_start'  => $request->time_start,
-            'time_end'    => $timeEnd,
-            'entry_type'  => $request->entry_type,
-            'room'        => $request->room,
-            'title'       => $krTitle, 'description' => null,
-            'all_groups'  => $allGroups,
-        ]);
-        $entry->groups()->sync($groupIds);
+        $scope = $entry->series_id ? $request->input('update_scope', 'current') : 'current';
+        $originalDate = Carbon::parse($entry->entry_date)->startOfDay();
+        $requestedDate = Carbon::parse($request->entry_date)->startOfDay();
+        $dateShift = $originalDate->diffInDays($requestedDate, false);
 
-        // Синхронизация с ExamSchedule если это КР
-        if ($entry->exam_schedule_id) {
-            $examSchedule = ExamSchedule::find($entry->exam_schedule_id);
-            if ($examSchedule) {
-                $examSchedule->update([
-                    'teacher_id'     => $teacherId,
-                    'title'          => $krTitle,
-                    'scheduled_date' => $request->entry_date,
-                    'time_start'     => $request->time_start,
-                    'time_end'       => $timeEnd,
-                    'room'           => $request->room,
-                ]);
-                $examSchedule->groups()->sync($groupIds);
-            }
+        $targets = collect([$entry]);
+        if ($scope === 'future') {
+            $targets = ScheduleBoardEntry::where('series_id', $entry->series_id)
+                ->where('entry_date', '>=', $originalDate->toDateString())
+                ->orderBy('entry_date')
+                ->get();
+        } elseif ($scope === 'series') {
+            $targets = ScheduleBoardEntry::where('series_id', $entry->series_id)
+                ->orderBy('entry_date')
+                ->get();
         }
+
+        if ($user->role !== 'Админ' && $targets->first(function ($target) use ($user) {
+            return $target->teacher_id !== $user->id;
+        })) {
+            abort(403);
+        }
+
+        DB::transaction(function () use (
+            $targets, $teacherId, $request, $timeEnd, $krTitle,
+            $allGroups, $groupIds, $dateShift
+        ) {
+            foreach ($targets as $target) {
+                $targetDate = Carbon::parse($target->entry_date)
+                    ->addDays($dateShift)
+                    ->toDateString();
+
+                $target->update([
+                    'teacher_id'  => $teacherId,
+                    'group_id'    => null,
+                    'entry_date'  => $targetDate,
+                    'time_start'  => $request->time_start,
+                    'time_end'    => $timeEnd,
+                    'entry_type'  => $request->entry_type,
+                    'room'        => $request->room,
+                    'title'       => $krTitle,
+                    'description' => null,
+                    'all_groups'  => $allGroups,
+                ]);
+                $target->groups()->sync($groupIds);
+
+                if ($target->exam_schedule_id) {
+                    $examSchedule = ExamSchedule::find($target->exam_schedule_id);
+                    if ($examSchedule) {
+                        $examSchedule->update([
+                            'teacher_id'     => $teacherId,
+                            'title'          => $krTitle,
+                            'scheduled_date' => $targetDate,
+                            'time_start'     => $request->time_start,
+                            'time_end'       => $timeEnd,
+                            'room'           => $request->room,
+                        ]);
+                        $examSchedule->groups()->sync($groupIds);
+                    }
+                }
+            }
+        });
 
         $week = Carbon::parse($request->entry_date)
             ->startOfWeek(Carbon::MONDAY)->toDateString();
 
+        $messages = [
+            'current' => 'Занятие обновлено.',
+            'future'  => 'Текущее и последующие занятия серии обновлены.',
+            'series'  => 'Вся серия занятий обновлена.',
+        ];
+
         return redirect()->route('schedule_board.index', ['week' => $week])
-            ->with('success', 'Запись обновлена.');
+            ->with('success', $messages[$scope]);
     }
 
     /**
@@ -506,6 +547,7 @@ class ScheduleBoardController extends Controller
             'entry_type'      => 'required|in:Лекция,Семинар,Зачет,КР',
             'room'            => 'required|string|max:100',
             'recurring_until' => 'nullable|date|after_or_equal:entry_date',
+            'update_scope'    => 'nullable|in:current,future,series',
         ];
         if ($request->entry_type === 'Зачет' || $request->entry_type === 'КР') {
             $rules['time_end'] = 'required';

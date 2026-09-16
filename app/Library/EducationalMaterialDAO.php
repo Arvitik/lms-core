@@ -1,106 +1,76 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: ishun
- * Date: 22.01.2019
- * Time: 16:28
- */
 
 namespace App\Library;
 
-
-
 use App\EducationalMaterial;
-use Illuminate\Filesystem\Filesystem;
 use App\Http\Requests\AddEducationMaterialRequest;
 use App\Http\Requests\EditEducationMaterialRequest;
-use Symfony\Component\HttpFoundation\File\MimeType\MimeTypeExtensionGuesser as MimeType;
+use App\Services\PublicFileStorage;
+use Carbon\Carbon;
 
-class EducationalMaterialDAO {
-
-    public function allEducationalMaterial(){
-        return EducationalMaterial::all();
+class EducationalMaterialDAO
+{
+    public function allEducationalMaterial()
+    {
+        return EducationalMaterial::where('archived', 0)->orderBy('name')->get();
     }
 
-    public function getEducationalMaterial($id){
-        return EducationalMaterial::where('id',$id)->first();
+    public function getEducationalMaterial($id)
+    {
+        return EducationalMaterial::findOrFail($id);
     }
 
-    public function storeEducationalMaterial(AddEducationMaterialRequest $request){
-        if ($request->hasFile('education_material_file')){
-            if ($request->file('education_material_file')->isValid()){
-                $mimetypes = new MimeType;
-                $rundomNumber = mt_rand(0, 10000);
-                switch ($mimetypes->guess($request->file('education_material_file')->getMimeType())) {
-                    case "doc":
-                        $name = $rundomNumber . "EducationMaterial".".doc";
-                        break;
-                    case "docx":
-                        $name = $rundomNumber . "EducationMaterial".".docx";
-                        break;
-                    case "pdf":
-                        $name = $rundomNumber . "EducationMaterial".".pdf";
-                        break;
-                }
-                if (!copy($_FILES['education_material_file']['tmp_name'], 'download/educational_material/' . $name)){
-                    return 'Ошибка при копировании файла';
-                }else{
-                    $educationalMaterial = new EducationalMaterial();
-                    $educationalMaterial->file_path = 'download/educational_material/' . $name;
-                    $educationalMaterial->name = $request->name;
-                    $educationalMaterial->save();
-                }
-            }else{
-                return 'Ошибка при загрузки файла';
-            }
+    public function storeEducationalMaterial(AddEducationMaterialRequest $request)
+    {
+        if (!$request->hasFile('education_material_file') || !$request->file('education_material_file')->isValid()) {
+            return 'Ошибка при загрузке файла';
         }
+
+        $material = new EducationalMaterial();
+        $material->file_path = PublicFileStorage::store(
+            $request->file('education_material_file'),
+            'download/educational_material',
+            'material'
+        );
+        $material->name = $request->name;
+        $material->updated_at = Carbon::now();
+        $material->save();
+
         return 'ok';
     }
 
-    public function updateEducationalMaterial(EditEducationMaterialRequest $request, $id){
-        $educationalMaterial = EducationalMaterial::findOrFail($id);
-        $educationalMaterial->name = $request->name;
-        if ($request->hasFile('education_material_file')){
-            if ($request->file('education_material_file')->isValid()){
-                $mimetypes = new MimeType;
-                $rundomNumber = mt_rand(0, 10000);
-                switch ($mimetypes->guess($request->file('education_material_file')->getMimeType())) {
-                    case "doc":
-                        $name = $rundomNumber . "EducationMaterial".".doc";
-                        break;
-                    case "docx":
-                        $name = $rundomNumber . "EducationMaterial".".docx";
-                        break;
-                    case "pdf":
-                        $name = $rundomNumber . "EducationMaterial".".pdf";
-                        break;
-                }
-                if (!copy($_FILES['education_material_file']['tmp_name'], 'download/educational_material/' . $name)){
-                    return 'Ошибка при копировании файла';
-                }
-                if ($educationalMaterial->file_path != null && file_exists(public_path($educationalMaterial->file_path))) {
-                    if (!app(Filesystem::class)->delete(public_path($educationalMaterial->file_path))) {
-                        return 'Ошибка удаления файла';
-                    }
-                }
-                    $educationalMaterial->file_path = 'download/educational_material/' . $name;
+    public function updateEducationalMaterial(EditEducationMaterialRequest $request, $id)
+    {
+        $material = EducationalMaterial::findOrFail($id);
+        $material->name = $request->name;
 
-            }else{
+        if ($request->hasFile('education_material_file')) {
+            if (!$request->file('education_material_file')->isValid()) {
                 return 'Ошибка при загрузке файла';
             }
+            $oldPath = $material->file_path;
+            $material->file_path = PublicFileStorage::store(
+                $request->file('education_material_file'),
+                'download/educational_material',
+                'material'
+            );
+            PublicFileStorage::delete($oldPath);
         }
-        $educationalMaterial->save();
+
+        $material->updated_at = Carbon::now();
+        $material->save();
+
         return 'ok';
     }
 
-    public function deleteEducationalMaterial($id){
-        $educationalMaterial = EducationalMaterial::findOrFail($id);
-        if (file_exists(public_path($educationalMaterial->file_path))) {
-            if (!app(Filesystem::class)->delete(public_path($educationalMaterial->file_path))) {
-                return "Ошибка при удалении файла";
-            }
-        }
-        $educationalMaterial->delete();
-        return "ok";
+    public function deleteEducationalMaterial($id)
+    {
+        $material = EducationalMaterial::findOrFail($id);
+        // Старые файлы могут находиться в подключенном read-only архиве.
+        // Это не должно мешать удалить сам материал из базы.
+        PublicFileStorage::delete($material->file_path);
+        $material->delete();
+
+        return 'ok';
     }
 }

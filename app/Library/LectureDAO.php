@@ -1,168 +1,124 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: ishun
- * Date: 22.01.2019
- * Time: 16:28
- */
 
 namespace App\Library;
-
 
 use App\Definition;
 use App\Http\Requests\AddLectureRequest;
 use App\Http\Requests\UpdateLectureRequest;
+use App\Services\PublicFileStorage;
 use App\Testing\Lecture;
 use App\Testing\Theme;
 use App\Theorem;
+use Carbon\Carbon;
 use DateTime;
-use Illuminate\Filesystem\Filesystem;
-use Symfony\Component\HttpFoundation\File\MimeType\MimeTypeExtensionGuesser as MimeType;
-class LectureDAO {
 
-    public function allLecture(){
+class LectureDAO
+{
+    public function allLecture()
+    {
         return Lecture::all();
     }
 
-    public function getLecture($index){
-        return Lecture::where('lecture_number',$index)->first();
+    public function getLecture($index)
+    {
+        return Lecture::where('lecture_number', $index)->firstOrFail();
     }
 
-    public function storeLecture(AddLectureRequest $request){
-        $lecture = new Lecture;
-        $rundomNumber = mt_rand(0, 10000);
+    public function storeLecture(AddLectureRequest $request)
+    {
+        $lecture = new Lecture();
+
         if ($request->hasFile('doc_file')) {
-            if ($request->file('doc_file')->isValid()) {
-                $mimetypes = new MimeType;
-                $nameDocFile = "TA_lec".$rundomNumber;
-                switch ($mimetypes->guess($request->file('doc_file')->getMimeType())) {
-                    case "doc":
-                        $nameDocFile = $nameDocFile.".doc";
-                        break;
-                    case "docx":
-                        $nameDocFile = $nameDocFile.".docx";
-                        break;
-                }
-                $lecture->doc_path = 'download/doc/' . $nameDocFile;
-                if (!copy($_FILES['doc_file']['tmp_name'], 'download/doc/' . $nameDocFile)){
-                    return 'Ошибка при копировании doc файла';
-                }
-            } else {
-                return 'Ошибка при загрузки doc файла';
+            if (!$request->file('doc_file')->isValid()) {
+                return 'Ошибка при загрузке DOC-файла';
             }
+            $lecture->doc_path = PublicFileStorage::store($request->file('doc_file'), 'download/doc', 'TA_lec');
+            $lecture->doc_updated_at = Carbon::now();
         }
+
         if ($request->hasFile('ppt_file')) {
-            if ($request->file('ppt_file')->isValid()) {
-                $mimetypes = new MimeType;
-                $namePptFile = "TA_lec".$rundomNumber;
-                switch ($mimetypes->guess($request->file('ppt_file')->getMimeType())) {
-                    case "ppt":
-                        $namePptFile = $namePptFile.".ppt";
-                        break;
-                    case "pptx":
-                        $namePptFile = $namePptFile.".pptx";
-                        break;
-                }
-                $lecture->ppt_path = 'download/ppt/' . $namePptFile;
-                if (!copy($_FILES['ppt_file']['tmp_name'], 'download/ppt/' . $namePptFile)){
-                    return 'Ошибка при копировании ppt файла';
-                }
-            } else {
-                return 'Ошибка при загрузки ppt файла';
+            if (!$request->file('ppt_file')->isValid()) {
+                return 'Ошибка при загрузке презентации';
             }
+            $lecture->ppt_path = PublicFileStorage::store($request->file('ppt_file'), 'download/ppt', 'TA_lec');
+            $lecture->ppt_updated_at = Carbon::now();
         }
+
         $lecture->lecture_name = $request->lecture_name;
         $lecture->lecture_text = $request->lecture_text;
+        if (trim((string) $request->lecture_text) !== '') {
+            $lecture->text_updated_at = Carbon::now();
+        }
         $lecture->id_section = $request->id_section;
 
-        $currentNumber = Lecture::where('id_section','<=',$lecture->id_section)->count();
-
+        $currentNumber = Lecture::where('id_section', '<=', $lecture->id_section)->count();
         Lecture::where('lecture_number', '>', $currentNumber)->increment('lecture_number');
 
         $lecture->lecture_number = $currentNumber + 1;
         $lecture->date = new DateTime();
         $lecture->save();
+
         return 'ok';
     }
 
-    public function updateLecture(UpdateLectureRequest $request, $id){
+    public function updateLecture(UpdateLectureRequest $request, $id)
+    {
         $lecture = Lecture::findOrFail($id);
         $lecture->lecture_name = $request->lecture_name;
-        $lecture->lecture_text = $request->lecture_text;
-        $rundomNumber = mt_rand(0, 10000);
+
+        if ($lecture->lecture_text !== $request->lecture_text) {
+            $lecture->lecture_text = $request->lecture_text;
+            $lecture->text_updated_at = Carbon::now();
+        }
+
         if ($request->hasFile('doc_file')) {
-            if ($request->file('doc_file')->isValid()) {
-                $mimetypes = new MimeType;
-                $nameDocFile = "TA_lec".$rundomNumber;
-                switch ($mimetypes->guess($request->file('doc_file')->getMimeType())) {
-                    case "doc":
-                        $nameDocFile = $nameDocFile.".doc";
-                        break;
-                    case "docx":
-                        $nameDocFile = $nameDocFile.".docx";
-                        break;
-                }
-                if (!copy($_FILES['doc_file']['tmp_name'], 'download/doc/' . $nameDocFile)){
-                    return 'Ошибка при копировании doc файла';
-                }
-                if (file_exists(public_path($lecture->doc_path))) {
-                    app(Filesystem::class)->delete(public_path($lecture->doc_path));
-                }
-                $lecture->doc_path = 'download/doc/' . $nameDocFile;
-            } else {
-                return 'Ошибка при загрузки doc файла';
+            if (!$request->file('doc_file')->isValid()) {
+                return 'Ошибка при загрузке DOC-файла';
             }
+            $oldPath = $lecture->doc_path;
+            $lecture->doc_path = PublicFileStorage::store($request->file('doc_file'), 'download/doc', 'TA_lec');
+            PublicFileStorage::delete($oldPath);
+            $lecture->doc_updated_at = Carbon::now();
         }
+
         if ($request->hasFile('ppt_file')) {
-            if ($request->file('ppt_file')->isValid()) {
-                $mimetypes = new MimeType;
-                $namePptFile = "TA_lec".$rundomNumber;
-                switch ($mimetypes->guess($request->file('ppt_file')->getMimeType())) {
-                    case "ppt":
-                        $namePptFile = $namePptFile.".ppt";
-                        break;
-                    case "pptx":
-                        $namePptFile = $namePptFile.".pptx";
-                        break;
-                }
-                if (!copy($_FILES['ppt_file']['tmp_name'], 'download/ppt/' . $namePptFile)){
-                    return 'Ошибка при копировании ppt файла';
-                }
-                if (file_exists(public_path($lecture->ppt_path))) {
-                    app(Filesystem::class)->delete(public_path($lecture->ppt_path));
-                }
-                $lecture->ppt_path = 'download/ppt/' . $namePptFile;
-            } else {
-                return 'Ошибка при загрузки ppt файла';
+            if (!$request->file('ppt_file')->isValid()) {
+                return 'Ошибка при загрузке презентации';
             }
+            $oldPath = $lecture->ppt_path;
+            $lecture->ppt_path = PublicFileStorage::store($request->file('ppt_file'), 'download/ppt', 'TA_lec');
+            PublicFileStorage::delete($oldPath);
+            $lecture->ppt_updated_at = Carbon::now();
         }
-       $lecture->save();
+
+        $lecture->save();
+
         return 'ok';
     }
 
-    public function deleteLecture($id){
+    public function deleteLecture($id)
+    {
         $lecture = Lecture::findOrFail($id);
-        if ($lecture->doc_path != null && file_exists(public_path($lecture->doc_path))) {
-           if (!app(Filesystem::class)->delete(public_path($lecture->doc_path))) {
-               return 'Ошибка удаления doc файла';
-           }
+
+        if (!PublicFileStorage::delete($lecture->doc_path)) {
+            return 'Ошибка удаления DOC-файла';
         }
-        if ($lecture->ppt_path != null && file_exists(public_path($lecture->ppt_path))) {
-            if (!app(Filesystem::class)->delete(public_path($lecture->ppt_path))) {
-                return 'Ошибка удаления ppt файла';
-            }
+        if (!PublicFileStorage::delete($lecture->ppt_path)) {
+            return 'Ошибка удаления презентации';
         }
 
-        Definition::where('id_lecture', '=', $id)->update(['id_lecture' => null,
-                                                                            'name_anchor' => null]);
-        Theorem::where('id_lecture', '=', $id)->update(['id_lecture' => null,
-                                                                            'name_anchor' => null]);
-
+        Definition::where('id_lecture', $id)->update([
+            'id_lecture' => null,
+            'name_anchor' => null,
+        ]);
+        Theorem::where('id_lecture', $id)->update([
+            'id_lecture' => null,
+            'name_anchor' => null,
+        ]);
+        Theme::where('id_lecture', $id)->update(['id_lecture' => null]);
         Lecture::where('lecture_number', '>', $lecture->lecture_number)->decrement('lecture_number');
-
-        // Удаление тем из таблицы themes по id лекции
-        Theme::where('id_lecture', '=', $id)->update(['id_lecture' => null]);
         $lecture->delete();
+
         return 'ok';
     }
 }

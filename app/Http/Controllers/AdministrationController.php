@@ -11,6 +11,7 @@ use App\Testing\TestForGroup;
 use App\TeacherHasGroup;
 use App\News;
 use App\User;
+use App\Services\PublicFileStorage;
 use Auth;
 use Illuminate\Http\Request;
 use Validator;
@@ -66,6 +67,24 @@ class AdministrationController extends Controller{
             });
         } elseif ($role !== null && $role !== '' && $role !== 'all') {
             $query->where('users.role', $role);
+
+            if (in_array($role, ['Преподаватель', 'Старший преподаватель'], true)) {
+                $activeTeacherIds = TeacherHasGroup::join('groups as teaching_groups', 'teaching_groups.group_id', '=', 'teacher_has_group.group')
+                    ->where('teaching_groups.archived', 0)
+                    ->where('teaching_groups.group_name', '!=', 'Админы')
+                    ->pluck('teacher_has_group.user_id')
+                    ->unique()
+                    ->values()
+                    ->all();
+                $assignedTeacherIds = TeacherHasGroup::pluck('user_id')->unique()->values()->all();
+
+                $query->where(function ($teachers) use ($activeTeacherIds, $assignedTeacherIds) {
+                    $teachers->whereIn('users.id', $activeTeacherIds);
+                    if (!empty($assignedTeacherIds)) {
+                        $teachers->orWhereNotIn('users.id', $assignedTeacherIds);
+                    }
+                });
+            }
         }
 
         if (request('email') !== null && request('email') !== '') {
@@ -215,9 +234,7 @@ class AdministrationController extends Controller{
         if ($request->hasFile('file')) {
             if ($request->file('file')->isValid()) {
                 $file = $request->file('file');
-                $filename = mt_rand(0, 10000). '_' . $file->getClientOriginalName();
-                $file->move($this::NEWS_FILE_DIR, $filename);
-                $news->file_path = $this::NEWS_FILE_DIR . $filename;
+                $news->file_path = PublicFileStorage::store($file, 'download/news', 'news');
             } else {
                 return back()->withInput()->withErrors(['Ошибка при загрузке файла']);
             }

@@ -26,7 +26,7 @@
                         <ol class="breadcrumb">
                             <li>{!! HTML::linkRoute('home', 'Главная') !!}</li>
                             <li>{!! HTML::linkRoute('library_index', 'Библиотека') !!}</li>
-                            <li>{!! HTML::linkRoute('educational_materials', 'Научные материалы') !!}</li>
+                            <li>{!! HTML::linkRoute('educational_materials', 'Подготовка к контрольным') !!}</li>
                             <li class="active">Редактирование нового материала</li>
                         </ol>
                     </div><!--end .section-header -->
